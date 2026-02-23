@@ -10,8 +10,21 @@ import { useEffect, useState } from "react";
 
 const API = "https://api.boreal.financial/bi";
 
-const getToken = () => localStorage.getItem("bi_token");
-const getRole = () => localStorage.getItem("bi_role");
+/* ================= AUTH HELPERS ================= */
+
+function getToken() {
+  return localStorage.getItem("bi_token");
+}
+
+function getUser() {
+  const raw = localStorage.getItem("bi_user");
+  return raw ? JSON.parse(raw) : null;
+}
+
+function decodeToken(token: string) {
+  const payload = token.split(".")[1];
+  return JSON.parse(atob(payload));
+}
 
 function Protected({ children }: any) {
   if (!getToken()) return <Navigate to="/login" />;
@@ -21,7 +34,7 @@ function Protected({ children }: any) {
 /* ================= NAV ================= */
 
 function Nav() {
-  const role = getRole();
+  const user = getUser();
   const navigate = useNavigate();
 
   return (
@@ -31,12 +44,14 @@ function Nav() {
         <Link to="/">Home</Link>
         <Link to="/apply">Apply</Link>
 
-        {role && <Link to="/dashboard">Dashboard</Link>}
-        {role === "admin" && <Link to="/reports">Reports</Link>}
+        {user && <Link to="/dashboard">Dashboard</Link>}
+        {user?.role === "admin" && (
+          <Link to="/reports">Reports</Link>
+        )}
 
-        {!role && <Link to="/login">Login</Link>}
+        {!user && <Link to="/login">Login</Link>}
 
-        {role && (
+        {user && (
           <button
             onClick={() => {
               localStorage.clear();
@@ -77,7 +92,8 @@ function Apply() {
   const calculate = () => {
     const loan = parseFloat(form.loanAmount || 0);
     const insured = Math.min(loan * 0.8, 1400000);
-    const rate = form.loanType === "Secured" ? 0.016 : 0.04;
+    const rate =
+      form.loanType === "Secured" ? 0.016 : 0.04;
     return {
       insured,
       premium: insured * rate
@@ -161,19 +177,30 @@ function Apply() {
 function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("referrer");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const login = async () => {
     const res = await fetch(`${API}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, role })
+      body: JSON.stringify({ email, password })
     });
 
     const data = await res.json();
 
+    if (!res.ok) {
+      setError(data.error || "Login failed");
+      return;
+    }
+
+    const decoded = decodeToken(data.token);
+
     localStorage.setItem("bi_token", data.token);
-    localStorage.setItem("bi_role", role);
+    localStorage.setItem(
+      "bi_user",
+      JSON.stringify(decoded)
+    );
 
     navigate("/dashboard");
   };
@@ -182,15 +209,16 @@ function Login() {
     <div className="container">
       <h1>Login</h1>
 
-      <select onChange={(e) => setRole(e.target.value)}>
-        <option value="referrer">Referrer</option>
-        <option value="lender">Lender</option>
-        <option value="admin">Admin</option>
-      </select>
+      {error && <div className="error">{error}</div>}
 
       <input
         placeholder="Email"
         onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        onChange={(e) => setPassword(e.target.value)}
       />
 
       <button onClick={login}>Login</button>
@@ -201,8 +229,8 @@ function Login() {
 /* ================= DASHBOARD ================= */
 
 function Dashboard() {
+  const user = getUser();
   const [policies, setPolicies] = useState<any[]>([]);
-  const role = getRole();
 
   useEffect(() => {
     fetch(`${API}/policies`, {
@@ -217,6 +245,7 @@ function Dashboard() {
   return (
     <div className="container">
       <h1>Dashboard</h1>
+      <p>Logged in as: {user?.role}</p>
 
       <table>
         <thead>
@@ -224,7 +253,9 @@ function Dashboard() {
             <th>Policy</th>
             <th>Premium</th>
             <th>Start</th>
-            {role === "referrer" && <th>Commission</th>}
+            {user?.role === "referrer" && (
+              <th>Commission</th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -233,7 +264,7 @@ function Dashboard() {
               <td>{p.policy_number}</td>
               <td>${p.annual_premium}</td>
               <td>{p.start_date}</td>
-              {role === "referrer" && (
+              {user?.role === "referrer" && (
                 <td>${p.commission}</td>
               )}
             </tr>
@@ -244,13 +275,16 @@ function Dashboard() {
   );
 }
 
-/* ================= ADMIN REPORTS ================= */
+/* ================= REPORTS ================= */
 
 function Reports() {
+  const user = getUser();
   const [summary, setSummary] = useState<any>({});
   const [referrers, setReferrers] = useState<any[]>([]);
 
   useEffect(() => {
+    if (user?.role !== "admin") return;
+
     fetch(`${API}/reports/summary`, {
       headers: {
         Authorization: `Bearer ${getToken()}`
@@ -268,35 +302,21 @@ function Reports() {
       .then(setReferrers);
   }, []);
 
-  const markPaid = async (email: string) => {
-    await fetch(`${API}/commission/pay`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken()}`
-      },
-      body: JSON.stringify({ referrer_email: email })
-    });
-
-    window.location.reload();
-  };
+  if (user?.role !== "admin")
+    return <Navigate to="/" />;
 
   return (
     <div className="container">
       <h1>Admin Reports</h1>
 
-      <div className="stats">
-        <div>
-          Total Premium: $
-          {parseFloat(summary.total_premium || 0).toLocaleString()}
-        </div>
-        <div>
-          Total Commission: $
-          {parseFloat(summary.total_commission || 0).toLocaleString()}
-        </div>
+      <div>
+        Total Premium: $
+        {parseFloat(summary.total_premium || 0).toLocaleString()}
       </div>
-
-      <h3>Referrer Ledger</h3>
+      <div>
+        Total Commission: $
+        {parseFloat(summary.total_commission || 0).toLocaleString()}
+      </div>
 
       <table>
         <thead>
@@ -304,7 +324,6 @@ function Reports() {
             <th>Referrer</th>
             <th>Total</th>
             <th>Unpaid</th>
-            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -313,15 +332,6 @@ function Reports() {
               <td>{r.referrer_email}</td>
               <td>${r.total_commission}</td>
               <td>${r.unpaid}</td>
-              <td>
-                <button
-                  onClick={() =>
-                    markPaid(r.referrer_email)
-                  }
-                >
-                  Mark Paid
-                </button>
-              </td>
             </tr>
           ))}
         </tbody>
@@ -336,7 +346,6 @@ function Success() {
   return (
     <div className="container">
       <h1>Application Submitted</h1>
-      <p>We will review your submission.</p>
     </div>
   );
 }
