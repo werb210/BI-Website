@@ -11,36 +11,31 @@ import { useEffect, useState } from "react";
 
 const API = "https://api.boreal.financial/bi";
 
-/* ================= AUTH ================= */
-
 const getToken = () => localStorage.getItem("bi_token");
 const getRole = () => localStorage.getItem("bi_role");
 
 function Protected({ children, role }: any) {
   if (!getToken()) return <Navigate to="/login" />;
-  if (role && role !== getRole() && getRole() !== "admin") return <Navigate to="/" />;
+  if (role && role !== getRole() && getRole() !== "admin")
+    return <Navigate to="/" />;
   return children;
 }
 
 /* ================= NAV ================= */
 
 function Nav() {
-  const navigate = useNavigate();
   const role = getRole();
+  const navigate = useNavigate();
 
   return (
     <div className="nav">
       <h2>Boreal Insurance</h2>
-
       <div>
         <Link to="/">Home</Link>
         <Link to="/apply">Apply</Link>
-
-        {role && <Link to={`/${role}-dashboard`}>Dashboard</Link>}
-        {role === "admin" && <Link to="/admin-dashboard">Admin</Link>}
-
+        {role && <Link to="/policies">Policies</Link>}
+        {role === "admin" && <Link to="/admin">Admin</Link>}
         {!role && <Link to="/login">Login</Link>}
-
         {role && (
           <button
             onClick={() => {
@@ -63,67 +58,39 @@ function Home() {
     <div className="container">
       <h1>Personal Guarantee Insurance</h1>
       <p>
-        Coverage up to 80% of loan amount (max $1,400,000 CAD). Secured: 1.6% per year. Unsecured: 4.0% per
-        year.
+        Secured: 1.6% annually. Unsecured: 4.0% annually.
+        Coverage up to 80% of loan (max $1,400,000 CAD).
       </p>
     </div>
   );
 }
 
-/* ================= APPLY ================= */
+/* ================= POLICY LIST ================= */
 
-function Apply() {
-  const navigate = useNavigate();
-  const role = getRole();
-  const [loading, setLoading] = useState(false);
+function PolicyList() {
+  const [policies, setPolicies] = useState<any[]>([]);
 
-  const [form, setForm] = useState<any>({ loanType: "Secured" });
-
-  const update = (k: string, v: any) => setForm({ ...form, [k]: v });
-
-  const submit = async () => {
-    setLoading(true);
-
-    const loan = parseFloat(form.loanAmount || 0);
-    const insuredAmount = Math.min(loan * 0.8, 1400000);
-    const rate = form.loanType === "Secured" ? 0.016 : 0.04;
-    const annualPremium = insuredAmount * rate;
-
-    await fetch(`${API}/applications`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken() || ""}`
-      },
-      body: JSON.stringify({
-        ...form,
-        insuredAmount,
-        annualPremium,
-        referrerEmail: role === "referrer" ? localStorage.getItem("bi_email") : null
-      })
-    });
-
-    setLoading(false);
-    navigate("/");
-  };
+  useEffect(() => {
+    fetch(`${API}/policies`, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    })
+      .then((r) => r.json())
+      .then(setPolicies);
+  }, []);
 
   return (
     <div className="container">
-      <h1>Apply</h1>
+      <h1>Policies</h1>
 
-      <input placeholder="Full Name" onChange={(e) => update("name", e.target.value)} />
-      <input placeholder="Email" onChange={(e) => update("email", e.target.value)} />
-      <input placeholder="Business Name" onChange={(e) => update("businessName", e.target.value)} />
-      <input placeholder="Loan Amount (CAD)" onChange={(e) => update("loanAmount", e.target.value)} />
-
-      <select onChange={(e) => update("loanType", e.target.value)}>
-        <option value="Secured">Secured</option>
-        <option value="Unsecured">Unsecured</option>
-      </select>
-
-      <button disabled={loading} onClick={submit}>
-        {loading ? "Submitting..." : "Submit"}
-      </button>
+      {policies.map((p) => (
+        <div key={p.id} className="card">
+          <Link to={`/policy/${p.id}`}>
+            <strong>{p.business_name}</strong>
+          </Link>
+          <p>Status: {p.status}</p>
+          <p>Premium: ${Number(p.annual_premium).toLocaleString()}</p>
+        </div>
+      ))}
     </div>
   );
 }
@@ -133,7 +100,6 @@ function Apply() {
 function PolicyDetail() {
   const { id } = useParams();
   const [policy, setPolicy] = useState<any>(null);
-  const role = getRole();
 
   useEffect(() => {
     fetch(`${API}/policies/${id}`, {
@@ -145,55 +111,20 @@ function PolicyDetail() {
 
   if (!policy) return <div className="container">Loading...</div>;
 
-  const action = async (endpoint: string) => {
-    await fetch(`${API}${endpoint}`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${getToken()}` }
-    });
-    window.location.reload();
-  };
-
   return (
     <div className="container">
-      <h1>Policy #{policy.policy_number}</h1>
+      <h1>Policy #{policy.policy_number || id}</h1>
       <p>Status: {policy.status}</p>
       <p>Start: {policy.start_date}</p>
       <p>End: {policy.end_date}</p>
 
-      {role === "admin" && (
-        <>
-          <button onClick={() => action(`/policies/${id}/renew`)}>Renew</button>
-          <button onClick={() => action(`/policies/${id}/cancel`)}>Cancel</button>
-        </>
-      )}
-    </div>
-  );
-}
-
-/* ================= REFERRER DASHBOARD ================= */
-
-function ReferrerDashboard() {
-  const [ledger, setLedger] = useState<any[]>([]);
-
-  useEffect(() => {
-    fetch(`${API}/commission/ledger`, {
-      headers: { Authorization: `Bearer ${getToken()}` }
-    })
-      .then((r) => r.json())
-      .then(setLedger);
-  }, []);
-
-  return (
-    <div className="container">
-      <h1>Commission Ledger</h1>
-
-      {ledger.map((l) => (
-        <div key={l.id} className="card">
-          <p>Policy ID: {l.policy_id}</p>
-          <p>Year: {l.year_number}</p>
-          <p>Premium: ${Number(l.premium).toLocaleString()}</p>
-          <p>Commission: ${Number(l.commission_amount).toLocaleString()}</p>
-          <p>Status: {l.payout_status}</p>
+      <h2>Commission History</h2>
+      {policy.commissions.map((c: any) => (
+        <div key={c.id} className="card">
+          <p>Year {c.year_number}</p>
+          <p>Premium: ${Number(c.premium).toLocaleString()}</p>
+          <p>Commission: ${Number(c.commission_amount).toLocaleString()}</p>
+          <p>Status: {c.payout_status}</p>
         </div>
       ))}
     </div>
@@ -203,28 +134,58 @@ function ReferrerDashboard() {
 /* ================= ADMIN DASHBOARD ================= */
 
 function AdminDashboard() {
-  const [summary, setSummary] = useState<any>({});
+  const [metrics, setMetrics] = useState<any>({});
+  const [aging, setAging] = useState<any>({});
+  const [referrers, setReferrers] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch(`${API}/admin/summary`, {
+    fetch(`${API}/admin/metrics`, {
       headers: { Authorization: `Bearer ${getToken()}` }
     })
       .then((r) => r.json())
-      .then(setSummary);
-  }, []);
+      .then(setMetrics);
 
-  const exportCSV = () => {
-    window.open(`${API}/admin/export`, "_blank");
-  };
+    fetch(`${API}/admin/commission-aging`, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    })
+      .then((r) => r.json())
+      .then(setAging);
+
+    fetch(`${API}/admin/referrer-performance`, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    })
+      .then((r) => r.json())
+      .then(setReferrers);
+  }, []);
 
   return (
     <div className="container">
       <h1>Admin Dashboard</h1>
 
-      <p>Total Premium: ${Number(summary.totalPremium || 0).toLocaleString()}</p>
-      <p>Total Commission: ${Number(summary.totalCommission || 0).toLocaleString()}</p>
+      <div className="card">
+        <h3>Active Policies: {metrics.activePolicies}</h3>
+        <h3>Cancelled Policies: {metrics.cancelledPolicies}</h3>
+        <h3>Churn Rate: {(metrics.churnRate * 100 || 0).toFixed(2)}%</h3>
+        <h3>Total Premium: ${Number(metrics.totalPremium || 0).toLocaleString()}</h3>
+        <h3>Total Commission: ${Number(metrics.totalCommission || 0).toLocaleString()}</h3>
+      </div>
 
-      <button onClick={exportCSV}>Export CSV</button>
+      <h2>Commission Aging</h2>
+      <div className="card">
+        <p>Current: ${Number(aging.current || 0).toLocaleString()}</p>
+        <p>30+ Days: ${Number(aging.over_30 || 0).toLocaleString()}</p>
+        <p>60+ Days: ${Number(aging.over_60 || 0).toLocaleString()}</p>
+        <p>90+ Days: ${Number(aging.over_90 || 0).toLocaleString()}</p>
+      </div>
+
+      <h2>Referrer Ranking</h2>
+      {referrers.map((r) => (
+        <div key={r.referrer_email} className="card">
+          <p>{r.referrer_email}</p>
+          <p>Total Commission: ${Number(r.total_commission).toLocaleString()}</p>
+          <p>Policies: {r.total_policies}</p>
+        </div>
+      ))}
     </div>
   );
 }
@@ -247,9 +208,8 @@ function Login() {
 
     localStorage.setItem("bi_token", data.token);
     localStorage.setItem("bi_role", role);
-    localStorage.setItem("bi_email", email);
 
-    navigate(`/${role}-dashboard`);
+    navigate("/");
   };
 
   return (
@@ -276,23 +236,14 @@ export default function App() {
       <Nav />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/apply" element={<Apply />} />
+        <Route path="/apply" element={<Home />} />
         <Route path="/login" element={<Login />} />
 
         <Route
-          path="/referrer-dashboard"
+          path="/policies"
           element={
-            <Protected role="referrer">
-              <ReferrerDashboard />
-            </Protected>
-          }
-        />
-
-        <Route
-          path="/admin-dashboard"
-          element={
-            <Protected role="admin">
-              <AdminDashboard />
+            <Protected>
+              <PolicyList />
             </Protected>
           }
         />
@@ -302,6 +253,15 @@ export default function App() {
           element={
             <Protected>
               <PolicyDetail />
+            </Protected>
+          }
+        />
+
+        <Route
+          path="/admin"
+          element={
+            <Protected role="admin">
+              <AdminDashboard />
             </Protected>
           }
         />
