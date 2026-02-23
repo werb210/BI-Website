@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import axios from "axios";
 import { API_BASE } from "../config";
 import { useNavigate } from "react-router-dom";
@@ -32,6 +32,7 @@ export default function Application({ lenderMode = false }: Props) {
   const lenderData = lenderMode ? validateLenderToken(lenderToken) : null;
   const bfToken = params.get("bf_token") || "";
   const bfData = bfToken ? (validateBFRedirect(bfToken) as Record<string, any> | null) : null;
+  const lastSubmitRef = useRef(0);
 
   useEffect(() => {
     if (bfData) {
@@ -80,6 +81,10 @@ export default function Application({ lenderMode = false }: Props) {
   }
 
   async function submit() {
+    if (Date.now() - lastSubmitRef.current < 5000) {
+      return;
+    }
+
     if (store.submitting) {
       return;
     }
@@ -89,6 +94,7 @@ export default function Application({ lenderMode = false }: Props) {
       return;
     }
 
+    lastSubmitRef.current = Date.now();
     store.setSubmitting(true);
 
     try {

@@ -1,19 +1,18 @@
-import { DragEvent, useMemo, useState } from "react";
+import { DragEvent, useState } from "react";
 import axios from "axios";
 import { API_BASE } from "../config";
 import { safeRequest } from "../api/request";
 
 interface Props {
-  maxSizeMb?: number;
   onUploaded?: (data: unknown) => void;
 }
 
-export default function FileUpload({ maxSizeMb = 10, onUploaded }: Props) {
+const MAX_FILE_BYTES = 5 * 1024 * 1024;
+
+export default function FileUpload({ onUploaded }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
-
-  const maxBytes = useMemo(() => maxSizeMb * 1024 * 1024, [maxSizeMb]);
 
   function validate(selected: File | null) {
     if (!selected) {
@@ -25,8 +24,8 @@ export default function FileUpload({ maxSizeMb = 10, onUploaded }: Props) {
       return false;
     }
 
-    if (selected.size > maxBytes) {
-      setError(`File exceeds ${maxSizeMb}MB.`);
+    if (selected.size > MAX_FILE_BYTES) {
+      setError("Max 5MB file size");
       return false;
     }
 
@@ -34,7 +33,20 @@ export default function FileUpload({ maxSizeMb = 10, onUploaded }: Props) {
     return true;
   }
 
-  function onSelect(selected: File | null) {
+  function onSelect(files: FileList | null) {
+    if (!files?.length) {
+      setFile(null);
+      return;
+    }
+
+    if (files.length > 1) {
+      setError("Please upload a single file.");
+      setFile(null);
+      return;
+    }
+
+    const selected = files[0];
+
     if (!validate(selected)) {
       setFile(null);
       return;
@@ -45,7 +57,7 @@ export default function FileUpload({ maxSizeMb = 10, onUploaded }: Props) {
 
   function onDrop(event: DragEvent<HTMLDivElement>) {
     event.preventDefault();
-    onSelect(event.dataTransfer.files?.[0] || null);
+    onSelect(event.dataTransfer.files);
   }
 
   async function upload() {
@@ -80,8 +92,13 @@ export default function FileUpload({ maxSizeMb = 10, onUploaded }: Props) {
         onDragOver={(e) => e.preventDefault()}
         style={{ border: "1px dashed #999", borderRadius: 8, padding: 16, marginBottom: 10 }}
       >
-        <p>Drag and drop a PDF here, or choose a file.</p>
-        <input type="file" accept="application/pdf" onChange={(e) => onSelect(e.target.files?.[0] || null)} />
+        <p>Drag and drop one PDF (max 5MB), or choose a file.</p>
+        <input
+          type="file"
+          accept="application/pdf"
+          multiple={false}
+          onChange={(e) => onSelect(e.target.files)}
+        />
       </div>
 
       {file && <p>Ready: {file.name}</p>}
