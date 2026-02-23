@@ -17,6 +17,13 @@ export default function Home() {
       <br />
 
       <button onClick={() => nav("/apply?mode=lender")}>Lender Application</button>
+
+      <br />
+      <br />
+
+      <button onClick={() => nav("/apply?ref=manual")}>
+        Refer a Client
+      </button>
     </div>
   );
 }

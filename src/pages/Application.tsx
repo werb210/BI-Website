@@ -1,61 +1,112 @@
-import { useState } from "react";
+import { useApplicationStore } from "../store/useApplicationStore";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { API_BASE } from "../config";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { safeRequest } from "../api/request";
 
 export default function Application() {
   const nav = useNavigate();
+  const [params] = useSearchParams();
+  const mode = params.get("mode");
+
+  const store = useApplicationStore();
   const leadId = localStorage.getItem("biLeadId");
 
-  const [personalData, setPersonalData] = useState({});
-  const [companyData, setCompanyData] = useState({});
-  const [guaranteeData, setGuaranteeData] = useState({});
-  const [declarations, setDeclarations] = useState({});
-  const [consentData, setConsentData] = useState({});
-
   async function submit() {
-    const quoteResult = JSON.parse(localStorage.getItem("biQuote") || "{}");
-
-    await axios.post("https://api.boreal.financial/bi/application", {
-      leadId,
-      personalData,
-      companyData,
-      guaranteeData,
-      declarations,
-      consentData,
-      quoteResult
-    });
+    await safeRequest(
+      axios.post(`${API_BASE}/application`, {
+        leadId,
+        mode,
+        personalData: store.personal,
+        companyData: store.company,
+        guaranteeData: store.guarantee,
+        declarations: store.declarations,
+        consentData: store.consent,
+        quoteResult: store.quote
+      })
+    );
 
     nav("/thank-you");
   }
 
   return (
     <div className="container">
-      <h1>Insurance Application</h1>
+      <h1>Personal Guarantee Insurance</h1>
 
-      <h3>Personal Details</h3>
-      <input placeholder="Full Name" onChange={(e) => setPersonalData({ fullName: e.target.value })} />
+      {store.step === 1 && (
+        <>
+          <h3>Personal Details</h3>
+          <input
+            placeholder="Full Name"
+            onChange={(e) =>
+              store.setPersonal({
+                ...store.personal,
+                name: e.target.value
+              })
+            }
+          />
+          <button onClick={() => store.setStep(2)}>Next</button>
+        </>
+      )}
 
-      <h3>Company Details</h3>
-      <input placeholder="Company Name" onChange={(e) => setCompanyData({ companyName: e.target.value })} />
+      {store.step === 2 && (
+        <>
+          <h3>Company Details</h3>
+          <input
+            placeholder="Company Name"
+            onChange={(e) =>
+              store.setCompany({
+                ...store.company,
+                name: e.target.value
+              })
+            }
+          />
+          <button onClick={() => store.setStep(3)}>Next</button>
+        </>
+      )}
 
-      <h3>Guarantee Details</h3>
-      <input
-        placeholder="Guarantee Amount"
-        onChange={(e) => setGuaranteeData({ guaranteeAmount: e.target.value })}
-      />
+      {store.step === 3 && (
+        <>
+          <h3>Guarantee Details</h3>
+          <input
+            placeholder="Guarantee Amount"
+            onChange={(e) =>
+              store.setGuarantee({
+                ...store.guarantee,
+                amount: e.target.value
+              })
+            }
+          />
+          <button onClick={() => store.setStep(4)}>Next</button>
+        </>
+      )}
 
-      <h3>Declarations</h3>
-      <input
-        placeholder="Any bankruptcies?"
-        onChange={(e) => setDeclarations({ bankruptcies: e.target.value })}
-      />
+      {store.step === 4 && (
+        <>
+          <h3>Declarations</h3>
+          <label>
+            <input
+              type="checkbox"
+              onChange={(e) =>
+                store.setDeclarations({
+                  ...store.declarations,
+                  bankrupt: e.target.checked
+                })
+              }
+            />
+            No bankruptcies
+          </label>
+          <button onClick={() => store.setStep(5)}>Review</button>
+        </>
+      )}
 
-      <input
-        placeholder="Consent"
-        onChange={(e) => setConsentData({ consent: e.target.value })}
-      />
-
-      <button onClick={submit}>Submit Application</button>
+      {store.step === 5 && (
+        <>
+          <h3>Review</h3>
+          <pre>{JSON.stringify(store.personal, null, 2)}</pre>
+          <button onClick={submit}>Submit Application</button>
+        </>
+      )}
     </div>
   );
 }
