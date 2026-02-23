@@ -42,6 +42,10 @@ export default function Application() {
     try {
       setError("");
 
+      const source = localStorage.getItem("bi_source") || "direct";
+      const lenderEmail = localStorage.getItem("bi_lender_email");
+      const referrerCode = localStorage.getItem("bi_referrer_code");
+
       const res = await fetch(
         import.meta.env.VITE_API_BASE + "/api/applications",
         {
@@ -49,7 +53,10 @@ export default function Application() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             ...form,
-            loanAmount: Number(form.loanAmount)
+            loanAmount: Number(form.loanAmount),
+            source,
+            lenderEmail,
+            referrerCode
           })
         }
       );
