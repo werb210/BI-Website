@@ -89,3 +89,18 @@ input, textarea {
   padding: 16px 28px;
   font-size: 16px;
 }
+
+.premium-box {
+  margin-top: 20px;
+  padding: 20px;
+  background: #0c1b2e;
+  border: 1px solid #3aa6c1;
+  border-radius: 6px;
+}
+
+.review-box {
+  background: #0c1b2e;
+  padding: 20px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+}

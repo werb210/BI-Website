@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { submitApplication } from "../lib/api";
 
 type Step =
   | "personal"
@@ -11,136 +12,119 @@ type Step =
 
 export default function Application() {
   const [step, setStep] = useState<Step>("personal");
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
-  const next = (s: Step) => setStep(s);
-  const back = (s: Step) => setStep(s);
+  const [form, setForm] = useState<any>({});
+
+  const update = (key: string, value: any) =>
+    setForm((prev: any) => ({ ...prev, [key]: value }));
+
+  const calculatePremium = () => {
+    const loan = Number(form.loanAmount || 0);
+    const secured = form.securedType === "secured";
+    const rate = secured ? 0.016 : 0.04;
+
+    const insuredAmount = Math.min(loan * 0.8, 1400000);
+    const premium = insuredAmount * rate;
+    const commission = premium * 0.1;
+
+    return { insuredAmount, premium, commission };
+  };
+
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+
+      const calc = calculatePremium();
+
+      const payload = {
+        ...form,
+        insuredAmount: calc.insuredAmount,
+        annualPremium: calc.premium,
+        borealCommission: calc.commission
+      };
+
+      await submitApplication(payload);
+
+      setSubmitted(true);
+    } catch (e) {
+      alert("Submission failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <div className="container">
+        <h1>Application Submitted</h1>
+        <p>Your application has been received. Our team will review and contact you.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container app-container">
       <h1>Personal Guarantee Insurance Application</h1>
 
-      <div className="step-indicator">
-        <div className={step === "personal" ? "active" : ""}>Personal</div>
-        <div className={step === "address" ? "active" : ""}>Address</div>
-        <div className={step === "business" ? "active" : ""}>Business</div>
-        <div className={step === "loan" ? "active" : ""}>Loan</div>
-        <div className={step === "financial" ? "active" : ""}>Financial</div>
-        <div className={step === "declaration" ? "active" : ""}>Declaration</div>
-        <div className={step === "review" ? "active" : ""}>Review</div>
-      </div>
-
-      {step === "personal" && (
-        <section>
-          <h2>Personal Details</h2>
-          <input placeholder="Title" />
-          <input placeholder="First Name" />
-          <input placeholder="Middle Name" />
-          <input placeholder="Last Name" />
-          <input placeholder="Date of Birth" />
-          <input placeholder="Email Address" />
-          <input placeholder="Mobile Number" />
-          <button className="btn" onClick={() => next("address")}>Next</button>
-        </section>
-      )}
-
-      {step === "address" && (
-        <section>
-          <h2>Home Address</h2>
-          <input placeholder="Address Line 1" />
-          <input placeholder="Address Line 2" />
-          <input placeholder="City" />
-          <input placeholder="Province" />
-          <input placeholder="Postal Code" />
-          <input placeholder="Country (Canada)" />
-          <input placeholder="Years at Address" />
-          <div className="btn-row">
-            <button onClick={() => back("personal")}>Back</button>
-            <button className="btn" onClick={() => next("business")}>Next</button>
-          </div>
-        </section>
-      )}
-
-      {step === "business" && (
-        <section>
-          <h2>Business Details</h2>
-          <input placeholder="Company Name" />
-          <input placeholder="Company Registration Number" />
-          <input placeholder="Registered Address" />
-          <input placeholder="Trading Address" />
-          <input placeholder="Nature of Business" />
-          <input placeholder="Industry Sector" />
-          <input placeholder="Years Trading" />
-          <input placeholder="Number of Employees" />
-          <input placeholder="Website" />
-          <div className="btn-row">
-            <button onClick={() => back("address")}>Back</button>
-            <button className="btn" onClick={() => next("loan")}>Next</button>
-          </div>
-        </section>
-      )}
-
       {step === "loan" && (
-        <section>
+        <>
           <h2>Loan Details</h2>
-          <input placeholder="Lender Name" />
-          <input placeholder="Facility Type (Term Loan / LOC / etc.)" />
-          <input placeholder="Secured or Unsecured" />
-          <input placeholder="Total Loan Amount (CAD)" />
-          <input placeholder="Personal Guarantee Amount (CAD)" />
-          <input placeholder="Loan Term (Years)" />
-          <input placeholder="Security Provided (if secured)" />
-          <input placeholder="Purpose of Loan" />
-          <div className="btn-row">
-            <button onClick={() => back("business")}>Back</button>
-            <button className="btn" onClick={() => next("financial")}>Next</button>
-          </div>
-        </section>
+          <input
+            placeholder="Loan Amount"
+            onChange={(e) => update("loanAmount", e.target.value)}
+          />
+          <select onChange={(e) => update("securedType", e.target.value)}>
+            <option value="">Select Type</option>
+            <option value="secured">Secured</option>
+            <option value="unsecured">Unsecured</option>
+          </select>
+
+          {form.loanAmount && form.securedType && (
+            <div className="premium-box">
+              {(() => {
+                const calc = calculatePremium();
+                return (
+                  <>
+                    <p>Insured Amount: ${calc.insuredAmount.toLocaleString()}</p>
+                    <p>Annual Premium: ${calc.premium.toLocaleString()}</p>
+                  </>
+                );
+              })()}
+            </div>
+          )}
+
+          <button onClick={() => setStep("financial")}>Next</button>
+        </>
       )}
 
       {step === "financial" && (
-        <section>
+        <>
           <h2>Financial Information</h2>
-          <input placeholder="Latest Annual Turnover" />
-          <input placeholder="Net Profit / Loss" />
-          <input placeholder="Total Assets" />
-          <input placeholder="Total Liabilities" />
-          <input placeholder="Existing Personal Guarantees Outstanding" />
-          <div className="btn-row">
-            <button onClick={() => back("loan")}>Back</button>
-            <button className="btn" onClick={() => next("declaration")}>Next</button>
-          </div>
-        </section>
-      )}
+          <input placeholder="Annual Turnover" onChange={(e) => update("turnover", e.target.value)} />
+          <input placeholder="Net Profit" onChange={(e) => update("netProfit", e.target.value)} />
 
-      {step === "declaration" && (
-        <section>
-          <h2>Declaration</h2>
-          <label>
-            <input type="checkbox" /> I confirm the information provided is true and accurate.
-          </label>
-          <label>
-            <input type="checkbox" /> I have not been declared bankrupt in the past 5 years.
-          </label>
-          <label>
-            <input type="checkbox" /> I understand this policy covers up to 80% of the enforced guarantee.
-          </label>
-          <textarea placeholder="Additional disclosures (insolvency, claims, etc.)" />
           <div className="btn-row">
-            <button onClick={() => back("financial")}>Back</button>
-            <button className="btn" onClick={() => next("review")}>Review</button>
+            <button onClick={() => setStep("loan")}>Back</button>
+            <button onClick={() => setStep("review")}>Next</button>
           </div>
-        </section>
+        </>
       )}
 
       {step === "review" && (
-        <section>
-          <h2>Review & Submit</h2>
-          <p>Please review your information before submission.</p>
-          <button className="btn large">Submit Application</button>
-        </section>
-      )}
+        <>
+          <h2>Review</h2>
+          <div className="review-box">
+            <pre>{JSON.stringify(form, null, 2)}</pre>
+          </div>
 
-      <footer>© Boreal Insurance — Canada</footer>
+          <button onClick={() => setStep("financial")}>Back</button>
+          <button className="btn large" onClick={handleSubmit} disabled={loading}>
+            {loading ? "Submitting..." : "Submit Application"}
+          </button>
+        </>
+      )}
     </div>
   );
 }
