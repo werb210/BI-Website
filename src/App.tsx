@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 
 function Navbar() {
@@ -16,20 +16,15 @@ function Navbar() {
   );
 }
 
-function Home() {
-  return (
-    <div className="hero">
-      <div>
-        <h1>Personal Guarantee Insurance</h1>
-        <p>
-          Protect your personal assets when guaranteeing business loans.
-          Designed for Canadian business owners and directors.
-        </p>
-        <Link to="/apply" className="button-primary">Get Protected</Link>
-      </div>
-      <img src="https://images.unsplash.com/photo-1605902711622-cfb43c4437d1" />
-    </div>
-  );
+function calculatePremium(data: any) {
+  let baseRate = 0.02; // 2% base
+
+  if (data.priorDefault === "Yes") baseRate += 0.01;
+  if (data.legalDisputes === "Yes") baseRate += 0.01;
+  if (parseInt(data.yearsOperating) < 2) baseRate += 0.005;
+
+  const loan = parseFloat(data.loanAmount || 0);
+  return Math.round(loan * baseRate);
 }
 
 function Apply() {
@@ -43,42 +38,31 @@ function Apply() {
   const next = () => setStep(step + 1);
   const back = () => setStep(step - 1);
 
-  const submit = () => {
-    console.log("Application Submitted:", form);
-    navigate("/thank-you");
+  const generateQuote = () => {
+    const premium = calculatePremium(form);
+    navigate("/quote-result", { state: { ...form, premium } });
   };
 
   return (
     <div className="container">
-      <h1>Personal Guarantee Insurance Application</h1>
-      <p>Step {step} of 5</p>
+      <h1>PGI Application</h1>
+      <p>Step {step} of 4</p>
 
       {step === 1 && (
         <>
-          <h2>Applicant Details</h2>
-          <input placeholder="Full Legal Name"
-            onChange={(e) => update("name", e.target.value)} />
-          <input placeholder="Email"
-            onChange={(e) => update("email", e.target.value)} />
-          <input placeholder="Phone"
-            onChange={(e) => update("phone", e.target.value)} />
-          <input placeholder="Province"
-            onChange={(e) => update("province", e.target.value)} />
+          <h2>Applicant</h2>
+          <input placeholder="Full Name" onChange={(e) => update("name", e.target.value)} />
+          <input placeholder="Email" onChange={(e) => update("email", e.target.value)} />
           <button className="button-primary" onClick={next}>Next</button>
         </>
       )}
 
       {step === 2 && (
         <>
-          <h2>Business Information</h2>
-          <input placeholder="Business Legal Name"
-            onChange={(e) => update("businessName", e.target.value)} />
-          <input placeholder="Industry"
-            onChange={(e) => update("industry", e.target.value)} />
-          <input placeholder="Years in Operation"
-            onChange={(e) => update("yearsOperating", e.target.value)} />
-          <input placeholder="Annual Revenue (CAD)"
-            onChange={(e) => update("revenue", e.target.value)} />
+          <h2>Business</h2>
+          <input placeholder="Business Name" onChange={(e) => update("businessName", e.target.value)} />
+          <input placeholder="Years Operating" onChange={(e) => update("yearsOperating", e.target.value)} />
+          <input placeholder="Annual Revenue (CAD)" onChange={(e) => update("revenue", e.target.value)} />
           <button onClick={back}>Back</button>
           <button className="button-primary" onClick={next}>Next</button>
         </>
@@ -87,14 +71,8 @@ function Apply() {
       {step === 3 && (
         <>
           <h2>Loan Details</h2>
-          <input placeholder="Lender Name"
-            onChange={(e) => update("lender", e.target.value)} />
-          <input placeholder="Loan Amount (CAD)"
-            onChange={(e) => update("loanAmount", e.target.value)} />
-          <input placeholder="Type of Facility (LOC, Term Loan, etc.)"
-            onChange={(e) => update("facilityType", e.target.value)} />
-          <input placeholder="Guarantee Percentage (%)"
-            onChange={(e) => update("guaranteePercent", e.target.value)} />
+          <input placeholder="Loan Amount (CAD)" onChange={(e) => update("loanAmount", e.target.value)} />
+          <input placeholder="Lender Name" onChange={(e) => update("lender", e.target.value)} />
           <button onClick={back}>Back</button>
           <button className="button-primary" onClick={next}>Next</button>
         </>
@@ -102,39 +80,23 @@ function Apply() {
 
       {step === 4 && (
         <>
-          <h2>Risk Assessment</h2>
-          <label>Has the business ever defaulted?</label>
+          <h2>Risk Questions</h2>
+          <label>Prior Default?</label>
           <select onChange={(e) => update("priorDefault", e.target.value)}>
             <option>No</option>
             <option>Yes</option>
           </select>
 
-          <label>Are there other guarantors?</label>
-          <select onChange={(e) => update("otherGuarantors", e.target.value)}>
-            <option>No</option>
-            <option>Yes</option>
-          </select>
-
-          <label>Are there existing legal disputes?</label>
+          <label>Legal Disputes?</label>
           <select onChange={(e) => update("legalDisputes", e.target.value)}>
             <option>No</option>
             <option>Yes</option>
           </select>
 
+          <br /><br />
           <button onClick={back}>Back</button>
-          <button className="button-primary" onClick={next}>Next</button>
-        </>
-      )}
-
-      {step === 5 && (
-        <>
-          <h2>Review & Submit</h2>
-          <pre style={{ background: "#102a52", padding: 20 }}>
-            {JSON.stringify(form, null, 2)}
-          </pre>
-          <button onClick={back}>Back</button>
-          <button className="button-primary" onClick={submit}>
-            Submit Application
+          <button className="button-primary" onClick={generateQuote}>
+            Generate Quote
           </button>
         </>
       )}
@@ -142,13 +104,46 @@ function Apply() {
   );
 }
 
-function ThankYou() {
+function QuoteResult() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const data = location?.state as any;
+
+  if (!data) {
+    return (
+      <div className="container">
+        <h1>No Quote Found</h1>
+      </div>
+    );
+  }
+
   return (
     <div className="container">
-      <h1>Application Received</h1>
-      <p>
-        Thank you. A Boreal Insurance advisor will contact you within 24 hours.
-      </p>
+      <h1>Your Personal Guarantee Insurance Quote</h1>
+      <div className="card">
+        <h2>${data.premium.toLocaleString()} CAD</h2>
+        <p>Coverage based on declared loan of ${data.loanAmount}</p>
+        <p>Annual Premium</p>
+      </div>
+
+      <br />
+
+      <button
+        className="button-primary"
+        onClick={() => navigate("/checkout", { state: data })}
+      >
+        Proceed to Payment
+      </button>
+    </div>
+  );
+}
+
+function Checkout() {
+  return (
+    <div className="container">
+      <h1>Secure Payment</h1>
+      <p>Stripe integration placeholder.</p>
+      <button className="button-primary">Pay Now</button>
     </div>
   );
 }
@@ -167,13 +162,14 @@ export default function App() {
     <BrowserRouter>
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
         <Route path="/apply" element={<Apply />} />
-        <Route path="/thank-you" element={<ThankYou />} />
+        <Route path="/quote-result" element={<QuoteResult />} />
+        <Route path="/checkout" element={<Checkout />} />
         <Route path="/what-is-pgi" element={<Placeholder title="What is PGI" />} />
         <Route path="/claims" element={<Placeholder title="Claims" />} />
         <Route path="/resources" element={<Placeholder title="Resources" />} />
         <Route path="/contact" element={<Placeholder title="Contact" />} />
+        <Route path="/" element={<Placeholder title="Home" />} />
       </Routes>
     </BrowserRouter>
   );
