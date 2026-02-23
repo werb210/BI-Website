@@ -7,6 +7,7 @@ import Contact from "./pages/Contact";
 import LenderLogin from "./pages/LenderLogin";
 import ReferrerLogin from "./pages/ReferrerLogin";
 import MayaChat from "./components/MayaChat";
+import MayaAnalytics from "./pages/MayaAnalytics";
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/lender-login" element={<LenderLogin />} />
         <Route path="/referrer-login" element={<ReferrerLogin />} />
+        <Route path="/admin/maya-analytics" element={<MayaAnalytics />} />
       </Routes>
       <MayaChat />
     </>
