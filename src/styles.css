@@ -28,3 +28,17 @@ select {
   max-width: 800px;
   margin: 60px auto;
 }
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-content {
+  background: #0f172a;
+  padding: 30px;
+  border-radius: 8px;
+}
