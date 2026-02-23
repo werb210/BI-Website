@@ -53,3 +53,39 @@ input, textarea {
   border: 1px solid #1f2a3a;
   color: white;
 }
+
+.app-container h2 {
+  margin-top: 40px;
+  margin-bottom: 20px;
+}
+
+.step-indicator {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.step-indicator div {
+  padding: 8px 12px;
+  border: 1px solid #1f2a3a;
+  border-radius: 6px;
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.step-indicator .active {
+  background: #3aa6c1;
+  opacity: 1;
+}
+
+.btn-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.btn.large {
+  padding: 16px 28px;
+  font-size: 16px;
+}
