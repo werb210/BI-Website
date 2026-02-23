@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { API_BASE } from "../config";
@@ -9,8 +9,15 @@ export default function Quote() {
   const nav = useNavigate();
   const [amount, setAmount] = useState(250000);
   const [term, setTerm] = useState(60);
+  const lastSubmitRef = useRef(0);
 
   async function handleQuote() {
+    if (Date.now() - lastSubmitRef.current < 5000) {
+      return;
+    }
+
+    lastSubmitRef.current = Date.now();
+
     const data = await safeRequest(
       axios.post(`${API_BASE}/quote`, {
         guaranteeAmount: amount,

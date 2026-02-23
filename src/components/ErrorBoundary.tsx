@@ -1,4 +1,5 @@
 import React from "react";
+import { reportError } from "../utils/errorReporter";
 
 type ErrorBoundaryProps = {
   children: React.ReactNode;
@@ -16,6 +17,10 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
   static getDerivedStateFromError() {
     return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    reportError(error);
   }
 
   render() {

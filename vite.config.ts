@@ -5,5 +5,9 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3005
+  },
+  build: {
+    sourcemap: false,
+    minify: "esbuild"
   }
 });

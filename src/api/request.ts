@@ -1,11 +1,23 @@
-import axios from "axios";
+function showToast(message: string, type: "error" | "success") {
+  if (type === "error") {
+    alert(message);
+    return;
+  }
 
-export async function safeRequest(promise: Promise<any>) {
+  console.info(message);
+}
+
+export async function safeRequest<T>(promise: Promise<{ data: T }>) {
   try {
     const res = await promise;
     return res.data;
-  } catch (e: any) {
-    alert("Something went wrong.");
-    throw e;
+  } catch (err: any) {
+    if (!err.response) {
+      showToast("Network error. Please try again.", "error");
+    } else {
+      showToast("Something went wrong.", "error");
+    }
+
+    throw err;
   }
 }
