@@ -11,6 +11,10 @@ import { disableConsoleInProd } from "./utils/disableConsole";
 validateEnv();
 disableConsoleInProd();
 
+if (import.meta.env.PROD && location.protocol !== "https:") {
+  location.replace(`https://${location.host}${location.pathname}${location.search}${location.hash}`);
+}
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <HelmetProvider>

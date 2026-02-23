@@ -9,18 +9,13 @@ import RateLockIndicator from "../components/RateLockIndicator";
 import { validateLenderToken } from "../utils/lenderAuth";
 import { validateBFRedirect } from "../utils/redirectValidation";
 import { track } from "../utils/analytics";
+import { signPayload } from "../utils/signPayload";
 
 interface Props {
   lenderMode?: boolean;
 }
 
 const QUOTE_TTL_MS = 1000 * 60 * 60;
-
-function toHex(buffer: ArrayBuffer) {
-  return Array.from(new Uint8Array(buffer))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
 
 export default function Application({ lenderMode = false }: Props) {
   const nav = useNavigate();
@@ -118,16 +113,19 @@ export default function Application({ lenderMode = false }: Props) {
         lenderId: store.lenderId ?? lenderData?.lenderId
       };
 
-      const digest = await crypto.subtle.digest(
-        "SHA-256",
-        new TextEncoder().encode(JSON.stringify(payload))
-      );
-      const payloadHash = toHex(digest);
+      const enrichedPayload = {
+        ...payload,
+        ts: Date.now()
+      };
+
+      const { body, signature } = await signPayload(enrichedPayload);
 
       await safeRequest(
-        axios.post(`${API_BASE}/application`, {
-          ...payload,
-          payloadHash
+        axios.post(`${API_BASE}/bi/apply`, body, {
+          headers: {
+            "Content-Type": "application/json",
+            "x-signature": signature
+          }
         })
       );
 
