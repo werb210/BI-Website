@@ -4,7 +4,8 @@ import {
   Route,
   Link,
   Navigate,
-  useNavigate
+  useNavigate,
+  useParams
 } from "react-router-dom";
 import { useEffect, useState } from "react";
 
@@ -17,16 +18,15 @@ const getRole = () => localStorage.getItem("bi_role");
 
 function Protected({ children, role }: any) {
   if (!getToken()) return <Navigate to="/login" />;
-  if (role && role !== getRole() && getRole() !== "admin")
-    return <Navigate to="/" />;
+  if (role && role !== getRole() && getRole() !== "admin") return <Navigate to="/" />;
   return children;
 }
 
 /* ================= NAV ================= */
 
 function Nav() {
-  const role = getRole();
   const navigate = useNavigate();
+  const role = getRole();
 
   return (
     <div className="nav">
@@ -36,21 +36,20 @@ function Nav() {
         <Link to="/">Home</Link>
         <Link to="/apply">Apply</Link>
 
+        {role && <Link to={`/${role}-dashboard`}>Dashboard</Link>}
+        {role === "admin" && <Link to="/admin-dashboard">Admin</Link>}
+
         {!role && <Link to="/login">Login</Link>}
 
         {role && (
-          <>
-            <Link to={`/${role}-dashboard`}>Dashboard</Link>
-            {role === "admin" && <Link to="/admin-dashboard">Admin</Link>}
-            <button
-              onClick={() => {
-                localStorage.clear();
-                navigate("/");
-              }}
-            >
-              Logout
-            </button>
-          </>
+          <button
+            onClick={() => {
+              localStorage.clear();
+              navigate("/");
+            }}
+          >
+            Logout
+          </button>
         )}
       </div>
     </div>
@@ -64,8 +63,8 @@ function Home() {
     <div className="container">
       <h1>Personal Guarantee Insurance</h1>
       <p>
-        Protect your personal assets against business loan default.
-        Coverage up to 80% of loan amount (max $1,400,000 CAD).
+        Coverage up to 80% of loan amount (max $1,400,000 CAD). Secured: 1.6% per year. Unsecured: 4.0% per
+        year.
       </p>
     </div>
   );
@@ -76,25 +75,19 @@ function Home() {
 function Apply() {
   const navigate = useNavigate();
   const role = getRole();
+  const [loading, setLoading] = useState(false);
 
-  const [form, setForm] = useState<any>({
-    loanType: "Secured"
-  });
+  const [form, setForm] = useState<any>({ loanType: "Secured" });
 
-  const update = (k: string, v: any) =>
-    setForm({ ...form, [k]: v });
+  const update = (k: string, v: any) => setForm({ ...form, [k]: v });
 
-  const calculate = () => {
+  const submit = async () => {
+    setLoading(true);
+
     const loan = parseFloat(form.loanAmount || 0);
     const insuredAmount = Math.min(loan * 0.8, 1400000);
     const rate = form.loanType === "Secured" ? 0.016 : 0.04;
     const annualPremium = insuredAmount * rate;
-
-    return { insuredAmount, annualPremium };
-  };
-
-  const submit = async () => {
-    const quote = calculate();
 
     await fetch(`${API}/applications`, {
       method: "POST",
@@ -104,20 +97,19 @@ function Apply() {
       },
       body: JSON.stringify({
         ...form,
-        ...quote,
-        referrerEmail:
-          role === "referrer"
-            ? localStorage.getItem("bi_email")
-            : null
+        insuredAmount,
+        annualPremium,
+        referrerEmail: role === "referrer" ? localStorage.getItem("bi_email") : null
       })
     });
 
+    setLoading(false);
     navigate("/");
   };
 
   return (
     <div className="container">
-      <h1>Apply for PGI</h1>
+      <h1>Apply</h1>
 
       <input placeholder="Full Name" onChange={(e) => update("name", e.target.value)} />
       <input placeholder="Email" onChange={(e) => update("email", e.target.value)} />
@@ -125,39 +117,55 @@ function Apply() {
       <input placeholder="Loan Amount (CAD)" onChange={(e) => update("loanAmount", e.target.value)} />
 
       <select onChange={(e) => update("loanType", e.target.value)}>
-        <option value="Secured">Secured (1.6%)</option>
-        <option value="Unsecured">Unsecured (4.0%)</option>
+        <option value="Secured">Secured</option>
+        <option value="Unsecured">Unsecured</option>
       </select>
 
-      <button onClick={submit}>Submit Application</button>
+      <button disabled={loading} onClick={submit}>
+        {loading ? "Submitting..." : "Submit"}
+      </button>
     </div>
   );
 }
 
-/* ================= LENDER DASHBOARD ================= */
+/* ================= POLICY DETAIL ================= */
 
-function LenderDashboard() {
-  const [apps, setApps] = useState<any[]>([]);
+function PolicyDetail() {
+  const { id } = useParams();
+  const [policy, setPolicy] = useState<any>(null);
+  const role = getRole();
 
   useEffect(() => {
-    fetch(`${API}/applications`, {
+    fetch(`${API}/policies/${id}`, {
       headers: { Authorization: `Bearer ${getToken()}` }
     })
       .then((r) => r.json())
-      .then(setApps);
-  }, []);
+      .then(setPolicy);
+  }, [id]);
+
+  if (!policy) return <div className="container">Loading...</div>;
+
+  const action = async (endpoint: string) => {
+    await fetch(`${API}${endpoint}`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${getToken()}` }
+    });
+    window.location.reload();
+  };
 
   return (
     <div className="container">
-      <h1>Lender Dashboard</h1>
+      <h1>Policy #{policy.policy_number}</h1>
+      <p>Status: {policy.status}</p>
+      <p>Start: {policy.start_date}</p>
+      <p>End: {policy.end_date}</p>
 
-      {apps.map((a) => (
-        <div key={a.id} className="card">
-          <p><strong>{a.business_name}</strong></p>
-          <p>Status: {a.status}</p>
-          <p>Annual Premium: ${Number(a.annual_premium).toLocaleString()}</p>
-        </div>
-      ))}
+      {role === "admin" && (
+        <>
+          <button onClick={() => action(`/policies/${id}/renew`)}>Renew</button>
+          <button onClick={() => action(`/policies/${id}/cancel`)}>Cancel</button>
+        </>
+      )}
     </div>
   );
 }
@@ -175,20 +183,13 @@ function ReferrerDashboard() {
       .then(setLedger);
   }, []);
 
-  const total = ledger.reduce(
-    (sum, l) => sum + Number(l.commission_amount),
-    0
-  );
-
   return (
     <div className="container">
-      <h1>Referrer Dashboard</h1>
-
-      <h2>Total Commission Earned</h2>
-      <h1>${total.toLocaleString()}</h1>
+      <h1>Commission Ledger</h1>
 
       {ledger.map((l) => (
         <div key={l.id} className="card">
+          <p>Policy ID: {l.policy_id}</p>
           <p>Year: {l.year_number}</p>
           <p>Premium: ${Number(l.premium).toLocaleString()}</p>
           <p>Commission: ${Number(l.commission_amount).toLocaleString()}</p>
@@ -212,17 +213,18 @@ function AdminDashboard() {
       .then(setSummary);
   }, []);
 
+  const exportCSV = () => {
+    window.open(`${API}/admin/export`, "_blank");
+  };
+
   return (
     <div className="container">
-      <h1>Admin Summary</h1>
+      <h1>Admin Dashboard</h1>
 
-      <div className="card">
-        <h3>Total Annual Premium Written</h3>
-        <h2>${Number(summary.totalPremium || 0).toLocaleString()}</h2>
+      <p>Total Premium: ${Number(summary.totalPremium || 0).toLocaleString()}</p>
+      <p>Total Commission: ${Number(summary.totalCommission || 0).toLocaleString()}</p>
 
-        <h3>Total Commission Generated (10%)</h3>
-        <h2>${Number(summary.totalCommission || 0).toLocaleString()}</h2>
-      </div>
+      <button onClick={exportCSV}>Export CSV</button>
     </div>
   );
 }
@@ -254,17 +256,13 @@ function Login() {
     <div className="container">
       <h1>Login</h1>
 
-      <select value={role} onChange={(e) => setRole(e.target.value)}>
+      <select onChange={(e) => setRole(e.target.value)}>
         <option value="lender">Lender</option>
         <option value="referrer">Referrer</option>
         <option value="admin">Admin</option>
       </select>
 
-      <input
-        placeholder="Email"
-        onChange={(e) => setEmail(e.target.value)}
-      />
-
+      <input placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
       <button onClick={login}>Login</button>
     </div>
   );
@@ -282,15 +280,6 @@ export default function App() {
         <Route path="/login" element={<Login />} />
 
         <Route
-          path="/lender-dashboard"
-          element={
-            <Protected role="lender">
-              <LenderDashboard />
-            </Protected>
-          }
-        />
-
-        <Route
           path="/referrer-dashboard"
           element={
             <Protected role="referrer">
@@ -304,6 +293,15 @@ export default function App() {
           element={
             <Protected role="admin">
               <AdminDashboard />
+            </Protected>
+          }
+        />
+
+        <Route
+          path="/policy/:id"
+          element={
+            <Protected>
+              <PolicyDetail />
             </Protected>
           }
         />
