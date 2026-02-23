@@ -1,142 +1,137 @@
-import { useState } from "react";
-import { z } from "zod";
-
-const Schema = z.object({
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  email: z.string().email(),
-  loanAmount: z.number().positive(),
-  securedType: z.enum(["secured", "unsecured"]),
-  hasBankruptcy: z.boolean(),
-  hasExistingPG: z.boolean(),
-  existingPGAmount: z.number().optional(),
-  hasPreviousClaims: z.boolean()
-});
+import { useState, useMemo } from "react";
 
 export default function Application() {
   const [form, setForm] = useState<any>({
-    directors: [{ name: "", ownership: "" }]
+    firstName: "",
+    lastName: "",
+    email: "",
+    loanAmount: "",
+    securedType: ""
   });
+
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const update = (k: string, v: any) =>
     setForm((p: any) => ({ ...p, [k]: v }));
 
-  const updateDirector = (index: number, field: string, value: string) => {
-    const updated = [...form.directors];
-    updated[index][field] = value;
-    setForm((p: any) => ({ ...p, directors: updated }));
-  };
+  const valid =
+    form.firstName &&
+    form.lastName &&
+    form.email.includes("@") &&
+    Number(form.loanAmount) > 0 &&
+    form.securedType;
 
-  const addDirector = () => {
-    setForm((p: any) => ({
-      ...p,
-      directors: [...p.directors, { name: "", ownership: "" }]
-    }));
-  };
+  const calc = useMemo(() => {
+    const loan = Number(form.loanAmount || 0);
+    if (!loan || !form.securedType) return null;
+
+    const insured = Math.min(loan * 0.8, 1400000);
+    const rate = form.securedType === "secured" ? 0.016 : 0.04;
+    const premium = insured * rate;
+
+    return { insured, premium };
+  }, [form.loanAmount, form.securedType]);
 
   const submit = async () => {
+    if (!valid) {
+      setError("Please complete all required fields.");
+      return;
+    }
+
     try {
-      const parsed = Schema.parse({
-        ...form,
-        loanAmount: Number(form.loanAmount),
-        existingPGAmount: form.existingPGAmount
-          ? Number(form.existingPGAmount)
-          : undefined
-      });
+      setError("");
 
       const res = await fetch(
         import.meta.env.VITE_API_BASE + "/api/applications",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...parsed, directors: form.directors })
+          body: JSON.stringify({
+            ...form,
+            loanAmount: Number(form.loanAmount)
+          })
         }
       );
 
       if (!res.ok) throw new Error("Submission failed");
-      setSuccess(true);
 
+      setSubmitted(true);
     } catch (e: any) {
       setError(e.message);
     }
   };
 
-  if (success) {
+  if (submitted) {
     return (
       <div className="container">
         <h1>Application Submitted</h1>
-        <p>Our underwriting team will review your submission.</p>
+        <p>Our team will contact you shortly.</p>
       </div>
     );
   }
 
   return (
     <div className="container">
-      <h1>Personal Guarantee Insurance Application</h1>
+      <h1>Apply for Personal Guarantee Insurance</h1>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <h2>Applicant</h2>
-      <input placeholder="First Name" onChange={e => update("firstName", e.target.value)} />
-      <input placeholder="Last Name" onChange={e => update("lastName", e.target.value)} />
-      <input placeholder="Email" onChange={e => update("email", e.target.value)} />
+      <input
+        placeholder="First Name *"
+        value={form.firstName}
+        onChange={e => update("firstName", e.target.value)}
+      />
 
-      <h2>Loan</h2>
-      <input placeholder="Loan Amount" onChange={e => update("loanAmount", e.target.value)} />
-      <select onChange={e => update("securedType", e.target.value)}>
-        <option value="">Select Type</option>
-        <option value="secured">Secured</option>
-        <option value="unsecured">Unsecured</option>
+      <input
+        placeholder="Last Name *"
+        value={form.lastName}
+        onChange={e => update("lastName", e.target.value)}
+      />
+
+      <input
+        placeholder="Email *"
+        value={form.email}
+        onChange={e => update("email", e.target.value)}
+      />
+
+      <input
+        placeholder="Loan Amount (CAD) *"
+        value={form.loanAmount}
+        onChange={e =>
+          update("loanAmount", e.target.value.replace(/[^0-9]/g, ""))
+        }
+      />
+
+      <select
+        value={form.securedType}
+        onChange={e => update("securedType", e.target.value)}
+      >
+        <option value="">Select Loan Type *</option>
+        <option value="secured">Secured (1.6%)</option>
+        <option value="unsecured">Unsecured (4.0%)</option>
       </select>
 
-      <h2>Directors</h2>
-      {form.directors.map((d: any, i: number) => (
-        <div key={i}>
-          <input
-            placeholder="Director Name"
-            value={d.name}
-            onChange={e => updateDirector(i, "name", e.target.value)}
-          />
-          <input
-            placeholder="Ownership %"
-            value={d.ownership}
-            onChange={e => updateDirector(i, "ownership", e.target.value)}
-          />
+      {calc && (
+        <div className="premium-box">
+          <h3>Estimated Coverage</h3>
+          <p>
+            Insured Amount: ${calc.insured.toLocaleString()}
+          </p>
+          <p>
+            Annual Premium: ${calc.premium.toLocaleString()}
+          </p>
         </div>
-      ))}
-      <button onClick={addDirector}>Add Director</button>
-
-      <h2>Existing Guarantees</h2>
-      <label>
-        <input type="checkbox"
-          onChange={e => update("hasExistingPG", e.target.checked)} />
-        Existing Personal Guarantees?
-      </label>
-
-      {form.hasExistingPG && (
-        <input
-          placeholder="Total Existing PG Exposure"
-          onChange={e => update("existingPGAmount", e.target.value)}
-        />
       )}
 
-      <h2>Bankruptcy / Insolvency</h2>
-      <label>
-        <input type="checkbox"
-          onChange={e => update("hasBankruptcy", e.target.checked)} />
-        Declared bankrupt in past 5 years?
-      </label>
-
-      <h2>Previous Claims</h2>
-      <label>
-        <input type="checkbox"
-          onChange={e => update("hasPreviousClaims", e.target.checked)} />
-        Previous PGI claims?
-      </label>
-
-      <button className="btn" onClick={submit}>Submit Application</button>
+      <button
+        className="btn"
+        disabled={!valid}
+        style={{ opacity: valid ? 1 : 0.5 }}
+        onClick={submit}
+      >
+        Submit Application
+      </button>
     </div>
   );
 }
