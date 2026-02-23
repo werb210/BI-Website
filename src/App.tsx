@@ -1,383 +1,162 @@
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Link,
-  Navigate,
-  useNavigate
-} from "react-router-dom";
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 const API = "https://api.boreal.financial/bi";
 
-/* ================= AUTH HELPERS ================= */
+function App() {
+  const [step, setStep] = useState(1);
 
-function getToken() {
-  return localStorage.getItem("bi_token");
-}
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    businessName: "",
+    loanAmount: 0,
+    loanType: "Secured" as "Secured" | "Unsecured",
+    referrerEmail: ""
+  });
 
-function getUser() {
-  const raw = localStorage.getItem("bi_user");
-  return raw ? JSON.parse(raw) : null;
-}
+  const maxCoverage = Math.min(form.loanAmount * 0.8, 1400000);
 
-function decodeToken(token: string) {
-  const payload = token.split(".")[1];
-  return JSON.parse(atob(payload));
-}
+  const rate =
+    form.loanType === "Secured" ? 0.016 : 0.04;
 
-function Protected({ children }: any) {
-  if (!getToken()) return <Navigate to="/login" />;
-  return children;
-}
+  const annualPremium = maxCoverage * rate;
 
-/* ================= NAV ================= */
+  const commission = annualPremium * 0.1;
 
-function Nav() {
-  const user = getUser();
-  const navigate = useNavigate();
+  function update(field: string, value: any) {
+    setForm({ ...form, [field]: value });
+  }
 
-  return (
-    <div className="nav">
-      <div>Boreal Insurance</div>
-      <div>
-        <Link to="/">Home</Link>
-        <Link to="/apply">Apply</Link>
-
-        {user && <Link to="/dashboard">Dashboard</Link>}
-        {user?.role === "admin" && (
-          <Link to="/reports">Reports</Link>
-        )}
-
-        {!user && <Link to="/login">Login</Link>}
-
-        {user && (
-          <button
-            onClick={() => {
-              localStorage.clear();
-              navigate("/");
-            }}
-          >
-            Logout
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* ================= HOME ================= */
-
-function Home() {
-  return (
-    <div className="container">
-      <h1>Personal Guarantee Insurance</h1>
-      <p>
-        Protect your personal assets from business loan default.
-      </p>
-      <Link to="/apply" className="button-primary">
-        Get a Quote
-      </Link>
-    </div>
-  );
-}
-
-/* ================= APPLY ================= */
-
-function Apply() {
-  const navigate = useNavigate();
-  const [form, setForm] = useState<any>({});
-  const [loading, setLoading] = useState(false);
-
-  const calculate = () => {
-    const loan = parseFloat(form.loanAmount || 0);
-    const insured = Math.min(loan * 0.8, 1400000);
-    const rate =
-      form.loanType === "Secured" ? 0.016 : 0.04;
-    return {
-      insured,
-      premium: insured * rate
-    };
-  };
-
-  const submit = async () => {
-    setLoading(true);
-    const { insured, premium } = calculate();
-
+  async function submit() {
     await fetch(`${API}/applications`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
-        ...form,
-        loanAmount: parseFloat(form.loanAmount),
-        insuredAmount: insured,
-        annualPremium: premium
+        name: form.name,
+        email: form.email,
+        businessName: form.businessName,
+        loanAmount: form.loanAmount,
+        loanType: form.loanType,
+        insuredAmount: maxCoverage,
+        annualPremium: annualPremium,
+        referrerEmail: form.referrerEmail || null
       })
     });
 
-    navigate("/success");
-  };
-
-  const { insured, premium } = calculate();
+    setStep(5);
+  }
 
   return (
-    <div className="container">
-      <h1>Application</h1>
+    <div style={{ fontFamily: "Arial", padding: 40 }}>
+      {/* NAV */}
+      <nav style={{ display: "flex", justifyContent: "space-between", marginBottom: 40 }}>
+        <h2>Boreal Insurance</h2>
+        <div>
+          <a href="/lender-login" style={{ marginRight: 20 }}>Lender Login</a>
+          <a href="/referrer-login">Referrer Login</a>
+        </div>
+      </nav>
 
-      <input
-        placeholder="Loan Amount"
-        onChange={(e) =>
-          setForm({ ...form, loanAmount: e.target.value })
-        }
-      />
+      {/* STEP 1 */}
+      {step === 1 && (
+        <div>
+          <h1>Personal Guarantee Insurance Application</h1>
+          <p>Protect yourself against personal guarantee risk.</p>
+          <button onClick={() => setStep(2)}>Start Application</button>
+        </div>
+      )}
 
-      <select
-        onChange={(e) =>
-          setForm({ ...form, loanType: e.target.value })
-        }
-      >
-        <option value="Secured">Secured (1.6%)</option>
-        <option value="Unsecured">Unsecured (4.0%)</option>
-      </select>
+      {/* STEP 2 */}
+      {step === 2 && (
+        <div>
+          <h2>Applicant Details</h2>
 
-      <input
-        placeholder="Full Name"
-        onChange={(e) =>
-          setForm({ ...form, name: e.target.value })
-        }
-      />
-      <input
-        placeholder="Email"
-        onChange={(e) =>
-          setForm({ ...form, email: e.target.value })
-        }
-      />
-      <input
-        placeholder="Business Name"
-        onChange={(e) =>
-          setForm({ ...form, businessName: e.target.value })
-        }
-      />
+          <input
+            placeholder="Full Name"
+            value={form.name}
+            onChange={e => update("name", e.target.value)}
+          />
+          <br /><br />
 
-      <div className="quote-box">
-        Coverage: ${insured.toLocaleString()}
-        <br />
-        Premium: ${premium.toLocaleString()}
-      </div>
+          <input
+            placeholder="Email"
+            value={form.email}
+            onChange={e => update("email", e.target.value)}
+          />
+          <br /><br />
 
-      <button disabled={loading} onClick={submit}>
-        {loading ? "Submitting..." : "Submit"}
-      </button>
+          <input
+            placeholder="Business Name"
+            value={form.businessName}
+            onChange={e => update("businessName", e.target.value)}
+          />
+          <br /><br />
+
+          <button onClick={() => setStep(3)}>Next</button>
+        </div>
+      )}
+
+      {/* STEP 3 */}
+      {step === 3 && (
+        <div>
+          <h2>Loan Details</h2>
+
+          <input
+            type="number"
+            placeholder="Loan Amount"
+            value={form.loanAmount}
+            onChange={e => update("loanAmount", Number(e.target.value))}
+          />
+          <br /><br />
+
+          <select
+            value={form.loanType}
+            onChange={e => update("loanType", e.target.value)}
+          >
+            <option value="Secured">Secured (1.6%)</option>
+            <option value="Unsecured">Unsecured (4.0%)</option>
+          </select>
+          <br /><br />
+
+          <input
+            placeholder="Referrer Email (optional)"
+            value={form.referrerEmail}
+            onChange={e => update("referrerEmail", e.target.value)}
+          />
+          <br /><br />
+
+          <button onClick={() => setStep(4)}>Review</button>
+        </div>
+      )}
+
+      {/* STEP 4 */}
+      {step === 4 && (
+        <div>
+          <h2>Coverage Summary</h2>
+
+          <p>Loan Amount: ${form.loanAmount.toLocaleString()}</p>
+          <p>Max Coverage (80% capped $1.4M): ${maxCoverage.toLocaleString()}</p>
+          <p>Annual Premium: ${annualPremium.toLocaleString()}</p>
+
+          <hr />
+          <small>Internal Commission (10%): ${commission.toLocaleString()}</small>
+
+          <br /><br />
+          <button onClick={submit}>Submit Application</button>
+        </div>
+      )}
+
+      {/* SUCCESS */}
+      {step === 5 && (
+        <div>
+          <h2>Application Submitted</h2>
+          <p>Our team will contact you shortly.</p>
+        </div>
+      )}
     </div>
   );
 }
 
-/* ================= LOGIN ================= */
-
-function Login() {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-
-  const login = async () => {
-    const res = await fetch(`${API}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      setError(data.error || "Login failed");
-      return;
-    }
-
-    const decoded = decodeToken(data.token);
-
-    localStorage.setItem("bi_token", data.token);
-    localStorage.setItem(
-      "bi_user",
-      JSON.stringify(decoded)
-    );
-
-    navigate("/dashboard");
-  };
-
-  return (
-    <div className="container">
-      <h1>Login</h1>
-
-      {error && <div className="error">{error}</div>}
-
-      <input
-        placeholder="Email"
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        onChange={(e) => setPassword(e.target.value)}
-      />
-
-      <button onClick={login}>Login</button>
-    </div>
-  );
-}
-
-/* ================= DASHBOARD ================= */
-
-function Dashboard() {
-  const user = getUser();
-  const [policies, setPolicies] = useState<any[]>([]);
-
-  useEffect(() => {
-    fetch(`${API}/policies`, {
-      headers: {
-        Authorization: `Bearer ${getToken()}`
-      }
-    })
-      .then((r) => r.json())
-      .then(setPolicies);
-  }, []);
-
-  return (
-    <div className="container">
-      <h1>Dashboard</h1>
-      <p>Logged in as: {user?.role}</p>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Policy</th>
-            <th>Premium</th>
-            <th>Start</th>
-            {user?.role === "referrer" && (
-              <th>Commission</th>
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {policies.map((p) => (
-            <tr key={p.id}>
-              <td>{p.policy_number}</td>
-              <td>${p.annual_premium}</td>
-              <td>{p.start_date}</td>
-              {user?.role === "referrer" && (
-                <td>${p.commission}</td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-/* ================= REPORTS ================= */
-
-function Reports() {
-  const user = getUser();
-  const [summary, setSummary] = useState<any>({});
-  const [referrers, setReferrers] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (user?.role !== "admin") return;
-
-    fetch(`${API}/reports/summary`, {
-      headers: {
-        Authorization: `Bearer ${getToken()}`
-      }
-    })
-      .then((r) => r.json())
-      .then(setSummary);
-
-    fetch(`${API}/reports/referrers`, {
-      headers: {
-        Authorization: `Bearer ${getToken()}`
-      }
-    })
-      .then((r) => r.json())
-      .then(setReferrers);
-  }, []);
-
-  if (user?.role !== "admin")
-    return <Navigate to="/" />;
-
-  return (
-    <div className="container">
-      <h1>Admin Reports</h1>
-
-      <div>
-        Total Premium: $
-        {parseFloat(summary.total_premium || 0).toLocaleString()}
-      </div>
-      <div>
-        Total Commission: $
-        {parseFloat(summary.total_commission || 0).toLocaleString()}
-      </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Referrer</th>
-            <th>Total</th>
-            <th>Unpaid</th>
-          </tr>
-        </thead>
-        <tbody>
-          {referrers.map((r) => (
-            <tr key={r.referrer_email}>
-              <td>{r.referrer_email}</td>
-              <td>${r.total_commission}</td>
-              <td>${r.unpaid}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-/* ================= SUCCESS ================= */
-
-function Success() {
-  return (
-    <div className="container">
-      <h1>Application Submitted</h1>
-    </div>
-  );
-}
-
-/* ================= APP ================= */
-
-export default function App() {
-  return (
-    <BrowserRouter>
-      <Nav />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/apply" element={<Apply />} />
-        <Route path="/success" element={<Success />} />
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/dashboard"
-          element={
-            <Protected>
-              <Dashboard />
-            </Protected>
-          }
-        />
-        <Route
-          path="/reports"
-          element={
-            <Protected>
-              <Reports />
-            </Protected>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
-  );
-}
+export default App;
