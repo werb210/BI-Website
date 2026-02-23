@@ -4,28 +4,25 @@ import {
   Route,
   Link,
   Navigate,
-  useNavigate,
-  useParams
+  useNavigate
 } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const API = "https://api.boreal.financial/bi";
 
 const getToken = () => localStorage.getItem("bi_token");
 const getRole = () => localStorage.getItem("bi_role");
 
-function Protected({ children, role }: any) {
+function Protected({ children }: any) {
   if (!getToken()) return <Navigate to="/login" />;
-  if (role && role !== getRole() && getRole() !== "admin")
-    return <Navigate to="/" />;
   return children;
 }
 
 /* ================= NAV ================= */
 
 function Nav() {
-  const role = getRole();
   const navigate = useNavigate();
+  const role = getRole();
 
   return (
     <div className="nav">
@@ -33,8 +30,7 @@ function Nav() {
       <div>
         <Link to="/">Home</Link>
         <Link to="/apply">Apply</Link>
-        {role && <Link to="/policies">Policies</Link>}
-        {role === "admin" && <Link to="/admin">Admin</Link>}
+        {role && <Link to="/dashboard">Dashboard</Link>}
         {!role && <Link to="/login">Login</Link>}
         {role && (
           <button
@@ -51,141 +47,195 @@ function Nav() {
   );
 }
 
+/* ================= PREMIUM LOGIC ================= */
+
+function calculatePremium(loanAmount: number, loanType: string) {
+  const insuredAmount = Math.min(loanAmount * 0.8, 1400000);
+  const rate = loanType === "Secured" ? 0.016 : 0.04;
+  const annualPremium = insuredAmount * rate;
+
+  return { insuredAmount, annualPremium, rate };
+}
+
 /* ================= HOME ================= */
 
 function Home() {
   return (
     <div className="container">
       <h1>Personal Guarantee Insurance</h1>
+      <p>Protect your personal assets from business loan default.</p>
+      <Link to="/apply" className="button-primary">
+        Get a Quote
+      </Link>
+    </div>
+  );
+}
+
+/* ================= MULTI STEP APPLICATION ================= */
+
+function Apply() {
+  const navigate = useNavigate();
+
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const [form, setForm] = useState<any>({
+    loanType: "Secured"
+  });
+
+  const update = (k: string, v: any) => setForm({ ...form, [k]: v });
+
+  const validateStep = () => {
+    if (step === 1 && (!form.loanAmount || form.loanAmount <= 0))
+      return "Loan amount required";
+
+    if (step === 2 && (!form.name || !form.email || !form.businessName))
+      return "All personal details required";
+
+    return "";
+  };
+
+  const next = () => {
+    const validation = validateStep();
+    if (validation) {
+      setError(validation);
+      return;
+    }
+    setError("");
+    setStep(step + 1);
+  };
+
+  const back = () => setStep(step - 1);
+
+  const submit = async () => {
+    setLoading(true);
+    setError("");
+
+    const { insuredAmount, annualPremium } = calculatePremium(
+      parseFloat(form.loanAmount),
+      form.loanType
+    );
+
+    try {
+      await fetch(`${API}/applications`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken() || ""}`
+        },
+        body: JSON.stringify({
+          ...form,
+          insuredAmount,
+          annualPremium,
+          referrerEmail:
+            getRole() === "referrer"
+              ? localStorage.getItem("bi_email")
+              : null
+        })
+      });
+
+      navigate("/success");
+    } catch {
+      setError("Submission failed. Try again.");
+    }
+
+    setLoading(false);
+  };
+
+  const { insuredAmount, annualPremium, rate } = calculatePremium(
+    parseFloat(form.loanAmount || 0),
+    form.loanType
+  );
+
+  return (
+    <div className="container">
+      <h1>Application</h1>
+
+      {error && <div className="error">{error}</div>}
+
+      {step === 1 && (
+        <>
+          <h3>Loan Details</h3>
+
+          <input
+            placeholder="Loan Amount (CAD)"
+            onChange={(e) => update("loanAmount", e.target.value)}
+          />
+
+          <select onChange={(e) => update("loanType", e.target.value)}>
+            <option value="Secured">Secured (1.6%)</option>
+            <option value="Unsecured">Unsecured (4.0%)</option>
+          </select>
+
+          <div className="quote-box">
+            <p>Coverage: ${insuredAmount.toLocaleString()}</p>
+            <p>Annual Premium: ${annualPremium.toLocaleString()}</p>
+            <p>Rate: {(rate * 100).toFixed(1)}%</p>
+          </div>
+
+          <button onClick={next}>Next</button>
+        </>
+      )}
+
+      {step === 2 && (
+        <>
+          <h3>Personal &amp; Business Info</h3>
+
+          <input
+            placeholder="Full Name"
+            onChange={(e) => update("name", e.target.value)}
+          />
+          <input
+            placeholder="Email"
+            onChange={(e) => update("email", e.target.value)}
+          />
+          <input
+            placeholder="Business Name"
+            onChange={(e) => update("businessName", e.target.value)}
+          />
+
+          <div className="buttons">
+            <button onClick={back}>Back</button>
+            <button onClick={next}>Review</button>
+          </div>
+        </>
+      )}
+
+      {step === 3 && (
+        <>
+          <h3>Review</h3>
+
+          <p>Name: {form.name}</p>
+          <p>Email: {form.email}</p>
+          <p>Business: {form.businessName}</p>
+          <p>Loan: ${form.loanAmount}</p>
+          <p>Coverage: ${insuredAmount.toLocaleString()}</p>
+          <p>Premium: ${annualPremium.toLocaleString()}</p>
+
+          <div className="buttons">
+            <button onClick={back}>Back</button>
+            <button disabled={loading} onClick={submit}>
+              {loading ? "Submitting..." : "Submit Application"}
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/* ================= SUCCESS ================= */
+
+function Success() {
+  return (
+    <div className="container">
+      <h1>Application Submitted</h1>
       <p>
-        Secured: 1.6% annually. Unsecured: 4.0% annually.
-        Coverage up to 80% of loan (max $1,400,000 CAD).
+        Thank you. Your Personal Guarantee Insurance application has been
+        received.
       </p>
-    </div>
-  );
-}
-
-/* ================= POLICY LIST ================= */
-
-function PolicyList() {
-  const [policies, setPolicies] = useState<any[]>([]);
-
-  useEffect(() => {
-    fetch(`${API}/policies`, {
-      headers: { Authorization: `Bearer ${getToken()}` }
-    })
-      .then((r) => r.json())
-      .then(setPolicies);
-  }, []);
-
-  return (
-    <div className="container">
-      <h1>Policies</h1>
-
-      {policies.map((p) => (
-        <div key={p.id} className="card">
-          <Link to={`/policy/${p.id}`}>
-            <strong>{p.business_name}</strong>
-          </Link>
-          <p>Status: {p.status}</p>
-          <p>Premium: ${Number(p.annual_premium).toLocaleString()}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/* ================= POLICY DETAIL ================= */
-
-function PolicyDetail() {
-  const { id } = useParams();
-  const [policy, setPolicy] = useState<any>(null);
-
-  useEffect(() => {
-    fetch(`${API}/policies/${id}`, {
-      headers: { Authorization: `Bearer ${getToken()}` }
-    })
-      .then((r) => r.json())
-      .then(setPolicy);
-  }, [id]);
-
-  if (!policy) return <div className="container">Loading...</div>;
-
-  return (
-    <div className="container">
-      <h1>Policy #{policy.policy_number || id}</h1>
-      <p>Status: {policy.status}</p>
-      <p>Start: {policy.start_date}</p>
-      <p>End: {policy.end_date}</p>
-
-      <h2>Commission History</h2>
-      {policy.commissions.map((c: any) => (
-        <div key={c.id} className="card">
-          <p>Year {c.year_number}</p>
-          <p>Premium: ${Number(c.premium).toLocaleString()}</p>
-          <p>Commission: ${Number(c.commission_amount).toLocaleString()}</p>
-          <p>Status: {c.payout_status}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/* ================= ADMIN DASHBOARD ================= */
-
-function AdminDashboard() {
-  const [metrics, setMetrics] = useState<any>({});
-  const [aging, setAging] = useState<any>({});
-  const [referrers, setReferrers] = useState<any[]>([]);
-
-  useEffect(() => {
-    fetch(`${API}/admin/metrics`, {
-      headers: { Authorization: `Bearer ${getToken()}` }
-    })
-      .then((r) => r.json())
-      .then(setMetrics);
-
-    fetch(`${API}/admin/commission-aging`, {
-      headers: { Authorization: `Bearer ${getToken()}` }
-    })
-      .then((r) => r.json())
-      .then(setAging);
-
-    fetch(`${API}/admin/referrer-performance`, {
-      headers: { Authorization: `Bearer ${getToken()}` }
-    })
-      .then((r) => r.json())
-      .then(setReferrers);
-  }, []);
-
-  return (
-    <div className="container">
-      <h1>Admin Dashboard</h1>
-
-      <div className="card">
-        <h3>Active Policies: {metrics.activePolicies}</h3>
-        <h3>Cancelled Policies: {metrics.cancelledPolicies}</h3>
-        <h3>Churn Rate: {(metrics.churnRate * 100 || 0).toFixed(2)}%</h3>
-        <h3>Total Premium: ${Number(metrics.totalPremium || 0).toLocaleString()}</h3>
-        <h3>Total Commission: ${Number(metrics.totalCommission || 0).toLocaleString()}</h3>
-      </div>
-
-      <h2>Commission Aging</h2>
-      <div className="card">
-        <p>Current: ${Number(aging.current || 0).toLocaleString()}</p>
-        <p>30+ Days: ${Number(aging.over_30 || 0).toLocaleString()}</p>
-        <p>60+ Days: ${Number(aging.over_60 || 0).toLocaleString()}</p>
-        <p>90+ Days: ${Number(aging.over_90 || 0).toLocaleString()}</p>
-      </div>
-
-      <h2>Referrer Ranking</h2>
-      {referrers.map((r) => (
-        <div key={r.referrer_email} className="card">
-          <p>{r.referrer_email}</p>
-          <p>Total Commission: ${Number(r.total_commission).toLocaleString()}</p>
-          <p>Policies: {r.total_policies}</p>
-        </div>
-      ))}
+      <Link to="/">Return Home</Link>
     </div>
   );
 }
@@ -208,6 +258,7 @@ function Login() {
 
     localStorage.setItem("bi_token", data.token);
     localStorage.setItem("bi_role", role);
+    localStorage.setItem("bi_email", email);
 
     navigate("/");
   };
@@ -223,6 +274,7 @@ function Login() {
       </select>
 
       <input placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
+
       <button onClick={login}>Login</button>
     </div>
   );
@@ -236,32 +288,14 @@ export default function App() {
       <Nav />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/apply" element={<Home />} />
+        <Route path="/apply" element={<Apply />} />
+        <Route path="/success" element={<Success />} />
         <Route path="/login" element={<Login />} />
-
         <Route
-          path="/policies"
+          path="/dashboard"
           element={
             <Protected>
-              <PolicyList />
-            </Protected>
-          }
-        />
-
-        <Route
-          path="/policy/:id"
-          element={
-            <Protected>
-              <PolicyDetail />
-            </Protected>
-          }
-        />
-
-        <Route
-          path="/admin"
-          element={
-            <Protected role="admin">
-              <AdminDashboard />
+              <Home />
             </Protected>
           }
         />
