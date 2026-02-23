@@ -6,6 +6,7 @@ import Claims from "./pages/Claims";
 import Contact from "./pages/Contact";
 import LenderLogin from "./pages/LenderLogin";
 import ReferrerLogin from "./pages/ReferrerLogin";
+import MayaChat from "./components/MayaChat";
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/lender-login" element={<LenderLogin />} />
         <Route path="/referrer-login" element={<ReferrerLogin />} />
       </Routes>
+      <MayaChat />
     </>
   );
 }
