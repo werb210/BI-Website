@@ -1,12 +1,25 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import axios from "axios";
 import { API_BASE } from "../config";
 import { useNavigate } from "react-router-dom";
 import { safeRequest } from "../api/request";
 import { useApplicationStore } from "../store/useApplicationStore";
+import AccessRestricted from "../components/AccessRestricted";
+import RateLockIndicator from "../components/RateLockIndicator";
+import { validateLenderToken } from "../utils/lenderAuth";
+import { validateBFRedirect } from "../utils/redirectValidation";
+import { track } from "../utils/analytics";
 
 interface Props {
   lenderMode?: boolean;
+}
+
+const QUOTE_TTL_MS = 1000 * 60 * 60;
+
+function toHex(buffer: ArrayBuffer) {
+  return Array.from(new Uint8Array(buffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 export default function Application({ lenderMode = false }: Props) {
@@ -14,10 +27,42 @@ export default function Application({ lenderMode = false }: Props) {
   const store = useApplicationStore();
   const leadId = localStorage.getItem("biLeadId");
 
+  const params = useMemo(() => new URLSearchParams(window.location.search), []);
+  const lenderToken = params.get("token") || "";
+  const lenderData = lenderMode ? validateLenderToken(lenderToken) : null;
+  const bfToken = params.get("bf_token") || "";
+  const bfData = bfToken ? (validateBFRedirect(bfToken) as Record<string, any> | null) : null;
+
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    store.setReferral(params.get("ref") || undefined);
-    store.setLender(params.get("lender") || undefined);
+    if (bfData) {
+      if (bfData.personal && typeof bfData.personal === "object") {
+        store.setPersonal({ ...store.personal, ...bfData.personal });
+      }
+
+      if (bfData.company && typeof bfData.company === "object") {
+        store.setCompany({ ...store.company, ...bfData.company });
+      }
+
+      if (bfData.guarantee && typeof bfData.guarantee === "object") {
+        store.setGuarantee({ ...store.guarantee, ...bfData.guarantee });
+      }
+
+      if (bfData.referralCode) {
+        store.setReferral(String(bfData.referralCode));
+      }
+
+      if (bfData.lenderId) {
+        store.setLender(String(bfData.lenderId));
+      }
+    }
+
+    if (params.get("ref")) {
+      store.setReferral(params.get("ref") || undefined);
+    }
+
+    if (params.get("lender")) {
+      store.setLender(params.get("lender") || undefined);
+    }
   }, []);
 
   useEffect(() => {
@@ -26,27 +71,63 @@ export default function Application({ lenderMode = false }: Props) {
     }
   }, [lenderMode, store.step]);
 
+  useEffect(() => {
+    track(lenderMode ? "lender_application_started" : "application_started");
+  }, [lenderMode]);
+
+  if ((lenderMode && !lenderData) || (bfToken && !bfData)) {
+    return <AccessRestricted />;
+  }
+
   async function submit() {
     if (store.submitting) {
+      return;
+    }
+
+    if (store.quoteCreatedAt && Date.now() - store.quoteCreatedAt > QUOTE_TTL_MS) {
+      alert("Quote expired. Please refresh.");
       return;
     }
 
     store.setSubmitting(true);
 
     try {
+      if (store.referralCode) {
+        await safeRequest(
+          axios.post(`${API_BASE}/bi/referral/validate`, {
+            code: store.referralCode
+          })
+        );
+      }
+
+      const payload = {
+        leadId,
+        personalData: store.personal,
+        companyData: store.company,
+        guaranteeData: store.guarantee,
+        declarations: store.declarations,
+        consentData: store.consent,
+        quoteResult: store.quote,
+        referralCode: store.referralCode,
+        lenderId: store.lenderId ?? lenderData?.lenderId
+      };
+
+      const digest = await crypto.subtle.digest(
+        "SHA-256",
+        new TextEncoder().encode(JSON.stringify(payload))
+      );
+      const payloadHash = toHex(digest);
+
       await safeRequest(
         axios.post(`${API_BASE}/application`, {
-          leadId,
-          personalData: store.personal,
-          companyData: store.company,
-          guaranteeData: store.guarantee,
-          declarations: store.declarations,
-          consentData: store.consent,
-          quoteResult: store.quote,
-          referralCode: store.referralCode,
-          lenderId: store.lenderId
+          ...payload,
+          payloadHash
         })
       );
+
+      track("application_submitted", {
+        lenderMode
+      });
 
       localStorage.removeItem("bi_app");
       store.reset();
@@ -59,6 +140,7 @@ export default function Application({ lenderMode = false }: Props) {
   return (
     <div className="container">
       <h1>Personal Guarantee Insurance</h1>
+      <RateLockIndicator quoteCreatedAt={store.quoteCreatedAt} />
 
       {!lenderMode && (
         <>

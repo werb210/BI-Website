@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { API_BASE } from "../config";
 import { safeRequest } from "../api/request";
+import { track } from "../utils/analytics";
 
 export default function Quote() {
   const nav = useNavigate();
@@ -17,8 +18,15 @@ export default function Quote() {
       })
     );
 
+    const quoteCreatedAt = Date.now();
     localStorage.setItem("biLeadId", data.leadId);
     localStorage.setItem("biQuote", JSON.stringify(data));
+    localStorage.setItem("biQuoteCreatedAt", String(quoteCreatedAt));
+
+    track("quote_generated", {
+      guaranteeAmount: amount,
+      termMonths: term
+    });
 
     nav("/apply");
   }

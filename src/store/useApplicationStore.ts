@@ -14,6 +14,7 @@ type PersistedApplicationState = {
   declarations: DeclarationData;
   consent: ConsentData;
   quote: unknown;
+  quoteCreatedAt?: number;
   referralCode?: string;
   lenderId?: string;
 };
@@ -28,6 +29,7 @@ const defaultState: PersistedApplicationState = {
   declarations: {},
   consent: {},
   quote: null,
+  quoteCreatedAt: undefined,
   referralCode: undefined,
   lenderId: undefined
 };
@@ -40,6 +42,7 @@ export function useApplicationStore() {
   const [declarations, setDeclarations] = useState<DeclarationData>(defaultState.declarations);
   const [consent, setConsent] = useState<ConsentData>(defaultState.consent);
   const [quote, setQuote] = useState<unknown>(defaultState.quote);
+  const [quoteCreatedAt, setQuoteCreatedAt] = useState<number | undefined>(defaultState.quoteCreatedAt);
   const [referralCode, setReferral] = useState<string | undefined>(defaultState.referralCode);
   const [lenderId, setLender] = useState<string | undefined>(defaultState.lenderId);
   const [submitting, setSubmitting] = useState(false);
@@ -52,6 +55,7 @@ export function useApplicationStore() {
     setDeclarations(saved.declarations ?? defaultState.declarations);
     setConsent(saved.consent ?? defaultState.consent);
     setQuote(saved.quote ?? defaultState.quote);
+    setQuoteCreatedAt(saved.quoteCreatedAt ?? defaultState.quoteCreatedAt);
     setReferral(saved.referralCode ?? defaultState.referralCode);
     setLender(saved.lenderId ?? defaultState.lenderId);
   }
@@ -65,6 +69,8 @@ export function useApplicationStore() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) {
       const savedQuote = localStorage.getItem("biQuote");
+      const savedQuoteCreatedAt = localStorage.getItem("biQuoteCreatedAt");
+
       if (savedQuote) {
         try {
           setQuote(JSON.parse(savedQuote));
@@ -72,6 +78,11 @@ export function useApplicationStore() {
           setQuote(null);
         }
       }
+
+      if (savedQuoteCreatedAt) {
+        setQuoteCreatedAt(Number(savedQuoteCreatedAt));
+      }
+
       return;
     }
 
@@ -91,12 +102,13 @@ export function useApplicationStore() {
       declarations,
       consent,
       quote,
+      quoteCreatedAt,
       referralCode,
       lenderId
     };
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-  }, [step, personal, company, guarantee, declarations, consent, quote, referralCode, lenderId]);
+  }, [step, personal, company, guarantee, declarations, consent, quote, quoteCreatedAt, referralCode, lenderId]);
 
   return {
     step,
@@ -113,6 +125,8 @@ export function useApplicationStore() {
     setConsent,
     quote,
     setQuote,
+    quoteCreatedAt,
+    setQuoteCreatedAt,
     referralCode,
     setReferral,
     lenderId,
