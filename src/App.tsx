@@ -8,6 +8,7 @@ import LenderLogin from "./pages/LenderLogin";
 import ReferrerLogin from "./pages/ReferrerLogin";
 import MayaChat from "./components/MayaChat";
 import MayaAnalytics from "./pages/MayaAnalytics";
+import AdminLogin from "./pages/AdminLogin";
 import AdminGuard from "./components/AdminGuard";
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/lender-login" element={<LenderLogin />} />
         <Route path="/referrer-login" element={<ReferrerLogin />} />
+        <Route path="/admin-login" element={<AdminLogin />} />
         <Route
           path="/admin/maya-analytics"
           element={

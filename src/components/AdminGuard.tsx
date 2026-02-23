@@ -7,8 +7,8 @@ interface Props {
 export default function AdminGuard({ children }: Props) {
   const token = localStorage.getItem("BI_ADMIN_TOKEN");
 
-  if (!token || token !== import.meta.env.VITE_ADMIN_SECRET) {
-    return <Navigate to="/" replace />;
+  if (!token) {
+    return <Navigate to="/admin-login" replace />;
   }
 
   return children;
