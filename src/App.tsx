@@ -6,7 +6,7 @@ import {
   useNavigate,
   useLocation
 } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 /* ================= PRODUCT RULES ================= */
 
@@ -35,7 +35,9 @@ function Navbar() {
         <Link to="/claims">Claims</Link>
         <Link to="/case-studies">Case Studies</Link>
         <Link to="/contact">Contact</Link>
-        <Link to="/apply" className="button-primary">Apply Now</Link>
+        <Link to="/apply" className="button-primary">Apply</Link>
+        <Link to="/lender-login">Lender Login</Link>
+        <Link to="/referrer-login">Referrer Login</Link>
       </div>
     </div>
   );
@@ -48,23 +50,17 @@ function Home() {
   const [loanType, setLoanType] = useState("Secured");
   const navigate = useNavigate();
 
-  const getQuickQuote = () => {
+  const getQuote = () => {
     const result = calculateQuote({ loanAmount, loanType });
-    navigate("/quote", {
-      state: {
-        loanAmount,
-        loanType,
-        quote: result
-      }
-    });
+    navigate("/quote", { state: { loanAmount, loanType, quote: result } });
   };
 
   return (
     <div className="container">
-      <h1>Protect Your Personal Assets</h1>
+      <h1>Personal Guarantee Insurance</h1>
       <p>
-        Personal Guarantee Insurance protects Canadian business owners
-        from personal liability when signing business loans.
+        Protect up to 80% of your personal exposure when signing business loans.
+        Designed for Canadian business owners.
       </p>
 
       <div className="card">
@@ -84,27 +80,23 @@ function Home() {
           <option value="Unsecured">Unsecured (4.0%)</option>
         </select>
 
-        <br /><br />
-
-        <button className="button-primary" onClick={getQuickQuote}>
-          Calculate Premium
+        <button className="button-primary" onClick={getQuote}>
+          Calculate
         </button>
       </div>
 
-      <br />
-
-      <h2>Coverage Rules</h2>
+      <h2>Why Boreal</h2>
       <ul>
-        <li>Up to 80% of the loan amount</li>
-        <li>Maximum insured amount $1,400,000 CAD</li>
-        <li>Secured loans: 1.6% annually</li>
-        <li>Unsecured loans: 4.0% annually</li>
+        <li>Coverage up to $1,400,000 CAD</li>
+        <li>80% maximum exposure protection</li>
+        <li>Structured underwriting process</li>
+        <li>Built for Canadian lenders & directors</li>
       </ul>
     </div>
   );
 }
 
-/* ================= FULL APPLICATION ================= */
+/* ================= APPLICATION ================= */
 
 function Apply() {
   const navigate = useNavigate();
@@ -127,7 +119,7 @@ function Apply() {
 
   return (
     <div className="container">
-      <h1>Personal Guarantee Insurance Application</h1>
+      <h1>PGI Application</h1>
 
       <input placeholder="Full Name" onChange={(e) => update("name", e.target.value)} />
       <input placeholder="Email" onChange={(e) => update("email", e.target.value)} />
@@ -139,35 +131,31 @@ function Apply() {
         <option value="Unsecured">Unsecured</option>
       </select>
 
-      <br /><br />
-
       <button className="button-primary" onClick={submit}>
-        Submit Application
+        Submit
       </button>
     </div>
   );
 }
 
-/* ================= QUOTE PAGE ================= */
+/* ================= QUOTE ================= */
 
 function Quote() {
   const location = useLocation();
   const data: any = location.state;
 
-  if (!data) {
-    return <div className="container"><h1>No Quote Found</h1></div>;
-  }
+  if (!data) return <div className="container"><h1>No Quote</h1></div>;
 
   return (
     <div className="container">
-      <h1>Your PGI Quote</h1>
+      <h1>Your Quote</h1>
 
       <div className="card">
         <h2>Insured Amount</h2>
-        <h3>${data.quote.insuredAmount.toLocaleString()} CAD</h3>
+        <h3>${data.quote.insuredAmount.toLocaleString()}</h3>
 
         <h2>Annual Premium</h2>
-        <h3>${data.quote.annualPremium.toLocaleString()} CAD</h3>
+        <h3>${data.quote.annualPremium.toLocaleString()}</h3>
 
         <p>Rate: {(data.quote.rate * 100).toFixed(2)}%</p>
       </div>
@@ -175,47 +163,83 @@ function Quote() {
   );
 }
 
-/* ================= LENDER SUBMISSION ================= */
+/* ================= AUTH PLACEHOLDER ================= */
 
-function LenderSubmission() {
+function Login({ type }: { type: string }) {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+
+  const login = () => {
+    localStorage.setItem("biRole", type);
+    navigate(`/${type}-dashboard`);
+  };
+
   return (
     <div className="container">
-      <h1>Lender Submission Portal</h1>
-      <p>
-        Submit applications on behalf of your clients.
-        Structured underwriting and secure submission.
-      </p>
-      <Link to="/apply" className="button-primary">
-        Submit New Application
-      </Link>
+      <h1>{type === "lender" ? "Lender Login" : "Referrer Login"}</h1>
+      <input
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <button className="button-primary" onClick={login}>
+        Login
+      </button>
     </div>
   );
 }
 
-/* ================= REFERRER SUBMISSION ================= */
+/* ================= DASHBOARDS ================= */
 
-function ReferrerSubmission() {
+function LenderDashboard() {
+  const [apps, setApps] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("https://api.boreal.financial/bi/applications")
+      .then((r) => r.json())
+      .then(setApps);
+  }, []);
+
   return (
     <div className="container">
-      <h1>Referral Partner Portal</h1>
-      <p>
-        Submit client referrals. Earn recurring commission
-        on approved policies.
-      </p>
-      <Link to="/apply" className="button-primary">
-        Submit Referral
-      </Link>
+      <h1>Lender Dashboard</h1>
+      {apps.map((a, i) => (
+        <div key={i} className="card">
+          <p>{a.businessName}</p>
+          <p>Status: {a.status || "Pending"}</p>
+        </div>
+      ))}
     </div>
   );
 }
 
-/* ================= SIMPLE CONTENT PAGES ================= */
+function ReferrerDashboard() {
+  const [commission, setCommission] = useState(0);
+
+  useEffect(() => {
+    fetch("https://api.boreal.financial/bi/commission")
+      .then((r) => r.json())
+      .then((data) => setCommission(data.total || 0));
+  }, []);
+
+  return (
+    <div className="container">
+      <h1>Referrer Dashboard</h1>
+      <div className="card">
+        <h2>Total Commission Earned</h2>
+        <h3>${commission.toLocaleString()}</h3>
+      </div>
+    </div>
+  );
+}
+
+/* ================= SIMPLE CONTENT ================= */
 
 function SimplePage({ title }: { title: string }) {
   return (
     <div className="container">
       <h1>{title}</h1>
-      <p>Content to be expanded with full marketing copy.</p>
+      <p>Professional content to be expanded.</p>
     </div>
   );
 }
@@ -230,8 +254,10 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/apply" element={<Apply />} />
         <Route path="/quote" element={<Quote />} />
-        <Route path="/lender" element={<LenderSubmission />} />
-        <Route path="/referrer" element={<ReferrerSubmission />} />
+        <Route path="/lender-login" element={<Login type="lender" />} />
+        <Route path="/referrer-login" element={<Login type="referrer" />} />
+        <Route path="/lender-dashboard" element={<LenderDashboard />} />
+        <Route path="/referrer-dashboard" element={<ReferrerDashboard />} />
         <Route path="/what-is-pgi" element={<SimplePage title="What is Personal Guarantee Insurance" />} />
         <Route path="/claims" element={<SimplePage title="Claims Process" />} />
         <Route path="/case-studies" element={<SimplePage title="Case Studies" />} />
