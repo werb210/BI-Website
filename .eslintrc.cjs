@@ -11,7 +11,7 @@ module.exports = {
     "no-undef": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unused-vars": "off",
-    // 🚫 Block hex color usage
+    // 🚫 Block hex color usage + Tailwind blue utilities
     "no-restricted-syntax": [
       "error",
       {
