@@ -1,10 +1,7 @@
 import type { Config } from "tailwindcss"
 
 const config: Config = {
-  content: [
-    "./src/**/*.{js,ts,jsx,tsx,html}",
-    "./client/src/**/*.{js,ts,jsx,tsx,html}"
-  ],
+  content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx,html}"],
   theme: {
     extend: {
       colors: {
@@ -19,6 +16,9 @@ const config: Config = {
       borderColor: {
         subtle: "rgba(255,255,255,0.05)",
         card: "rgba(255,255,255,0.1)"
+      },
+      boxShadow: {
+        soft: "0 10px 30px rgba(0,0,0,0.35)"
       }
     }
   },
