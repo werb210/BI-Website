@@ -46,18 +46,7 @@ export default function MayaChat() {
       {/* Floating Button */}
       <div
         onClick={() => setOpen(!open)}
-        style={{
-          position: "fixed",
-          bottom: 20,
-          right: 20,
-          background: "#020C1C",
-          color: "white",
-          padding: "14px 18px",
-          borderRadius: 30,
-          cursor: "pointer",
-          fontWeight: 600,
-          zIndex: 9999
-        }}
+        className="fixed bottom-5 right-5 bg-brand-bg text-white py-3.5 px-[18px] rounded-[30px] cursor-pointer font-semibold z-[9999]"
       >
         Chat CB – Powered by Maya
       </div>
@@ -80,14 +69,7 @@ export default function MayaChat() {
           }}
         >
           <div
-            style={{
-              background: "#020C1C",
-              color: "white",
-              padding: 14,
-              borderTopLeftRadius: 14,
-              borderTopRightRadius: 14,
-              fontWeight: 600
-            }}
+            className="bg-brand-bg text-white p-[14px] rounded-t-[14px] font-semibold"
           >
             Maya – Boreal Insurance
           </div>
@@ -109,14 +91,7 @@ export default function MayaChat() {
                 }}
               >
                 <span
-                  style={{
-                    display: "inline-block",
-                    padding: "8px 14px",
-                    borderRadius: 18,
-                    background: m.role === "user" ? "#020C1C" : "white",
-                    color: m.role === "user" ? "white" : "#111",
-                    border: m.role === "user" ? "none" : "1px solid #e5e7eb"
-                  }}
+                  className={m.role === "user" ? "inline-block py-2 px-[14px] rounded-[18px] bg-brand-bg text-white" : "inline-block py-2 px-[14px] rounded-[18px] bg-white text-[#111] border border-[#e5e7eb]"}
                 >
                   {m.text}
                 </span>
@@ -138,15 +113,7 @@ export default function MayaChat() {
             />
             <button
               onClick={sendMessage}
-              style={{
-                marginLeft: 8,
-                background: "#020C1C",
-                color: "white",
-                border: "none",
-                padding: "10px 16px",
-                borderRadius: 8,
-                cursor: "pointer"
-              }}
+              className="ml-2 bg-brand-bg text-white border-none py-2.5 px-4 rounded-lg cursor-pointer"
             >
               Send
             </button>

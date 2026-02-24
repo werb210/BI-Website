@@ -12,7 +12,7 @@ export default function Home(){
             Protect your home, savings, and investments.
           </p>
 
-          <Link to="/apply" className="btn-primary">
+          <Link to="/apply" className="bg-brand-accent hover:bg-brand-accentHover text-white rounded-full h-11 px-6 inline-flex items-center justify-center font-medium">
             Start Application
           </Link>
 

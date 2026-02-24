@@ -61,17 +61,6 @@ nav a:hover { color:#fff; }
   font-size:16px;
 }
 
-.btn-primary {
-  display:inline-block;
-  background:#1d4ed8;
-  padding:14px 26px;
-  border-radius:8px;
-  font-weight:600;
-  text-decoration:none;
-  color:#fff;
-}
-
-.btn-primary:hover { background:#2563eb; }
 
 .section { padding:70px 0; }
 

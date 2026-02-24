@@ -51,14 +51,7 @@ export default function MayaAnalytics() {
 
       <button
         onClick={handleLogout}
-        style={{
-          marginBottom: 20,
-          background: "#020C1C",
-          color: "white",
-          border: "none",
-          padding: "8px 14px",
-          cursor: "pointer"
-        }}
+        className="mb-5 bg-brand-bg text-white border-none py-2 px-[14px] cursor-pointer"
       >
         Logout
       </button>

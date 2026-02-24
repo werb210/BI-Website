@@ -1,27 +1,28 @@
-import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-export default function Layout({ children }: { children: ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="app-shell">
-      <header className="site-header">
-        <div className="container nav-inner">
-          <h2 className="logo">Boreal Insurance</h2>
+    <div className="min-h-screen bg-brand-bg text-white">
+      <header className="bg-brand-bg border-b border-subtle">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <h2 className="font-semibold text-xl tracking-tight">
+            Boreal Insurance
+          </h2>
 
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/apply">Apply</Link>
-            <Link to="/lender">Lenders</Link>
-            <Link to="/referrer">Referrers</Link>
-            <Link to="/contact">Contact</Link>
+          <nav className="space-x-6 text-sm text-white/80">
+            <Link to="/" className="hover:text-white">Home</Link>
+            <Link to="/apply" className="hover:text-white">Apply</Link>
+            <Link to="/lender" className="hover:text-white">Lenders</Link>
+            <Link to="/referrer" className="hover:text-white">Referrers</Link>
+            <Link to="/contact" className="hover:text-white">Contact</Link>
           </nav>
         </div>
       </header>
 
       <main>{children}</main>
 
-      <footer className="site-footer">
-        <div className="container">© {new Date().getFullYear()} Boreal Insurance</div>
+      <footer className="bg-brand-bgAlt border-t border-subtle py-8 text-center text-sm text-gray-300">
+        © {new Date().getFullYear()} Boreal Insurance
       </footer>
     </div>
   );
