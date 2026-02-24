@@ -5,7 +5,6 @@ import Contact from "./pages/Contact";
 import LenderPortal from "./pages/LenderPortal";
 import ReferrerPortal from "./pages/ReferrerPortal";
 import PGIApplication from "./pages/PGIApplication";
-import FloatingChat from "./components/FloatingChat";
 
 export default function App() {
   return (
@@ -19,7 +18,9 @@ export default function App() {
         <Route path="/apply" element={<PGIApplication />} />
       </Routes>
 
-      <FloatingChat />
+      <a href="/apply" className="floating-cta">
+        💬 Speak With a PGI Specialist
+      </a>
     </BrowserRouter>
   );
 }

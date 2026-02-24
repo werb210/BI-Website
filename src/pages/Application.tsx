@@ -47,7 +47,7 @@ export default function Application() {
       const referrerCode = localStorage.getItem("bi_referrer_code");
 
       const res = await fetch(
-        import.meta.env.VITE_API_BASE + "/api/applications",
+        "/api/pgi-application",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

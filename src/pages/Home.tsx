@@ -1,46 +1,28 @@
 export default function Home() {
   return (
     <div>
-
-      {/* HERO */}
-      <section
-        style={{
-          backgroundImage: "url('/hero-business.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          padding: "140px 20px",
-          textAlign: "center",
-          color: "white"
-        }}
-      >
-        <div style={{ background: "rgba(0,0,0,0.65)", padding: 40 }}>
-          <h1 style={{ fontSize: 42 }}>Protect What You’ve Built</h1>
-          <p style={{ fontSize: 20, maxWidth: 700, margin: "20px auto" }}>
-            Personal Guarantee Insurance protects directors and business owners
-            when lenders enforce personal guarantees on business debt.
+      <section className="hero">
+        <div className="hero-content">
+          <h1>Protect Your Personal Assets</h1>
+          <p>
+            Personal Guarantee Insurance protects Canadian business owners when
+            lenders enforce personal guarantees. Preserve your savings, home
+            equity, and investments.
           </p>
           <a href="/apply" className="btn-primary">Apply Now</a>
         </div>
       </section>
 
-      {/* WHAT IS PGI */}
-      <section className="content-section">
-        <h2>What is Personal Guarantee Insurance?</h2>
-        <p>
-          Personal Guarantee Insurance (PGI) covers up to 80% of an enforced
-          personal guarantee where a business loan defaults and the lender
-          pursues the guarantor personally.
-        </p>
-        <p>
-          We insure both secured and unsecured liabilities.
-        </p>
-        <p style={{ marginTop: 20, fontWeight: 600 }}>
-          Claims must be initiated prior to the commencement of any bankruptcy
-          or insolvency proceedings.
-        </p>
+      <section className="section">
+        <h2>Coverage Overview</h2>
+        <ul>
+          <li>Coverage up to 80% of the enforced guarantee</li>
+          <li>Maximum insured amount: $1,400,000 CAD</li>
+          <li>We insure both secured and unsecured liabilities</li>
+          <li>Annual renewable policy</li>
+        </ul>
       </section>
 
-      {/* CASE STUDIES */}
       <section className="content-section">
         <h2>Real Protection. Real Scenarios.</h2>
 
@@ -62,7 +44,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }
