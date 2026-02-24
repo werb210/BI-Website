@@ -1,6 +1,12 @@
 import { useState } from "react";
 
-export default function BIAuthGate({ onVerified }: { onVerified: (phone: string) => void }) {
+export default function BIAuthGate({
+  onVerified,
+  userType = "applicant",
+}: {
+  onVerified: (phone: string) => void;
+  userType?: string;
+}) {
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [step, setStep] = useState<"enter" | "verify">("enter");
@@ -9,7 +15,7 @@ export default function BIAuthGate({ onVerified }: { onVerified: (phone: string)
     await fetch("/api/bi/otp/request", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone, userType: "applicant" }),
+      body: JSON.stringify({ phone, userType }),
     });
     setStep("verify");
   }
@@ -18,7 +24,7 @@ export default function BIAuthGate({ onVerified }: { onVerified: (phone: string)
     const res = await fetch("/api/bi/otp/verify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone, code, userType: "applicant" }),
+      body: JSON.stringify({ phone, code, userType }),
     });
 
     if (res.ok) {
