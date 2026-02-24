@@ -40,3 +40,9 @@ body {
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
