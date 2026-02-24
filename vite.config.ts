@@ -33,6 +33,18 @@ export default defineConfig({
               cacheName: "api-cache",
               networkTimeoutSeconds: 10
             }
+          },
+          {
+            urlPattern: /\/api\/bi\/application\/.*\/documents$/,
+            handler: "NetworkOnly",
+            options: {
+              backgroundSync: {
+                name: "bi-upload-queue",
+                options: {
+                  maxRetentionTime: 24 * 60
+                }
+              }
+            }
           }
         ]
       }

@@ -1,15 +1,14 @@
 import { DragEvent, useState } from "react";
-import axios from "axios";
-import { API_BASE } from "../config";
-import { safeRequest } from "../api/request";
+import { enqueueUpload } from "../lib/uploadQueue";
 
 interface Props {
+  appId: string;
   onUploaded?: (data: unknown) => void;
 }
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
 
-export default function FileUpload({ onUploaded }: Props) {
+export default function FileUpload({ appId, onUploaded }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -71,14 +70,22 @@ export default function FileUpload({ onUploaded }: Props) {
       const formData = new FormData();
       formData.append("file", file);
 
-      const data = await safeRequest(
-        axios.post(`${API_BASE}/bi/upload`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data"
-          }
-        })
-      );
+      if (!navigator.onLine) {
+        await enqueueUpload({
+          url: `/api/bi/application/${appId}/documents`,
+          formData
+        });
 
+        onUploaded?.({ queued: true });
+        return;
+      }
+
+      const response = await fetch(`/api/bi/application/${appId}/documents`, {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json().catch(() => null);
       onUploaded?.(data);
     } finally {
       setUploading(false);
