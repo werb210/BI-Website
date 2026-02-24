@@ -7,11 +7,13 @@ export default function Layout({ children }: { children: ReactNode }) {
       <Navbar />
 
       <main className="flex-1">
-        <div className="max-w-7xl mx-auto px-6 py-14 md:py-20">{children}</div>
+        <div className="max-w-7xl mx-auto px-6 py-14 md:py-20">
+          {children}
+        </div>
       </main>
 
       <footer className="bg-brand-bgAlt border-t border-subtle py-8 text-center text-sm text-white/60">
-        © {new Date().getFullYear()} Boreal Insurance
+        © {new Date().getFullYear()} Boreal Financial
       </footer>
     </div>
   );
