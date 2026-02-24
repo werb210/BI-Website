@@ -204,3 +204,12 @@ pre {
   background: #081a2b;
   border-radius: 8px;
 }
+
+
+.premium-box {
+  background:#0d2b45;
+  padding:20px;
+  border-radius:8px;
+  margin-bottom:20px;
+  text-align:center;
+}

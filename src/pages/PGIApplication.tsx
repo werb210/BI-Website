@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BIAuthGate from "../components/BIAuthGate";
 
 export default function PGIApplication() {
@@ -13,6 +13,24 @@ export default function PGIApplication() {
   });
 
   const [premium, setPremium] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    async function loadExisting() {
+      const res = await fetch(`/api/bi/application/by-phone?phone=${phone}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data) {
+          setAppId(data.id);
+          setForm(data.data);
+        }
+      }
+    }
+
+    if (phone) {
+      loadExisting();
+    }
+  }, [phone]);
 
   async function saveDraft() {
     const res = await fetch("/api/bi/application/draft", {
@@ -25,6 +43,7 @@ export default function PGIApplication() {
   }
 
   async function submit() {
+    setLoading(true);
     const res = await fetch("/api/bi/application/submit", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -39,6 +58,7 @@ export default function PGIApplication() {
     const data = await res.json();
     setPremium(data.premium);
     setStep(99);
+    setLoading(false);
   }
 
   if (!phone) {
@@ -81,26 +101,54 @@ export default function PGIApplication() {
       {step === 2 && (
         <>
           <h1>Documents</h1>
-          <p>Upload required documents now, or provide later.</p>
+          <p>Upload required documents now, or continue and provide them later.</p>
 
-          <input type="file" multiple />
+          <input
+            type="file"
+            multiple
+            onChange={async (e: any) => {
+              const files = e.target.files;
+              const formData = new FormData();
 
-          <button onClick={submit}>Submit & Provide Documents Later</button>
+              for (let i = 0; i < files.length; i++) {
+                formData.append("files", files[i]);
+              }
+
+              await fetch(`/api/bi/application/${appId}/documents`, {
+                method: "POST",
+                body: formData,
+              });
+
+              alert("Documents uploaded");
+            }}
+          />
+
+          <button disabled={loading} onClick={submit}>
+            {loading ? "Submitting..." : "Submit & Provide Documents Later"}
+          </button>
         </>
       )}
 
       {step === 99 && premium && (
         <>
           <h1>Premium Estimate</h1>
-          <p>Annual Premium: ${premium.annualPremium}</p>
-          <p>Insured Amount: ${premium.insuredAmount}</p>
-          <p>Rate Applied: {premium.rate * 100}%</p>
+
+          <div className="premium-box">
+            <h2>${premium.annualPremium.toLocaleString()}</h2>
+            <p>Estimated Annual Premium</p>
+
+            <p>Coverage up to ${premium.insuredAmount.toLocaleString()}</p>
+            <p>Rate Applied: {(premium.rate * 100).toFixed(2)}%</p>
+          </div>
+
           <p>
-            Your application has moved to Documents Pending. Our team will review and package it
-            for Purbeck.
+            Your file is now in <strong>Documents Pending</strong>. Our team will package and
+            forward your application to Purbeck.
           </p>
         </>
       )}
+
+      {form.referralId && <p>This application was referred by a registered partner.</p>}
     </div>
   );
 }
