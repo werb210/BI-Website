@@ -2,84 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Boreal Locked Design System */
-
-:root {
-  color-scheme: dark;
-  --brand-bg: rgb(2 12 28);
-  --brand-bg-alt: rgb(7 26 47);
-  --brand-surface: rgb(14 34 57);
-  --radius-lg: 16px;
-  --radius-md: 12px;
-}
-
-h1 {
-  font-size: clamp(2.2rem, 3vw, 3rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-h2 {
-  font-size: clamp(1.6rem, 2.4vw, 2.1rem);
-  font-weight: 600;
-}
-
-p {
-  font-size: 1rem;
-  line-height: 1.65;
-  color: rgba(255, 255, 255, 0.75);
-}
-
-html,
-body,
-#root {
-  height: 100%;
-}
-
+/* Institutional base styling */
 body {
-  margin: 0;
-  background: var(--brand-bg);
-  color: rgba(255, 255, 255, 0.92);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  @apply bg-slate-950 text-white antialiased;
 }
 
-/* Standard container */
-.boreal-container {
-  max-width: 80rem;
-  margin: 0 auto;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-}
-
-/* Standard card */
-.boreal-card {
-  background: var(--brand-surface);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-}
-
-img {
-  display: block;
-  max-width: 100%;
-  height: auto;
-}
-
-input,
-select,
-textarea {
-  background: #0f243d;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-  padding: 14px 16px;
-  color: white;
-  transition: border 0.2s ease;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-  outline: none;
-  border-color: #1e63ff;
+a {
+  @apply text-blue-400 hover:text-blue-300;
 }
