@@ -1,18 +1,22 @@
 import { Link } from "react-router-dom";
+import PremiumCalculator from "../components/PremiumCalculator";
 
-export default function Home() {
-  return (
+export default function Home(){
+  return(
     <>
       <section className="hero">
         <div className="container">
           <h1>Protect Your Personal Assets</h1>
           <p>
-            Personal Guarantee Insurance protects Canadian business owners when
-            lenders enforce personal guarantees.
+            Insurance for Canadian business owners with personal guarantees.
+            Protect your home, savings, and investments.
           </p>
+
           <Link to="/apply" className="btn-primary">
-            Apply Now
+            Start Application
           </Link>
+
+          <PremiumCalculator />
         </div>
       </section>
 
@@ -20,9 +24,9 @@ export default function Home() {
         <div className="container">
           <h2>Coverage Overview</h2>
           <ul>
-            <li>Coverage up to 80% of enforced guarantee</li>
-            <li>Maximum insured amount $1,400,000 CAD</li>
-            <li>Secured & unsecured facilities covered</li>
+            <li>Up to 80% coverage of enforced guarantee</li>
+            <li>Maximum insured: $1,400,000 CAD</li>
+            <li>Secured & unsecured facilities</li>
             <li>Annual renewable policy</li>
           </ul>
         </div>
@@ -30,17 +34,19 @@ export default function Home() {
 
       <section className="section">
         <div className="container">
-          <h2>Real Protection. Real Scenarios.</h2>
-          <p>
-            Construction firm with $1.2M secured loan — 80% covered after
-            enforcement.
-          </p>
-          <p>
-            Franchise operator with $750K unsecured facility — claim paid prior
-            to insolvency.
-          </p>
+          <h2>Why Choose Boreal</h2>
+          <div className="badges">
+            <div className="badge">Canadian Business Focused</div>
+            <div className="badge">Specialist Guarantee Coverage</div>
+            <div className="badge">Trusted UK Underwriter</div>
+            <div className="badge">Secure Application Process</div>
+          </div>
         </div>
       </section>
+
+      <div className="mobile-cta">
+        <Link to="/apply">Apply Now</Link>
+      </div>
     </>
-  );
+  )
 }
