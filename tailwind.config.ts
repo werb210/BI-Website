@@ -6,9 +6,9 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          bg: "#020C1C",
-          bgAlt: "#071A2F",
-          surface: "#0E2239",
+          bg: "rgb(2 12 28)",
+          bgAlt: "rgb(7 26 47)",
+          surface: "rgb(14 34 57)",
           accent: "#F2994A",
           accentHover: "#E8892F"
         }

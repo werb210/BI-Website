@@ -4,16 +4,17 @@ export default function Navbar() {
   return (
     <header className="bg-brand-bg border-b border-subtle">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+
         <Link
           to="/"
           className="text-xl font-semibold tracking-tight hover:opacity-90"
         >
-          Boreal Insurance
+          Boreal Financial
         </Link>
 
         <nav className="hidden md:flex items-center gap-8 text-sm text-white/80">
-          <Link to="/coverage" className="hover:text-white">
-            Coverage
+          <Link to="/products" className="hover:text-white">
+            Products
           </Link>
           <Link to="/how-it-works" className="hover:text-white">
             How It Works
