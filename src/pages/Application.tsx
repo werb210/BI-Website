@@ -1,19 +1,28 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
+import { useDraft } from "../hooks/useDraft";
+
+const initialFormState = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  loanAmount: "",
+  securedType: ""
+};
 
 export default function Application() {
-  const [form, setForm] = useState<any>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    loanAmount: "",
-    securedType: ""
-  });
-
+  const { state: form, setState: setForm, clearDraft } = useDraft(
+    "bi-application-draft",
+    initialFormState
+  );
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [hasRestoredDraft] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return Boolean(localStorage.getItem("bi-application-draft"));
+  });
 
-  const update = (k: string, v: any) =>
-    setForm((p: any) => ({ ...p, [k]: v }));
+  const update = (k: string, v: string) =>
+    setForm((p: typeof initialFormState) => ({ ...p, [k]: v }));
 
   const valid =
     form.firstName &&
@@ -46,23 +55,21 @@ export default function Application() {
       const lenderEmail = localStorage.getItem("bi_lender_email");
       const referrerCode = localStorage.getItem("bi_referrer_code");
 
-      const res = await fetch(
-        "/api/pgi-application",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...form,
-            loanAmount: Number(form.loanAmount),
-            source,
-            lenderEmail,
-            referrerCode
-          })
-        }
-      );
+      const res = await fetch("/api/pgi-application", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          loanAmount: Number(form.loanAmount),
+          source,
+          lenderEmail,
+          referrerCode
+        })
+      });
 
       if (!res.ok) throw new Error("Submission failed");
 
+      clearDraft();
       setSubmitted(true);
     } catch (e: any) {
       setError(e.message);
@@ -81,6 +88,12 @@ export default function Application() {
   return (
     <div className="container">
       <h1>Apply for Personal Guarantee Insurance</h1>
+
+      {hasRestoredDraft && (
+        <div className="bg-brand-bgAlt border border-card rounded-lg p-4 mb-6 text-sm">
+          Draft restored from previous session.
+        </div>
+      )}
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
@@ -122,12 +135,8 @@ export default function Application() {
       {calc && (
         <div className="premium-box">
           <h3>Estimated Coverage</h3>
-          <p>
-            Insured Amount: ${calc.insured.toLocaleString()}
-          </p>
-          <p>
-            Annual Premium: ${calc.premium.toLocaleString()}
-          </p>
+          <p>Insured Amount: ${calc.insured.toLocaleString()}</p>
+          <p>Annual Premium: ${calc.premium.toLocaleString()}</p>
         </div>
       )}
 
