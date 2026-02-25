@@ -5,6 +5,19 @@ import { API_BASE } from "../config";
 import { safeRequest } from "../api/request";
 import { track } from "../lib/analytics";
 
+interface QuoteResponse {
+  leadId: string;
+}
+
+function isQuoteResponse(value: unknown): value is QuoteResponse {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as { leadId?: unknown };
+  return typeof candidate.leadId === "string";
+}
+
 export default function Quote() {
   const nav = useNavigate();
   const [amount, setAmount] = useState(250000);
@@ -18,12 +31,16 @@ export default function Quote() {
 
     lastSubmitRef.current = Date.now();
 
-    const data = await safeRequest(
+    const data = await safeRequest<unknown>(
       axios.post(`${API_BASE}/quote`, {
         guaranteeAmount: amount,
         termMonths: term
       })
     );
+
+    if (!isQuoteResponse(data)) {
+      throw new Error("Invalid quote response");
+    }
 
     const quoteCreatedAt = Date.now();
     localStorage.setItem("biLeadId", data.leadId);

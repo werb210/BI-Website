@@ -57,7 +57,7 @@ export default function ReferrerPortal() {
 
     setLoadingReferral(true);
     try {
-      await apiPost("/api/bi/referrer/add-referral", { phone, ...form });
+      await apiPost("/api/bi/referrer/add-referral", { ...form, phone });
       track("referral_submitted");
       setForm({
         company_name: "",

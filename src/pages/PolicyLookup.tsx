@@ -8,6 +8,22 @@ export default function PolicyLookup() {
   const [policyNumber, setPolicyNumber] = useState("");
   const [result, setResult] = useState<unknown>(null);
 
+  function renderResult(value: unknown) {
+    if (typeof value === "string") {
+      return value;
+    }
+
+    if (typeof value === "number" || typeof value === "boolean") {
+      return String(value);
+    }
+
+    if (value && typeof value === "object") {
+      return JSON.stringify(value, null, 2);
+    }
+
+    return null;
+  }
+
   async function handleLookup(event: FormEvent) {
     event.preventDefault();
 
@@ -41,9 +57,15 @@ export default function PolicyLookup() {
         <button type="submit">Lookup</button>
       </form>
 
-      {result && (
-        <pre>{JSON.stringify(result, null, 2)}</pre>
-      )}
+      {(() => {
+        const renderedResult = renderResult(result);
+
+        if (!renderedResult) {
+          return null;
+        }
+
+        return <pre>{renderedResult}</pre>;
+      })()}
     </div>
   );
 }
