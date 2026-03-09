@@ -5,7 +5,6 @@ import PGIApplication from "./pages/PGIApplication"
 import LenderPortal from "./pages/LenderPortal"
 import ReferrerPortal from "./pages/ReferrerPortal"
 import Contact from "./pages/Contact"
-import DynamicLanding from "./pages/landing/DynamicLanding"
 
 export default function App() {
 
@@ -20,10 +19,7 @@ export default function App() {
         <Route path="/referrer" element={<ReferrerPortal />} />
         <Route path="/contact" element={<Contact />} />
 
-      
-<Route path="/landing" element={<DynamicLanding />} />
-
-</Routes>
+      </Routes>
 
     </BrowserRouter>
   )
