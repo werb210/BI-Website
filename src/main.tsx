@@ -2,6 +2,11 @@ import "./index.css";
 import { validateEnv } from "./config/envGuard";
 validateEnv();
 
+import { captureCampaign } from "./lib/campaignTracker"
+captureCampaign()
+captureReferral()
+
+import { captureReferral } from "./lib/referralTracker"
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";

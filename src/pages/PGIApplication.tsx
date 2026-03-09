@@ -1,3 +1,4 @@
+import { trackConversion } from "../lib/conversion"
 import { useEffect, useState } from "react";
 import BIAuthGate from "../components/BIAuthGate";
 import LoadingButton from "../components/LoadingButton";
