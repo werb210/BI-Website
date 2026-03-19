@@ -14,9 +14,9 @@ export function initAnalytics() {
     document.head.appendChild(gtagScript);
 
     (window as any).dataLayer = (window as any).dataLayer || [];
-    function gtag(...args: any[]) {
+    const gtag = (...args: any[]) => {
       (window as any).dataLayer.push(args);
-    }
+    };
 
     (window as any).gtag = gtag;
     gtag("js", new Date());

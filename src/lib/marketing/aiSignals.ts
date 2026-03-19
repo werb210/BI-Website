@@ -12,5 +12,7 @@ export async function sendAISignal(signal:string,data:any){
       })
     })
 
-  }catch(e){}
+  }catch(e){
+    void e
+  }
 }

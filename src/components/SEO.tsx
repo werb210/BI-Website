@@ -1,6 +1,11 @@
 import { Helmet } from "react-helmet"
 
-export default function SEO({title, description}) {
+type SEOProps = {
+  title: string
+  description: string
+}
+
+export default function SEO({ title, description }: SEOProps) {
 
   return (
     <Helmet>
