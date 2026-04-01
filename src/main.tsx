@@ -1,40 +1,54 @@
 import "./index.css";
-import { validateEnv } from "./config/envGuard";
-validateEnv();
-
-import { captureCampaign } from "./lib/campaignTracker"
-captureCampaign()
-captureReferral()
-
-import { captureReferral } from "./lib/referralTracker"
-import { flushEvents } from "./lib/marketing/eventQueue"
-
-window.addEventListener("load", flushEvents)
+import "./styles.css";
 
 import React from "react";
 import ReactDOM from "react-dom/client";
+
 import App from "./App";
 import ErrorBoundary from "./components/ErrorBoundary";
-import "./styles.css";
-import { processQueue } from "./lib/uploadQueue";
+import { validateEnv } from "./config/envGuard";
+import { getApiBaseUrl } from "./api/request";
 import { initAnalytics } from "./lib/analytics";
+import { captureCampaign } from "./lib/campaignTracker";
+import { flushEvents } from "./lib/marketing/eventQueue";
+import { captureReferral } from "./lib/referralTracker";
+import { processQueue } from "./lib/uploadQueue";
 
-initAnalytics();
+async function assertApiHealth() {
+  const response = await fetch(`${getApiBaseUrl()}/health`);
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
-  </React.StrictMode>
-);
+  if (!response.ok) {
+    throw new Error(`API health check failed (${response.status})`);
+  }
+}
 
-if ("serviceWorker" in navigator) {
+async function bootstrap() {
+  validateEnv();
+  await assertApiHealth();
+
+  captureCampaign();
+  captureReferral();
+  initAnalytics();
+
+  ReactDOM.createRoot(document.getElementById("root")!).render(
+    <React.StrictMode>
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    </React.StrictMode>
+  );
+
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js");
+    flushEvents();
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js");
+    }
+  });
+
+  window.addEventListener("online", () => {
+    processQueue();
   });
 }
 
-window.addEventListener("online", () => {
-  processQueue();
-});
+bootstrap();
