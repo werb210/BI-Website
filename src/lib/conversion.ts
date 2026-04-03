@@ -8,10 +8,11 @@ export function trackConversion(event: string, data: any = {}) {
     data
   }
 
-  fetch("/api/bi/marketing-event", {
+  fetch("/api/v1/marketing-event", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload),
+    credentials: "include"
   }).catch(()=>{})
 
 }

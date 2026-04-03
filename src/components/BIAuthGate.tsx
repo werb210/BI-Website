@@ -27,7 +27,7 @@ export default function BIAuthGate({
 
     setLoading(true);
     try {
-      await apiPost("/api/bi/otp/request", { phone, userType });
+      await apiPost("/api/v1/otp/request", { phone, userType });
       setStep("verify");
     } finally {
       setLoading(false);
@@ -42,7 +42,7 @@ export default function BIAuthGate({
 
     setLoading(true);
     try {
-      await apiPost("/api/bi/otp/verify", { phone, code, userType });
+      await apiPost("/api/v1/otp/verify", { phone, code, userType });
       track("otp_verified");
       onVerified(phone);
     } catch {

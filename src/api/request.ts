@@ -1,7 +1,9 @@
+import { API_BASE } from "../config";
+
 const REQUEST_TIMEOUT_MS = 15000;
 
 export function getApiBaseUrl(): string {
-  const apiBaseUrl = import.meta.env.VITE_API_URL?.trim();
+  const apiBaseUrl = API_BASE?.trim();
 
   if (!apiBaseUrl) {
     throw new Error("Missing VITE_API_URL");
@@ -10,36 +12,46 @@ export function getApiBaseUrl(): string {
   return apiBaseUrl.replace(/\/$/, "");
 }
 
-export async function apiRequest<T>(
+export async function apiCall<T = unknown>(
   path: string,
-  init?: RequestInit
+  options: RequestInit = {}
 ): Promise<T> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   try {
-    const response = await fetch(`${getApiBaseUrl()}${path}`, {
-      ...init,
+    const res = await fetch(`${getApiBaseUrl()}${path}`, {
+      ...options,
       signal: controller.signal,
       headers: {
         "Content-Type": "application/json",
-        ...(init?.headers ?? {}),
+        ...(options.headers || {}),
       },
+      credentials: "include",
     });
 
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(text || `Request failed (${response.status})`);
+    const json = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error((json as { error?: string })?.error || "API error");
     }
 
-    return (await response.json()) as T;
+    if (json && typeof json === "object" && "data" in json) {
+      return (json as { data: T }).data;
+    }
+
+    return json as T;
   } finally {
     clearTimeout(timeout);
   }
 }
 
+export function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
+  return apiCall<T>(path, init);
+}
+
 export function apiPost<T = unknown>(path: string, body: unknown): Promise<T> {
-  return apiRequest<T>(path, {
+  return apiCall<T>(path, {
     method: "POST",
     body: JSON.stringify(body),
   });

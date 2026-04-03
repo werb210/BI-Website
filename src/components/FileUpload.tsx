@@ -72,7 +72,7 @@ export default function FileUpload({ appId, onUploaded }: Props) {
 
       if (!navigator.onLine) {
         await enqueueUpload({
-          url: `/api/bi/application/${appId}/documents`,
+          url: `/api/v1/application/${appId}/documents`,
           formData
         });
 
@@ -80,9 +80,10 @@ export default function FileUpload({ appId, onUploaded }: Props) {
         return;
       }
 
-      const response = await fetch(`/api/bi/application/${appId}/documents`, {
+      const response = await fetch(`/api/v1/application/${appId}/documents`, {
         method: "POST",
-        body: formData
+        body: formData,
+        credentials: "include"
       });
 
       const data = await response.json().catch(() => null);

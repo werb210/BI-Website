@@ -15,7 +15,9 @@ import { captureReferral } from "./lib/referralTracker";
 import { processQueue } from "./lib/uploadQueue";
 
 async function assertApiHealth() {
-  const response = await fetch(`${getApiBaseUrl()}/health`);
+  const response = await fetch(`${getApiBaseUrl()}/api/v1/health`, {
+    credentials: "include"
+  });
 
   if (!response.ok) {
     throw new Error(`API health check failed (${response.status})`);

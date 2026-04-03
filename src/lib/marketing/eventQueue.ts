@@ -23,10 +23,11 @@ export function flushEvents() {
 
   if(queue.length === 0) return
 
-  fetch("/api/bi/marketing-events/batch", {
+  fetch("/api/v1/marketing-events/batch", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(queue)
+    body: JSON.stringify(queue),
+    credentials: "include"
   }).catch(()=>{})
 
   localStorage.removeItem(QUEUE_KEY)
