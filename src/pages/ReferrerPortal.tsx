@@ -32,7 +32,9 @@ export default function ReferrerPortal() {
   }, [phone]);
 
   async function loadProfile() {
-    const res = await fetch(`/api/bi/referrer/profile?phone=${phone}`);
+    const res = await fetch(`/api/v1/referrer/profile?phone=${phone}`, {
+      credentials: "include"
+    });
     const data = await res.json();
     setProfile(data.profile);
     setReferrals(data.referrals || []);
@@ -43,7 +45,7 @@ export default function ReferrerPortal() {
 
     setLoadingAgreement(true);
     try {
-      await apiPost("/api/bi/referrer/request-agreement", { phone });
+      await apiPost("/api/v1/referrer/request-agreement", { phone });
       alert("Agreement sent for signing.");
     } finally {
       setLoadingAgreement(false);
@@ -58,7 +60,7 @@ export default function ReferrerPortal() {
 
     setLoadingReferral(true);
     try {
-      await apiPost("/api/bi/referrer/add-referral", { ...form, phone });
+      await apiPost("/api/v1/referrer/add-referral", { ...form, phone });
       track("referral_submitted");
       setForm({
         company_name: "",

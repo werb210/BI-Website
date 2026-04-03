@@ -1,6 +1,9 @@
 import { useState } from "react";
 
 export default function MayaChat() {
+  const mayaEnabled = true;
+
+  if (!mayaEnabled) return null;
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<
@@ -19,9 +22,10 @@ export default function MayaChat() {
     setMessages(prev => [...prev, userMessage]);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/maya-chat`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/maya/message`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ message: input })
       });
 

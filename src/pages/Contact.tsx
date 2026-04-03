@@ -1,7 +1,6 @@
-import { trackConversion } from "../lib/conversion"
 import { useState } from "react";
 import LoadingButton from "../components/LoadingButton";
-import { apiPost } from "../lib/api";
+import { apiCall } from "../api/request";
 import { track } from "../lib/analytics";
 import { emailValid, phoneValid, required } from "../lib/validation";
 
@@ -27,9 +26,22 @@ export default function Contact() {
 
     setLoading(true);
     try {
-      await apiPost("/api/contact", form);
+      const data = {
+        company: form.company,
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+      };
+
+      await apiCall("/api/v1/crm/lead", {
+        method: "POST",
+        body: JSON.stringify(data)
+      });
       track("contact_submitted");
       alert("Submitted");
+    } catch (err) {
+      console.error("❌ Lead submission failed:", err);
+      alert("Unable to submit right now. Please try again.");
     } finally {
       setLoading(false);
     }

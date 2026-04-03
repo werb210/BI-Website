@@ -32,7 +32,9 @@ export default function LenderPortal() {
       return;
     }
 
-    const res = await fetch(`/api/bi/lender/applications?lenderUserId=${phone}`);
+    const res = await fetch(`/api/v1/lender/applications?lenderUserId=${phone}`, {
+      credentials: "include"
+    });
     const data = await res.json();
     setApps(data);
   }
@@ -45,7 +47,7 @@ export default function LenderPortal() {
 
     setLoading(true);
     try {
-      await apiPost("/api/bi/application/draft", {
+      await apiPost("/api/v1/application/draft", {
         phone: form.client_phone,
         data: {
           client_name: form.client_name,

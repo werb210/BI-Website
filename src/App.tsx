@@ -5,6 +5,7 @@ import PGIApplication from "./pages/PGIApplication"
 import LenderPortal from "./pages/LenderPortal"
 import ReferrerPortal from "./pages/ReferrerPortal"
 import Contact from "./pages/Contact"
+import MayaChat from "./components/MayaChat"
 
 export default function App() {
 
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/contact" element={<Contact />} />
 
       </Routes>
+      <MayaChat />
 
     </BrowserRouter>
   )

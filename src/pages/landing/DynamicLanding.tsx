@@ -9,7 +9,7 @@ export default function DynamicLanding() {
     const params = new URLSearchParams(window.location.search)
     const campaign = params.get("utm_campaign")
 
-    fetch("/api/bi/landing?campaign="+campaign)
+    fetch("/api/v1/landing?campaign="+campaign, { credentials: "include" })
       .then(r=>r.json())
       .then(setContent)
       .catch(()=>{})

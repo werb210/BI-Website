@@ -56,7 +56,8 @@ export async function processQueue() {
     try {
       const response = await fetch(item.url, {
         method: "POST",
-        body: item.formData
+        body: item.formData,
+        credentials: "include"
       });
 
       if (!response.ok) {

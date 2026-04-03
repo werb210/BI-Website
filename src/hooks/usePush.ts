@@ -15,9 +15,10 @@ export async function subscribeToPush() {
     applicationServerKey: import.meta.env.VITE_VAPID_PUBLIC_KEY
   });
 
-  await fetch("/api/bi/push/subscribe", {
+  await fetch("/api/v1/push/subscribe", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(subscription)
+    body: JSON.stringify(subscription),
+    credentials: "include"
   });
 }

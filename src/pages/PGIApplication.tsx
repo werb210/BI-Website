@@ -74,7 +74,9 @@ export default function PGIApplication() {
   }, [phone]);
 
   async function resume() {
-    const res = await fetch(`/api/bi/application/by-phone?phone=${phone}`);
+    const res = await fetch(`/api/v1/application/by-phone?phone=${phone}`, {
+      credentials: "include"
+    });
     if (res.ok) {
       const data = await res.json();
       if (data) {
@@ -85,7 +87,7 @@ export default function PGIApplication() {
   }
 
   async function saveDraft() {
-    const data = await apiPost<{ id: string }>("/api/bi/application/draft", {
+    const data = await apiPost<{ id: string }>("/api/v1/application/draft", {
       phone,
       data: form
     });
@@ -105,7 +107,7 @@ export default function PGIApplication() {
 
     setLoading(true);
 
-    await apiPost("/api/bi/application/submit", {
+    await apiPost("/api/v1/application/submit", {
         applicationId: appId,
         facilityType: form.facilityType,
         loanAmount: form.loanAmount,
