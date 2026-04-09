@@ -1,15 +1,15 @@
-import { API_BASE } from "../config";
-
 const REQUEST_TIMEOUT_MS = 15000;
 
 export function getApiBaseUrl(): string {
-  const apiBaseUrl = API_BASE?.trim();
+  const envUrl = import.meta.env.VITE_API_URL;
 
-  if (!apiBaseUrl) {
-    throw new Error("Missing VITE_API_URL");
+  // DEV fallback (Codespaces / local)
+  if (!envUrl) {
+    console.warn("VITE_API_URL missing — using fallback");
+    return "https://server.boreal.financial";
   }
 
-  return apiBaseUrl.replace(/\/$/, "");
+  return envUrl;
 }
 
 export async function apiCall<T = unknown>(
