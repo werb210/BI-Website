@@ -3,8 +3,14 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   base: "./", // <-- THIS FIXES THE MIME ISSUE
-
-  plugins: [
-    react(),
-  ],
+  plugins: [react()],
+  server: {
+    proxy: {
+      "/api": {
+        target: "https://server.boreal.financial",
+        changeOrigin: true,
+        secure: true,
+      },
+    },
+  },
 });
