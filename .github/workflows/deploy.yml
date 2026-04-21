@@ -5,9 +5,6 @@ on:
     branches:
       - main
 
-env:
-  AZURE_WEBAPP_NAME: BI-Website
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -27,15 +24,9 @@ jobs:
       - name: Build
         run: npm run build
 
-      # IMPORTANT: verify build output exists
-      - name: Verify build
-        run: |
-          ls -la
-          ls -la dist
-
-      - name: Deploy to Azure
+      - name: Deploy
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          app-name: BI-Website
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: dist
+          package: .
