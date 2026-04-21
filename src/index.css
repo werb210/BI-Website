@@ -10,3 +10,10 @@ body {
 a {
   @apply text-blue-400 hover:text-blue-300;
 }
+
+.input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  background: #1f2937;
+}
