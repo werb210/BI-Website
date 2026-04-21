@@ -2,15 +2,8 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  base: "/",
   plugins: [react()],
-  server: {
-    proxy: {
-      "/api": {
-        target: "https://server.boreal.financial",
-        changeOrigin: true,
-        secure: true,
-      },
-    },
-  },
+  build: {
+    outDir: "dist"
+  }
 });

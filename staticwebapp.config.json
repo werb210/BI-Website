@@ -1,9 +1,9 @@
 {
-  "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": ["/assets/*", "/favicon.ico"]
-  },
-  "globalHeaders": {
-    "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://snap.licdn.com https://bat.bing.com; connect-src 'self' https://server.boreal.financial https://www.google-analytics.com https://bat.bing.com https://snap.licdn.com; img-src 'self' data: https://www.google-analytics.com https://bat.bing.com https://snap.licdn.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; frame-src https://www.googletagmanager.com;"
-  }
+  "routes": [
+    {
+      "route": "/*",
+      "serve": "/index.html",
+      "statusCode": 200
+    }
+  ]
 }
