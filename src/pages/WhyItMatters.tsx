@@ -1,21 +1,18 @@
-import React from "react";
-
 export default function WhyItMatters() {
   return (
-    <div className="max-w-5xl mx-auto py-16 px-6 text-white">
-      <h1 className="text-3xl font-bold mb-6">Why it matters</h1>
+    <main className="min-h-screen bg-[#07182E] px-6 py-12 text-white">
+      <div className="mx-auto max-w-4xl rounded-xl border border-white/10 bg-white/5 p-8">
+        <h1 className="mb-6 text-3xl font-bold">Why It Matters</h1>
 
-      <p className="mb-4">
-        Without protection, a business failure can become a personal financial event.
-      </p>
-
-      <p className="mb-4">
-        PGI separates business risk from personal wealth, protecting your household assets.
-      </p>
-
-      <p>
-        It allows you to pursue growth opportunities with reduced downside exposure.
-      </p>
-    </div>
+        <p className="mb-4 text-white/90">
+          Canadian lenders often require personal guarantees, which can put household assets at risk.
+        </p>
+        <p className="mb-4 text-white/90">
+          PGI helps separate business financing risk from personal finances and improves confidence when seeking
+          growth capital.
+        </p>
+        <p className="text-white/90">For founders and directors, it is a practical risk-management layer during borrowing.</p>
+      </div>
+    </main>
   );
 }

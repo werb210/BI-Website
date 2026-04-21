@@ -1,28 +1,24 @@
-import React from "react";
-
 export default function WhatIsPGI() {
   return (
-    <div className="max-w-5xl mx-auto py-16 px-6 text-white">
-      <h1 className="text-3xl font-bold mb-6">What is Personal Guarantee Insurance (PGI)?</h1>
+    <main className="min-h-screen bg-[#07182E] px-6 py-12 text-white">
+      <div className="mx-auto max-w-4xl rounded-xl border border-white/10 bg-white/5 p-8">
+        <h1 className="mb-6 text-3xl font-bold">What is Personal Guarantee Insurance (PGI)?</h1>
 
-      <p className="mb-4">
-        Personal Guarantee Insurance (PGI) is a specialized form of financial protection designed
-        for Canadian business owners who are required to sign a personal guarantee when securing business financing.
-      </p>
+        <p className="mb-4 text-white/90">
+          Personal Guarantee Insurance (PGI) is designed for Canadian business owners and directors who sign
+          personal guarantees to secure financing.
+        </p>
 
-      <p className="mb-4">
-        In Canada, most lenders require business owners and directors to personally guarantee loans.
-        This means your personal assets—including your home and savings—are exposed if the business cannot repay its debt.
-      </p>
+        <p className="mb-4 text-white/90">
+          If a business cannot repay debt, lenders may enforce the personal guarantee. PGI can absorb part of
+          that loss so the guarantor is not fully exposed.
+        </p>
 
-      <p className="mb-4">
-        PGI reduces that risk by covering a portion of the personal guarantee. If a loss occurs,
-        the policy helps absorb the financial impact, protecting your personal net worth.
-      </p>
-
-      <p>
-        Coverage can be structured up to 80% of the guarantee, with a maximum limit of $1,000,000.
-      </p>
-    </div>
+        <p className="text-white/90">
+          In Canada, PGI helps entrepreneurs access funding while reducing personal downside risk tied to growth
+          borrowing.
+        </p>
+      </div>
+    </main>
   );
 }

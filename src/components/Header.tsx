@@ -6,7 +6,7 @@ export default function Header() {
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4">
         <Link to="/" className="flex items-center gap-3">
           <img
-            src="/icon.svg"
+            src="/assets/logos/website%20logo.png"
             alt="Boreal Insurance"
             className="h-10 w-auto"
           />
@@ -15,24 +15,31 @@ export default function Header() {
 
         <nav className="flex flex-wrap items-center gap-3">
           <Link
+            to="/application"
+            className="rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-700"
+          >
+            Apply Now
+          </Link>
+
+          <Link
             to="/referral"
-            className="rounded bg-blue-600 px-4 py-2 text-sm font-medium transition hover:bg-blue-700"
+            className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
           >
             Referral Login
           </Link>
 
           <Link
             to="/lender"
-            className="rounded bg-blue-600 px-4 py-2 text-sm font-medium transition hover:bg-blue-700"
+            className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
           >
             Lender Login
           </Link>
 
           <a
-            href="https://www.borealfinancial.com"
+            href="https://www.boreal.financial/"
             target="_blank"
             rel="noreferrer"
-            className="rounded border border-white px-4 py-2 text-sm font-medium transition hover:bg-white hover:text-black"
+            className="rounded border border-white px-4 py-2 text-sm font-medium text-white transition hover:bg-white hover:text-black"
           >
             Visit Boreal Financial
           </a>

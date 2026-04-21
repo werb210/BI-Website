@@ -8,12 +8,12 @@ const cards = [
   },
   {
     title: "How does it work",
-    body: "Canadian business owners, directors, and entrepreneurs who are asked by lenders to provide personal guarantees for business financing.",
+    body: "PGI is structured around the lender's personal guarantee requirement, then responds if the guarantee is called after default and recoveries.",
     onClickPath: "/how-it-works",
   },
   {
     title: "Coverage",
-    body: "Coverage can protect up to 80% of an enforceable personal guarantee, with limits up to $1.4M depending on lender requirements.",
+    body: "Coverage can protect up to 80% of an enforceable personal guarantee, with limits up to $1M depending on lender requirements.",
     onClickPath: "/coverage",
   },
   {
@@ -35,12 +35,20 @@ export default function Home() {
           personal financial loss when providing guarantees for business loans.
         </p>
 
-        <Link
-          to="/lender/quote"
-          className="inline-flex rounded bg-blue-600 px-6 py-3 text-lg font-semibold transition hover:bg-blue-700"
-        >
-          Get a Quote
-        </Link>
+        <div className="flex flex-wrap justify-center gap-3">
+          <Link
+            to="/quote"
+            className="inline-flex rounded bg-blue-600 px-6 py-3 text-lg font-semibold text-white transition hover:bg-blue-700"
+          >
+            Get a Quote
+          </Link>
+          <Link
+            to="/application"
+            className="inline-flex rounded bg-emerald-600 px-6 py-3 text-lg font-semibold text-white transition hover:bg-emerald-700"
+          >
+            Apply Now
+          </Link>
+        </div>
       </section>
 
       <section className="mx-auto mt-16 grid max-w-5xl gap-8 md:grid-cols-2">
@@ -48,7 +56,7 @@ export default function Home() {
           <article
             key={card.title}
             onClick={() => navigate(card.onClickPath)}
-            className="cursor-pointer hover:opacity-80 transition rounded-lg border border-white/10 bg-white/5 p-6"
+            className="cursor-pointer rounded-lg border border-white/10 bg-white/5 p-6 transition hover:opacity-80"
           >
             <h2 className="mb-3 text-2xl font-semibold">{card.title}</h2>
             <p className="text-white/85">{card.body}</p>

@@ -1,40 +1,24 @@
-import React from "react";
-
 export default function HowItWorks() {
   return (
-    <div className="max-w-5xl mx-auto py-16 px-6 text-white">
-      <h1 className="text-3xl font-bold mb-6">How does PGI work?</h1>
+    <main className="min-h-screen bg-[#07182E] px-6 py-12 text-white">
+      <div className="mx-auto max-w-4xl rounded-xl border border-white/10 bg-white/5 p-8">
+        <h1 className="mb-6 text-3xl font-bold">How PGI Works in Canada</h1>
 
-      <p className="mb-4">
-        Personal Guarantee Insurance (PGI) protects Canadian business owners who have signed a personal
-        guarantee as part of business financing.
-      </p>
-
-      <p className="mb-4">
-        When a business cannot repay its loan, lenders can pursue the guarantor personally.
-        PGI transfers a portion of that risk to the insurer.
-      </p>
-
-      <p className="mb-4">
-        If the guarantee is enforced, the policy pays a percentage of the loss—up to 80%,
-        with a maximum coverage of $1,000,000.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-8 mb-4">What can be covered</h2>
-
-      <ul className="list-disc pl-6 space-y-2 mb-6">
-        <li>Secured business loans</li>
-        <li>Unsecured business loans</li>
-        <li>Equipment financing</li>
-        <li>Commercial mortgages</li>
-        <li>Lines of credit</li>
-      </ul>
-
-      <h2 className="text-xl font-semibold mb-4">Why it matters</h2>
-
-      <p>
-        PGI allows business owners to access capital while reducing personal financial exposure.
-      </p>
-    </div>
+        <ol className="list-decimal space-y-4 pl-5 text-white/90">
+          <li>
+            <span className="font-semibold text-white">Loan and guarantee are set.</span> Your lender issues financing and
+            requires a personal guarantee from owners or directors.
+          </li>
+          <li>
+            <span className="font-semibold text-white">Coverage is selected.</span> A PGI policy is placed against the guarantee
+            amount with coverage up to 80% and a policy limit up to $1,000,000.
+          </li>
+          <li>
+            <span className="font-semibold text-white">Policy responds after enforcement.</span> If the business defaults and a valid
+            claim is triggered, the policy can reimburse the covered portion of the enforceable guarantee.
+          </li>
+        </ol>
+      </div>
+    </main>
   );
 }

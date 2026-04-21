@@ -1,21 +1,15 @@
-import React from "react";
-
 export default function Coverage() {
   return (
-    <div className="max-w-5xl mx-auto py-16 px-6 text-white">
-      <h1 className="text-3xl font-bold mb-6">Coverage</h1>
+    <main className="min-h-screen bg-[#07182E] px-6 py-12 text-white">
+      <div className="mx-auto max-w-4xl rounded-xl border border-white/10 bg-white/5 p-8">
+        <h1 className="mb-6 text-3xl font-bold">Coverage</h1>
 
-      <p className="mb-4">
-        PGI policies can cover up to 80% of an enforceable personal guarantee.
-      </p>
-
-      <p className="mb-4">
-        Maximum coverage is capped at $1,000,000 depending on the loan structure and risk profile.
-      </p>
-
-      <p>
-        Coverage is tailored based on loan size, type (secured vs unsecured), and number of guarantors.
-      </p>
-    </div>
+        <p className="mb-4 text-white/90">PGI can provide up to 80% coverage of an enforceable personal guarantee.</p>
+        <p className="mb-4 text-white/90">Maximum coverage is $1,000,000.</p>
+        <p className="text-white/90">
+          Final terms depend on loan structure, borrower profile, and lender underwriting requirements.
+        </p>
+      </div>
+    </main>
   );
 }
