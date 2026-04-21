@@ -1,60 +1,49 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-const API_URL = import.meta.env.VITE_API_URL || "https://server.boreal.financial";
 
 export default function Quote() {
-  const nav = useNavigate();
-
   const [amount, setAmount] = useState(500000);
+  const [coverage, setCoverage] = useState(80);
   const [type, setType] = useState("secured");
 
-  const handleSubmit = async () => {
-    const res = await fetch(`${API_URL}/api/quote`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        loanAmount: amount,
-        loanType: type,
-        coverage: 0.8,
-        termMonths: 60,
-      }),
-    });
-
-    const data = await res.json();
-
-    sessionStorage.setItem("quote", JSON.stringify(data));
-
-    nav("/quote/result");
-  };
+  const insuredAmount = Math.min((amount * coverage) / 100, amount * 0.8);
+  const rate = type === "secured" ? 0.016 : 0.04;
+  const premium = insuredAmount * rate;
 
   return (
-    <div className="min-h-screen bg-[#0b1220] text-white p-6">
-      <h2 className="text-2xl mb-6">Get a Quote</h2>
+    <div className="text-white">
+      <h1 className="mb-6 text-2xl">Quote Tool</h1>
 
-      <div className="space-y-4 max-w-md">
+      <div className="max-w-xl rounded bg-[#112A4D] p-6">
+        <label className="mb-1 block">Loan Amount</label>
         <input
           type="number"
           value={amount}
           onChange={(e) => setAmount(Number(e.target.value))}
-          className="w-full p-3 rounded bg-gray-800"
+          className="mb-4 w-full rounded p-2 text-black"
         />
 
+        <label className="mb-1 block">Coverage % (max 80)</label>
+        <input
+          type="number"
+          value={coverage}
+          onChange={(e) => setCoverage(Math.min(80, Number(e.target.value)))}
+          className="mb-4 w-full rounded p-2 text-black"
+        />
+
+        <label className="mb-1 block">Loan Type</label>
         <select
           value={type}
           onChange={(e) => setType(e.target.value)}
-          className="w-full p-3 rounded bg-gray-800"
+          className="mb-4 w-full rounded p-2 text-black"
         >
-          <option value="secured">Secured</option>
-          <option value="unsecured">Unsecured</option>
+          <option value="secured">Secured (1.6%)</option>
+          <option value="unsecured">Unsecured (4.0%)</option>
         </select>
 
-        <button
-          onClick={handleSubmit}
-          className="bg-blue-600 w-full py-3 rounded"
-        >
-          Calculate Quote
-        </button>
+        <div className="mt-4">
+          <p>Insured Amount: ${insuredAmount.toLocaleString()}</p>
+          <p className="mt-2 text-lg font-bold">Estimated Premium: ${premium.toLocaleString()}</p>
+        </div>
       </div>
     </div>
   );

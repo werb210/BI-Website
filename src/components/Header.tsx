@@ -6,7 +6,7 @@ export default function Header() {
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4">
         <Link to="/" className="flex items-center gap-3">
           <img
-            src="/assets/logos/website logo.png"
+            src="/icon.svg"
             alt="Boreal Insurance"
             className="h-10 w-auto"
           />

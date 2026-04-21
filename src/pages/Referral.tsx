@@ -43,7 +43,7 @@ export default function Referral() {
     <main className="min-h-screen bg-[#07182E] p-10 text-white">
       <div className="mx-auto max-w-2xl rounded-lg border border-white/10 bg-white/5 p-8">
         <h1 className="mb-2 text-3xl font-semibold">Referral Portal</h1>
-        <p className="mb-8 text-white/80">Capture lead details and forward a CRM-ready payload.</p>
+        <p className="mb-8 text-white/80">Refer your contacts and get paid</p>
 
         <form className="grid gap-4" onSubmit={handleSubmit}>
           <input
