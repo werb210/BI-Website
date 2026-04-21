@@ -1,30 +1,24 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom"
-
-import Home from "./pages/Home"
-import PGIApplication from "./pages/PGIApplication"
-import LenderPortal from "./pages/LenderPortal"
-import ReferrerPortal from "./pages/ReferrerPortal"
-import Contact from "./pages/Contact"
-import MayaChat from "./components/MayaChat"
-import SubmitGuard from "./components/SubmitGuard"
+import React from "react";
 
 export default function App() {
+  const api = import.meta.env.VITE_API_URL;
+  const hasSubmit = Boolean(import.meta.env.VITE_SUBMIT_SECRET);
 
   return (
-    <BrowserRouter>
+    <div style={{ padding: 40, fontFamily: "Arial" }}>
+      <h1>Boreal Insurance</h1>
 
-      <Routes>
+      <p><strong>API:</strong> {api || "NOT SET"}</p>
 
-        <Route path="/" element={<Home />} />
-        <Route path="/apply" element={<SubmitGuard><PGIApplication /></SubmitGuard>} />
-        <Route path="/lender" element={<SubmitGuard><LenderPortal /></SubmitGuard>} />
-        <Route path="/referrer" element={<SubmitGuard><ReferrerPortal /></SubmitGuard>} />
-        <Route path="/contact" element={<SubmitGuard><Contact /></SubmitGuard>} />
+      {!hasSubmit && (
+        <div style={{ marginTop: 20, color: "orange" }}>
+          Submission disabled (missing VITE_SUBMIT_SECRET)
+        </div>
+      )}
 
-      </Routes>
-      <MayaChat />
-
-    </BrowserRouter>
-  )
-
+      <div style={{ marginTop: 20 }}>
+        App is running.
+      </div>
+    </div>
+  );
 }
