@@ -1,0 +1,17 @@
+name: Cleanup SWA Environments
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az staticwebapp environment delete \
+              --name BI-Website \
+              --environment-name pr-${{ github.event.pull_request.number }} \
+              --resource-group <YOUR_RG>
