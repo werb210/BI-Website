@@ -1,5 +1,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import { apiPost } from "../lib/api";
+import BIAuthGate from "../components/BIAuthGate";
+import { getAuthUser, AuthUser } from "../lib/auth";
 
 type ReferralForm = {
   company: string;
@@ -18,6 +20,7 @@ const initialForm: ReferralForm = {
 };
 
 export default function Referral() {
+  const [user, setUser] = useState<AuthUser | null>(getAuthUser());
   const [form, setForm] = useState<ReferralForm>(initialForm);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -39,7 +42,12 @@ export default function Referral() {
     setError("");
     setLoading(true);
     try {
-      await apiPost("/api/v1/referrals", payload);
+      await apiPost("/api/v1/bi/referrer/add-referral", {
+        company_name: form.company,
+        full_name: `${form.firstName} ${form.lastName}`.trim(),
+        email: form.email,
+        phone: form.phone
+      });
       setSubmitted(true);
       setForm(initialForm);
     } catch {
@@ -49,6 +57,14 @@ export default function Referral() {
       setLoading(false);
     }
   };
+
+  if (!user) {
+    return (
+      <main className="min-h-screen bg-[#07182E] p-10 text-white">
+        <BIAuthGate userType="referrer" onVerified={setUser} />
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[#07182E] p-10 text-white">
