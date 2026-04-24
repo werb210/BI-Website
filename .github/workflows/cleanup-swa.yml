@@ -7,11 +7,15 @@ on:
 jobs:
   cleanup:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: azure/CLI@v1
+      - name: Azure Login
+        uses: azure/login@v1
         with:
-          inlineScript: |
-            az staticwebapp environment delete \
-              --name BI-Website \
-              --environment-name pr-${{ github.event.pull_request.number }} \
-              --resource-group <YOUR_RG>
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Delete SWA environment
+        uses: azure/cli@v1
+        with:
+          inlineScript: >
+            az staticwebapp environment delete --name BI-Website --environment-name pr-${{ github.event.pull_request.number }} --resource-group BI-Website-RG --yes
