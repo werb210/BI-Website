@@ -1,1 +1,1 @@
-export { apiPost, apiRequest, getApiBaseUrl } from "../api/request";
+export { apiGet, apiPost, apiRequest, getApiBaseUrl } from "../api/request";

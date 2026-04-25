@@ -14,16 +14,6 @@ export class ApiError extends Error {
   }
 }
 
-function normalizeBiPath(path: string) {
-  if (path.startsWith("/api/v1/application/")) {
-    return path.replace("/api/v1/application/", "/api/v1/bi/application/");
-  }
-  if (path === "/api/v1/application/by-phone") {
-    return "/api/v1/bi/application/by-phone";
-  }
-  return path;
-}
-
 export function getApiBaseUrl() {
   return API_URL;
 }
@@ -32,7 +22,6 @@ export async function apiRequest<T = unknown>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const normalizedPath = normalizeBiPath(path);
   const token = getAuthToken();
 
   const headers: Record<string, string> = {
@@ -41,10 +30,9 @@ export async function apiRequest<T = unknown>(
     ...((options.headers as Record<string, string> | undefined) || {})
   };
 
-  const res = await fetch(`${API_URL}${normalizedPath}`, {
+  const res = await fetch(`${API_URL}${path}`, {
     ...options,
-    headers,
-    credentials: options.credentials
+    headers
   });
 
   if (!res.ok) {

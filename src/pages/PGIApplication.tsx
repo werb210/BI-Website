@@ -71,7 +71,7 @@ const documentTypeOptions = [
   { value: "other", label: "Other" },
 ];
 
-const initialFormState = {
+const initialFormState: PgiFormState = {
   /* Business Info */
   legal_name: "",
   operating_name: "",
@@ -169,7 +169,7 @@ export default function PGIApplication() {
     const poll = async () => {
       const statusResponse = await apiRequest<{ pgiStatus?: PgiApplicationStatus; stage?: PgiApplicationStatus }>(
         `/api/v1/bi/applications/${appId}`,
-        { credentials: "include" }
+        {}
       ).catch(() => null);
 
       const nextStatus = statusResponse?.pgiStatus || statusResponse?.stage;
@@ -189,7 +189,7 @@ export default function PGIApplication() {
   async function resume() {
     const data = await apiRequest<{ id: string; data: Partial<typeof initialFormState> } | null>(
       `/api/v1/bi/application/by-phone?phone=${phone}`,
-      { credentials: "include" }
+      {}
     ).catch(() => null);
     if (data) {
       setAppId(data.id);
@@ -203,8 +203,6 @@ export default function PGIApplication() {
     const data = await apiPost<{ id: string }>("/api/v1/bi/application/draft", {
       phone,
       data: form
-    }, {
-      credentials: "include"
     });
     setAppId(data.id);
   }
@@ -221,13 +219,11 @@ export default function PGIApplication() {
     const payload = new FormData();
     uploadFiles.forEach((selected) => {
       payload.append("files", selected.file);
-      payload.append("doc_type", selected.docType);
+      payload.append("doc_types", selected.docType);
     });
 
     try {
-      await apiPost(`/api/v1/bi/application/${appId}/documents`, payload, {
-        credentials: "include",
-      });
+      await apiPost(`/api/v1/bi/application/${appId}/documents`, payload);
       setUploadProgress(100);
     } catch (error) {
       setUploadProgress(0);
@@ -276,9 +272,7 @@ export default function PGIApplication() {
     }
 
     try {
-      await apiPost("/api/v1/bi/application/submit", submitPayload, {
-        credentials: "include"
-      });
+      await apiPost("/api/v1/bi/application/submit", submitPayload);
 
       track("application_submitted", {
         coverage_type: form.facilityType
@@ -346,7 +340,7 @@ export default function PGIApplication() {
   }
 
   if (!phone) {
-    return <BIAuthGate onVerified={setPhone} />;
+    return <BIAuthGate onVerified={(user) => setPhone(user.phone)} />;
   }
 
   return (
@@ -430,7 +424,7 @@ export default function PGIApplication() {
 
           <select
             value={form.facilityType}
-            onChange={e => setForm({ ...form, facilityType: e.target.value })}
+            onChange={e => setForm({ ...form, facilityType: e.target.value as "secured" | "unsecured" })}
           >
             <option value="secured">Secured</option>
             <option value="unsecured">Unsecured</option>

@@ -198,9 +198,10 @@ export default function LenderPortal() {
           <input className="input mb-3 w-full" type="email" placeholder="Email"
             value={profileForm.email}
             onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })} />
+          {/* OTP-verified phone from auth is the source of truth; keep read-only here. */}
           <input className="input mb-4 w-full" type="tel" placeholder="Mobile phone"
             value={profileForm.phone}
-            onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })} />
+            readOnly />
           {profileError && <p className="mb-3 text-sm text-red-300">{profileError}</p>}
           <LoadingButton loading={savingProfile} onClick={saveProfile}>Continue</LoadingButton>
         </div>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import LoadingButton from "../components/LoadingButton";
-import { apiCall } from "../api/request";
+import { apiRequest } from "../api/request";
 import { track } from "../lib/analytics";
 import { emailValid, phoneValid, required } from "../lib/validation";
 
@@ -33,7 +33,7 @@ export default function Contact() {
         phone: form.phone,
       };
 
-      await apiCall("/api/v1/crm/lead", {
+      await apiRequest("/api/v1/crm/lead", {
         method: "POST",
         body: JSON.stringify(data)
       });
