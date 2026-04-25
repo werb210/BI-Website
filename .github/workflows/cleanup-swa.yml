@@ -6,16 +6,67 @@ on:
 
 jobs:
   cleanup:
+    permissions:
+      id-token: write
+      contents: read
     runs-on: ubuntu-latest
-
     steps:
-      - name: Azure Login
-        uses: azure/login@v1
+      - name: Check Azure credentials availability
+        id: secret_check
+        env:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        run: |
+          if [ -n "$AZURE_CREDENTIALS" ]; then
+            echo "mode=credentials" >> "$GITHUB_OUTPUT"
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          elif [ -n "$AZURE_CLIENT_ID" ] && [ -n "$AZURE_TENANT_ID" ] && [ -n "$AZURE_SUBSCRIPTION_ID" ]; then
+            echo "mode=oidc" >> "$GITHUB_OUTPUT"
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "mode=none" >> "$GITHUB_OUTPUT"
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=SWA cleanup skipped::AZURE_CREDENTIALS (or AZURE_CLIENT_ID + AZURE_TENANT_ID + AZURE_SUBSCRIPTION_ID) is not configured. Preview SWA environment for PR #${{ github.event.pull_request.number }} was not deleted. Add the secrets in repo Settings → Secrets and variables → Actions."
+          fi
+
+      - name: Azure Login (CREDENTIALS mode)
+        if: steps.secret_check.outputs.available == 'true' && steps.secret_check.outputs.mode == 'credentials'
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Delete SWA environment
-        uses: azure/cli@v1
+      - name: Azure Login (OIDC mode)
+        if: steps.secret_check.outputs.available == 'true' && steps.secret_check.outputs.mode == 'oidc'
+        uses: azure/login@v2
         with:
-          inlineScript: >
-            az staticwebapp environment delete --name BI-Website --environment-name pr-${{ github.event.pull_request.number }} --resource-group BI-Website-RG --yes
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Delete SWA preview environment
+        if: steps.secret_check.outputs.available == 'true'
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            set -e
+            ENV_NAME="pr-${{ github.event.pull_request.number }}"
+            SWA_NAME="${{ vars.AZURE_SWA_NAME }}"
+            RG="${{ vars.AZURE_RESOURCE_GROUP }}"
+            if [ -z "$SWA_NAME" ] || [ -z "$RG" ]; then
+              echo "::warning::AZURE_SWA_NAME or AZURE_RESOURCE_GROUP repository variable not set; skipping delete."
+              exit 0
+            fi
+            echo "Deleting SWA preview environment $ENV_NAME in $SWA_NAME ($RG)…"
+            az staticwebapp environment delete \
+              --name "$SWA_NAME" \
+              --resource-group "$RG" \
+              --environment-name "$ENV_NAME" \
+              --yes || \
+              echo "::warning::Environment $ENV_NAME may not exist or was already deleted."
+
+      - name: Skipped
+        if: steps.secret_check.outputs.available != 'true'
+        run: echo "Skipped — Azure credentials not configured."
