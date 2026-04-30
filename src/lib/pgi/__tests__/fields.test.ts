@@ -1,0 +1,3 @@
+import { describe, it, expect } from "vitest";
+import { validatePgi, initialPgiSubmission } from "../fields";
+describe("BI_PGI_ALIGNMENT_v56 client validation", () => { it("flags an empty submission", () => { const r = validatePgi(initialPgiSubmission()); expect(r.ok).toBe(false);}); it("rejects pgi_limit > loan_amount", () => { const s=initialPgiSubmission(); s.guarantor_name="X"; s.guarantor_email="x@y.com"; s.business_name="X"; s.form_data={...s.form_data,naics_code:"541511",formation_date:"2020-01-01",loan_amount:100,pgi_limit:200,annual_revenue:1}; const r=validatePgi(s); expect(r.errors["form_data.pgi_limit"]).toBeTruthy();});});
