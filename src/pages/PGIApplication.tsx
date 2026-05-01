@@ -7,6 +7,7 @@ import { apiPost } from "../lib/api";
 import { ApiError, apiRequest } from "../api/request";
 import { track } from "../lib/analytics";
 import { required } from "../lib/validation";
+import { fetchRequiredDocs, type BiRequiredDoc } from "../api/biRequiredDocs";
 
 type PgiApplicationStatus = "pending" | "under_review" | "quoted" | "bound" | "policy_issued" | "declined";
 
@@ -52,6 +53,11 @@ type PgiFormState = {
 type UploadableDocument = {
   file: File;
   docType: string;
+};
+type UploadedDocument = {
+  filename?: string;
+  doc_type?: string;
+  ocr_status?: string | null;
 };
 
 const pgiStatusDisplayMap: Record<string, string> = {
@@ -129,6 +135,9 @@ export default function PGIApplication() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadFiles, setUploadFiles] = useState<UploadableDocument[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [requiredDocs, setRequiredDocs] = useState<BiRequiredDoc[]>([]);
+  const [requiredDocsError, setRequiredDocsError] = useState<string | null>(null);
+  const [uploadedDocuments, setUploadedDocuments] = useState<UploadedDocument[]>([]);
   const [hasRestoredDraft] = useState(() => {
     if (typeof window === "undefined") return false;
     return Boolean(localStorage.getItem("bi-application-draft"));
@@ -186,6 +195,25 @@ export default function PGIApplication() {
     return () => window.clearInterval(interval);
   }, [step, appId]);
 
+  useEffect(() => {
+    // BI_WEBSITE_BLOCK_1_23_APPLICANT_DOC_UI — load required docs from server.
+    let cancelled = false;
+    fetchRequiredDocs()
+      .then((docs) => {
+        if (!cancelled) {
+          setRequiredDocs(docs);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setRequiredDocsError(err instanceof Error ? err.message : "Failed to load required documents");
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   async function resume() {
     const data = await apiRequest<{ id: string; data: Partial<typeof initialFormState> } | null>(
       `/api/v1/bi/application/by-phone?phone=${phone}`,
@@ -213,6 +241,13 @@ export default function PGIApplication() {
     }
 
     setErrorMessage(null);
+    // BI_WEBSITE_BLOCK_1_23_APPLICANT_DOC_UI — client-side 5 MB cap.
+    const MAX_BYTES = 5 * 1024 * 1024;
+    const tooBig = uploadFiles.find((f) => f.file.size > MAX_BYTES);
+    if (tooBig) {
+      setErrorMessage(`File too large: "${tooBig.file.name}" is ${(tooBig.file.size / 1024 / 1024).toFixed(1)} MB. Max 5 MB per file.`);
+      return;
+    }
     setUploading(true);
     setUploadProgress(10);
 
@@ -223,7 +258,12 @@ export default function PGIApplication() {
     });
 
     try {
-      await apiPost(`/api/v1/bi/application/${appId}/documents`, payload);
+      const response = await apiPost<{ documents?: UploadedDocument[] }>(`/api/v1/bi/application/${appId}/documents`, payload);
+      setUploadedDocuments((response.documents ?? []).map((doc) => ({
+        filename: doc.filename,
+        doc_type: doc.doc_type,
+        ocr_status: doc.ocr_status,
+      })));
       setUploadProgress(100);
     } catch (error) {
       setUploadProgress(0);
@@ -294,6 +334,43 @@ export default function PGIApplication() {
 
   function getStatusLabel(status: string) {
     return pgiStatusDisplayMap[status] || status;
+  }
+  function getIsStartup() {
+    if (!form.formation_date) return false;
+    const formed = new Date(form.formation_date);
+    if (Number.isNaN(formed.getTime())) return false;
+    const now = new Date();
+    let years = now.getUTCFullYear() - formed.getUTCFullYear();
+    const monthDiff = now.getUTCMonth() - formed.getUTCMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && now.getUTCDate() < formed.getUTCDate())) {
+      years -= 1;
+    }
+    return years < 3;
+  }
+  function ocrBadgeClass(status: string | null | undefined) {
+    if (!status || status === "pending" || status === "skipped") return "bg-white/15 text-white/80";
+    if (status === "processing") return "bg-blue-600/25 text-blue-200";
+    if (status === "complete") return "bg-emerald-600/25 text-emerald-200";
+    if (status === "failed") return "bg-red-600/25 text-red-200";
+    return "bg-white/15 text-white/80";
+  }
+  function OcrStatusBadge({ status }: { status: string | null | undefined }) {
+    if (!status || status === "pending") {
+      return <span className={`rounded px-2 py-0.5 text-xs ${ocrBadgeClass(status)}`} title="Document is in the OCR queue.">Queued</span>;
+    }
+    if (status === "processing") {
+      return <span className={`rounded px-2 py-0.5 text-xs ${ocrBadgeClass(status)}`} title="Extracting text via Azure AI Vision.">Processing</span>;
+    }
+    if (status === "complete") {
+      return <span className={`rounded px-2 py-0.5 text-xs ${ocrBadgeClass(status)}`} title="Text extracted. Sent to carrier on submission.">Indexed</span>;
+    }
+    if (status === "failed") {
+      return <span className={`rounded px-2 py-0.5 text-xs ${ocrBadgeClass(status)}`} title="OCR failed; original is stored. Submission will note the failure.">OCR failed</span>;
+    }
+    if (status === "skipped") {
+      return <span className={`rounded px-2 py-0.5 text-xs ${ocrBadgeClass(status)}`} title="Format not OCR-able; original stored as-is.">Stored only</span>;
+    }
+    return <span className={`rounded px-2 py-0.5 text-xs ${ocrBadgeClass(status)}`}>{status}</span>;
   }
 
   function getValidationMessage(error: unknown, fallback: string) {
@@ -647,8 +724,22 @@ export default function PGIApplication() {
           <p>Current PGI status: <strong>{getStatusLabel(pgiStatus)}</strong></p>
           <div className="mt-6">
             <h2>Upload Supporting Documents</h2>
+            {requiredDocsError && <p className="text-xs text-red-300">{requiredDocsError}</p>}
+            {requiredDocs.length > 0 && (
+              <div className="my-3 space-y-1 text-sm">
+                {requiredDocs
+                  .filter((doc) => !doc.if_startup || getIsStartup())
+                  .sort((a, b) => a.sort_order - b.sort_order)
+                  .map((doc) => (
+                    <p key={doc.doc_type} className="text-white/80">
+                      • {doc.display_label}
+                    </p>
+                  ))}
+              </div>
+            )}
             <input
               type="file"
+              accept="image/png,image/jpeg,application/pdf,.pdf,.docx,.doc,.xlsx,.xls,.csv,.txt"
               multiple
               onChange={(e) => setUploadFiles(
                 Array.from(e.target.files || []).map((file) => ({
@@ -681,6 +772,16 @@ export default function PGIApplication() {
             <button onClick={uploadDocuments} disabled={uploading || uploadFiles.length === 0}>
               {uploading ? "Uploading..." : "Upload Documents"}
             </button>
+            {uploadedDocuments.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {uploadedDocuments.map((doc, idx) => (
+                  <div key={`${doc.filename ?? "document"}-${idx}`} className="flex items-center justify-between rounded border border-white/10 bg-white/5 px-3 py-2 text-sm">
+                    <span>{doc.filename ?? doc.doc_type ?? "Document"}</span>
+                    <OcrStatusBadge status={doc.ocr_status} />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <p className="mt-4">
             We will notify you by email/push once a quote is available.
