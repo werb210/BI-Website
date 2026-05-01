@@ -2,21 +2,18 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import PgiFieldsForm from "../pgi/PgiFieldsForm";
+import RequiredDocumentsList, { type DocUploadState } from "./RequiredDocumentsList"; // BI_DOC_LIST_v61
+import { requiredRequirements } from "../../lib/biDocumentRequirements";
 import { initialPgiSubmission, validatePgi, buildSubmission, type PgiSubmission } from "../../lib/pgi/fields";
 import { apiPost } from "../../lib/api";
 type Step = "application" | "documents" | "signature";
 const STORAGE_KEY = "bi_pgi_app_v57";
-const REQUIRED_DOCS = [
-  { key: "financial_statements", label: "Financial Statements" },
-  { key: "bank_statements", label: "Bank Statements (last 6 months)" },
-  { key: "tax_returns", label: "Tax Returns" },
-  { key: "government_id", label: "Government-issued ID" },
-];
+// BI_DOC_LIST_v61 — REQUIRED_DOCS removed; canonical list lives in biDocumentRequirements.ts
 const TC_BOILERPLATE = `By signing below you confirm that all information provided is true and complete to the best of your knowledge, you authorize Boreal Insurance and PGI to verify the information for underwriting purposes, and you agree to the collection, use, and disclosure of personal information in accordance with PIPEDA. <!-- REPLACE BEFORE PROD with reviewed legal text -->`;
 export default function SharedApplicationFlow({ step, lenderMode = false }: { step: Step; lenderMode?: boolean }) { /* omitted for brevity in this environment */
   const navigate = useNavigate(); const prefix = lenderMode ? "/lender" : "";
   const [sub, setSub] = useState<PgiSubmission>(() => initialPgiSubmission()); const [appId, setAppId] = useState<string | null>(null);
-  const [docs, setDocs] = useState<Record<string, File | null>>({}); const [signature, setSignature] = useState(""); const [tcAccepted, setTcAccepted] = useState(false);
+  const [docs, setDocs] = useState<DocUploadState>({}); // BI_DOC_LIST_v61 const [signature, setSignature] = useState(""); const [tcAccepted, setTcAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false); const [error, setError] = useState<string | null>(null); const validation = useMemo(() => validatePgi(sub), [sub]);
   function persist(next: PgiSubmission) { setSub(next); try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {} }
   async function continueToDocs() { if (!validation.ok) return; const body = buildSubmission(sub); const res = await apiPost<{application_id:string}>("/api/v1/bi/applications/public", body); setAppId(res.application_id); navigate(`${prefix}/application/documents`); }

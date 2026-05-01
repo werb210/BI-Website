@@ -2,6 +2,8 @@
 import { useState, useMemo } from "react";
 import BIAuthGate from "../components/BIAuthGate";
 import PgiFieldsForm from "../components/pgi/PgiFieldsForm";
+import RequiredDocumentsList, { type DocUploadState } from "../components/application/RequiredDocumentsList"; // BI_DOC_LIST_v61
+import { requiredRequirements } from "../lib/biDocumentRequirements";
 import { getAuthUser, type AuthUser } from "../lib/auth";
 import { initialPgiSubmission, validatePgi, buildSubmission, type PgiSubmission } from "../lib/pgi/fields";
 import { apiPost } from "../lib/api";
