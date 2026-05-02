@@ -1,1 +1,2 @@
-export { apiGet, apiPost, apiRequest, getApiBaseUrl } from "../api/request";
+export const API = (import.meta.env.VITE_BI_API_URL || window.location.origin)
+  .replace(/\/$/, "") + "/api/v1";
