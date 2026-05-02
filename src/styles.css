@@ -105,3 +105,5 @@ textarea {
   margin-bottom: 20px;
   overflow-x: auto;
 }
+.bi-card { max-width: 720px; margin: 4rem auto; padding: 2rem; background: rgba(0,0,0,0.4); border-radius: 12px; color: #e8eef5; }
+.bi-card h1 { margin-top: 0; }

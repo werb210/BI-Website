@@ -1,29 +1,34 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Home from "./pages/Home";
-import Quote from "./pages/Quote";
+import NewApplication from "./pages/NewApplication";
+import Country from "./pages/Country";
+import Score from "./pages/Score";
+import ScoreResult from "./pages/ScoreResult";
 import Application from "./pages/Application";
-import ApplicationDocuments from "./pages/ApplicationDocuments";
-import ApplicationSignature from "./pages/ApplicationSignature";
+import Thanks from "./pages/Thanks";
+import Quote from "./pages/Quote";
 import LenderPortal from "./pages/LenderPortal";
 import ReferrerPortal from "./pages/ReferrerPortal";
-import Contact from "./pages/Contact";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Header />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/quote" element={<Quote />} />
-        <Route path="/application" element={<Application />} />
-        <Route path="/application/documents" element={<ApplicationDocuments />} />
-        <Route path="/application/signature" element={<ApplicationSignature />} />
-        <Route path="/lender/*" element={<LenderPortal />} />
-        <Route path="/referrer/*" element={<ReferrerPortal />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <main className="bi-main">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/quote" element={<Quote />} />
+          <Route path="/applications/new" element={<NewApplication />} />
+          <Route path="/applications/new/country" element={<Country />} />
+          <Route path="/applications/new/score" element={<Score />} />
+          <Route path="/applications/:publicId/score-result" element={<ScoreResult />} />
+          <Route path="/applications/:publicId/form" element={<Application />} />
+          <Route path="/applications/:publicId/thanks" element={<Thanks />} />
+          <Route path="/lender/*" element={<LenderPortal />} />
+          <Route path="/referrer/*" element={<ReferrerPortal />} />
+        </Routes>
+      </main>
     </BrowserRouter>
   );
 }
