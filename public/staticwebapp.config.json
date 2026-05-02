@@ -1,5 +1,5 @@
 {
-  "$comment": "BI_WEBSITE_BLOCK_1_34_SWA_ROUTING_FIX",
+  "$comment": "BI_WEBSITE_BLOCK_1_34B_SWA_CONFIG_BUNDLED",
   "navigationFallback": {
     "rewrite": "/index.html",
     "exclude": [
