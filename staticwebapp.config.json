@@ -1,9 +1,26 @@
 {
-  "routes": [
-    {
-      "route": "/*",
-      "serve": "/index.html",
+  "$comment": "BI_WEBSITE_BLOCK_1_34_SWA_ROUTING_FIX",
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": [
+      "/assets/*",
+      "/*.{png,jpg,jpeg,gif,svg,webp,ico,css,js,json,txt,xml,webmanifest,woff,woff2,ttf,otf,map}"
+    ]
+  },
+  "mimeTypes": {
+    ".json": "application/json",
+    ".webmanifest": "application/manifest+json"
+  },
+  "globalHeaders": {
+    "Cache-Control": "no-cache",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "strict-origin-when-cross-origin"
+  },
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/index.html",
       "statusCode": 200
     }
-  ]
+  }
 }
