@@ -1,6 +1,15 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../lib/api";
+// BI_WEBSITE_BLOCK_v86_SCORE_NAICS_AND_UPLOAD_v1
+import { NAICS_TOP } from "../data/naicsTop";
+
+function fmtCurrency(raw: string): string {
+  const digits = raw.replace(/[^0-9]/g, "");
+  if (!digits) return "";
+  return "$" + Number(digits).toLocaleString();
+}
+function unfmtCurrency(s: string): string { return s.replace(/[^0-9]/g, ""); }
 
 const EBITDA_MIN = 50_000;
 const LOAN_MAX = 1_000_000;
@@ -19,6 +28,15 @@ export default function Score() {
     collateral_value: "", enterprise_value: "",
   });
   const [terms, setTerms] = useState(false);
+  // BI_WEBSITE_BLOCK_v86_SCORE_NAICS_AND_UPLOAD_v1
+  const [naicsOpen, setNaicsOpen] = useState(false);
+  const [naicsQuery, setNaicsQuery] = useState("");
+  const naicsResults = naicsQuery.trim().length === 0
+    ? NAICS_TOP.slice(0, 12)
+    : NAICS_TOP.filter((e) =>
+        e.code.includes(naicsQuery) ||
+        e.title.toLowerCase().includes(naicsQuery.toLowerCase())
+      ).slice(0, 12);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -57,7 +75,35 @@ export default function Score() {
       </header>
 
       <Field label="What is the NAICS code for the business?" hint="6-digit industry code">
-        <input value={v.naics_code} onChange={(e) => set("naics_code", e.target.value)} placeholder="e.g., 541511" />
+        {/* BI_WEBSITE_BLOCK_v86_SCORE_NAICS_AND_UPLOAD_v1 — Look it up popover */}
+        <div className="bi-naics-row">
+          <input value={v.naics_code} onChange={(e) => set("naics_code", e.target.value.replace(/[^0-9]/g, "").slice(0, 6))} placeholder="e.g., 541511" />
+          <button type="button" className="bi-lookup-btn" onClick={() => setNaicsOpen(true)}>🔍 Look it up</button>
+        </div>
+        {naicsOpen && (
+          <div className="bi-naics-popover" role="dialog" aria-label="NAICS lookup">
+            <div className="bi-naics-popover-head">
+              <input
+                autoFocus
+                placeholder="Search by code or industry…"
+                value={naicsQuery}
+                onChange={(e) => setNaicsQuery(e.target.value)}
+              />
+              <button type="button" className="ghost" onClick={() => setNaicsOpen(false)}>Close</button>
+            </div>
+            <ul className="bi-naics-results">
+              {naicsResults.map((e) => (
+                <li key={e.code}>
+                  <button type="button" onClick={() => { set("naics_code", e.code); setNaicsOpen(false); setNaicsQuery(""); }}>
+                    <span className="bi-naics-code">{e.code}</span>
+                    <span className="bi-naics-title">{e.title}</span>
+                  </button>
+                </li>
+              ))}
+              {naicsResults.length === 0 && <li className="bi-naics-empty">No matches in our top list. Type the 6-digit code directly.</li>}
+            </ul>
+          </div>
+        )}
       </Field>
 
       <Field label="What month-year did this business start generating revenue?">
@@ -68,43 +114,50 @@ export default function Score() {
       <h3 className="bi-section-divider">LOAN & GUARANTEE DETAILS</h3>
 
       <Field label="Loan Amount from Bank">
-        <input type="number" value={v.loan_amount} onChange={(e) => set("loan_amount", e.target.value)} placeholder="$0" />
+        <input type="text" inputMode="decimal" value={fmtCurrency(v.loan_amount)} onChange={(e) => set("loan_amount", unfmtCurrency(e.target.value))} placeholder="$0" />
       </Field>
 
       <Field label="Please declare your desired PGI limit.">
-        <input type="number" value={v.pgi_limit} onChange={(e) => set("pgi_limit", e.target.value)} placeholder="$0" />
+        <input type="text" inputMode="decimal" value={fmtCurrency(v.pgi_limit)} onChange={(e) => set("pgi_limit", unfmtCurrency(e.target.value))} placeholder="$0" />
       </Field>
 
       <h3 className="bi-section-divider">FINANCIAL INFORMATION</h3>
 
       <Field label="What was the business revenue last year?">
-        <input type="number" value={v.annual_revenue} onChange={(e) => set("annual_revenue", e.target.value)} />
+        <input type="text" inputMode="decimal" value={fmtCurrency(v.annual_revenue)} onChange={(e) => set("annual_revenue", unfmtCurrency(e.target.value))} placeholder="$0" />
       </Field>
 
       <Field label="What was the business EBITDA last year?">
-        <input type="number" value={v.ebitda} onChange={(e) => set("ebitda", e.target.value)} />
+        <input type="text" inputMode="decimal" value={fmtCurrency(v.ebitda)} onChange={(e) => set("ebitda", unfmtCurrency(e.target.value))} placeholder="$0" />
         {Number(v.ebitda) > 0 && Number(v.ebitda) < EBITDA_MIN && (
           <div className="field-error">Minimum is ${EBITDA_MIN.toLocaleString()}</div>
         )}
       </Field>
 
       <Field label="What is the total business debt?">
-        <input type="number" value={v.total_debt} onChange={(e) => set("total_debt", e.target.value)} />
+        <input type="text" inputMode="decimal" value={fmtCurrency(v.total_debt)} onChange={(e) => set("total_debt", unfmtCurrency(e.target.value))} placeholder="$0" />
       </Field>
 
       <Field label="What are the total monthly business loan payments?">
-        <input type="number" value={v.monthly_debt_service} onChange={(e) => set("monthly_debt_service", e.target.value)} />
+        <input type="text" inputMode="decimal" value={fmtCurrency(v.monthly_debt_service)} onChange={(e) => set("monthly_debt_service", unfmtCurrency(e.target.value))} placeholder="$0" />
       </Field>
 
       <Field label="Business collateral pledged">
-        <input type="number" value={v.collateral_value} onChange={(e) => set("collateral_value", e.target.value)} />
+        <input type="text" inputMode="decimal" value={fmtCurrency(v.collateral_value)} onChange={(e) => set("collateral_value", unfmtCurrency(e.target.value))} placeholder="$0" />
       </Field>
 
       <Field label="What is the estimated enterprise value of the business?">
-        <input type="number" value={v.enterprise_value} onChange={(e) => set("enterprise_value", e.target.value)} />
+        <input type="text" inputMode="decimal" value={fmtCurrency(v.enterprise_value)} onChange={(e) => set("enterprise_value", unfmtCurrency(e.target.value))} placeholder="$0" />
       </Field>
 
       {/* BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — T&C checkbox */}
+      {/* BI_WEBSITE_BLOCK_v86_SCORE_NAICS_AND_UPLOAD_v1 — pre-filled template */}
+      <div className="bi-template-row">
+        <a href="/templates/pgi-score-template.csv" download className="bi-template-link">
+          ⬆ Upload a pre-filled <span className="bi-template-link-em">template</span>
+        </a>
+      </div>
+
       <label className="bi-field bi-terms">
         <input
           type="checkbox"
