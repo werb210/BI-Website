@@ -11,11 +11,14 @@ export default function Score() {
   const country = params.get("country") || "CA";
   if (country !== "CA") { nav("/applications/new"); }
 
+  // BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — added `terms` so the
+  // progress denominator and submit gate match the carrier's 11/11 bar.
   const [v, setV] = useState({
     naics_code: "", formation_date: "", loan_amount: "", pgi_limit: "",
     annual_revenue: "", ebitda: "", total_debt: "", monthly_debt_service: "",
     collateral_value: "", enterprise_value: "",
   });
+  const [terms, setTerms] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -25,6 +28,8 @@ export default function Score() {
 
   async function submit() {
     setErr(null);
+    // BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — T&C is mandatory
+    if (!terms) { setErr("Please accept the Terms & Conditions to continue."); return; }
     if (Number(v.ebitda) < EBITDA_MIN) { setErr(`Minimum EBITDA is $${EBITDA_MIN.toLocaleString()}`); return; }
     if (Number(v.loan_amount) > LOAN_MAX) { setErr(`Loan amount cannot exceed $${LOAN_MAX.toLocaleString()}`); return; }
     if (Number(v.pgi_limit) > Number(v.loan_amount)) { setErr("PGI limit cannot exceed loan amount."); return; }
@@ -41,13 +46,14 @@ export default function Score() {
     }
   }
 
-  const filled = Object.values(v).filter(Boolean).length;
+  // BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — count T&C as the 11th input
+  const filled = Object.values(v).filter(Boolean).length + (terms ? 1 : 0);
 
   return (
     <div className="bi-card">
       <header className="bi-progress">
-        <div className="bi-progress-bar"><div style={{ width: `${(filled / 10) * 100}%` }} /></div>
-        <span>Fill in Answers: {filled}/10</span>
+        <div className="bi-progress-bar"><div style={{ width: `${(filled / 11) * 100}%` }} /></div>
+        <span>Fill in Answers: {filled}/11</span>
       </header>
 
       <Field label="What is the NAICS code for the business?" hint="6-digit industry code">
@@ -98,11 +104,27 @@ export default function Score() {
         <input type="number" value={v.enterprise_value} onChange={(e) => set("enterprise_value", e.target.value)} />
       </Field>
 
+      {/* BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — T&C checkbox */}
+      <label className="bi-field bi-terms">
+        <input
+          type="checkbox"
+          checked={terms}
+          onChange={(e) => setTerms(e.target.checked)}
+        />
+        <span>
+          I have read and understand the conditions and obligations set forth in our{" "}
+          <a href="/terms" target="_blank" rel="noreferrer">Terms &amp; Conditions</a>.
+        </span>
+      </label>
+
       {err && <div className="form-error">{err}</div>}
 
-      <button className="primary big" disabled={busy || filled < 10} onClick={submit}>
-        {busy ? "Calculating CORE Score…" : "Get my CORE Score"}
-      </button>
+      <div className="bi-actions">
+        <button type="button" className="ghost" onClick={() => nav("/applications/new")}>Cancel</button>
+        <button className="primary big" disabled={busy || filled < 11} onClick={submit}>
+          {busy ? "Calculating CORE Score…" : "Get my CORE Score"}
+        </button>
+      </div>
     </div>
   );
 }

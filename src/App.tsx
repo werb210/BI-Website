@@ -5,6 +5,13 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
+// BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — mount marketing pages
+import Contact from "./pages/Contact";
+import WhatIsPGI from "./pages/WhatIsPGI";
+import HowItWorks from "./pages/HowItWorks";
+import Coverage from "./pages/Coverage";
+import WhyItMatters from "./pages/WhyItMatters";
+import Intro from "./pages/Intro";
 import NewApplication from "./pages/NewApplication";
 import Country from "./pages/Country";
 import Score from "./pages/Score";
@@ -34,6 +41,13 @@ export default function App() {
             <Route path="/referrer/*" element={<ReferrerPortal />} />
             <Route path="/application" element={<Navigate to="/applications/new" replace />} />
             <Route path="/referral" element={<Navigate to="/referrer/login" replace />} />
+            {/* BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — mount marketing pages */}
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/intro" element={<Intro />} />
+            <Route path="/what-is-pgi" element={<WhatIsPGI />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/coverage" element={<Coverage />} />
+            <Route path="/why-it-matters" element={<WhyItMatters />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
