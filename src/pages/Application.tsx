@@ -244,7 +244,8 @@ export default function Application() {
     try {
       await api.patchApp(publicId!, s);
       await api.submit(publicId!);
-      nav(`/applications/${publicId}/thanks`);
+      // BI_WEBSITE_BLOCK_v91_API_BASE_AND_DOCS_STAGE_v1 — go to docs stage first
+      nav(`/applications/${publicId}/documents`);
     } catch (ex: any) {
       if (ex?.data?.fields?.length) {
         setMissing(ex.data.fields);

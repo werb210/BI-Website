@@ -8,6 +8,8 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 // BI_WEBSITE_BLOCK_v90_LENDER_API_DOCS_v1
 import LenderApiDocs from "./pages/LenderApiDocs";
+// BI_WEBSITE_BLOCK_v91_API_BASE_AND_DOCS_STAGE_v1
+import PgiDocuments from "./pages/PgiDocuments";
 // BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — mount marketing pages
 import Contact from "./pages/Contact";
 import WhatIsPGI from "./pages/WhatIsPGI";
@@ -39,6 +41,8 @@ export default function App() {
             <Route path="/applications/new/score" element={<Score />} />
             <Route path="/applications/:publicId/score-result" element={<ScoreResult />} />
             <Route path="/applications/:publicId/form" element={<Application />} />
+            {/* BI_WEBSITE_BLOCK_v91_API_BASE_AND_DOCS_STAGE_v1 — must precede /thanks */}
+            <Route path="/applications/:publicId/documents" element={<PgiDocuments />} />
             <Route path="/applications/:publicId/thanks" element={<Thanks />} />
             {/* BI_WEBSITE_BLOCK_v90_LENDER_API_DOCS_v1 — must precede /lender/* splat */}
             <Route path="/lender/api" element={<LenderApiDocs />} />
