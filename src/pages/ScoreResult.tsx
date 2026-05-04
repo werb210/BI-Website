@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../lib/api";
+// BI_WEBSITE_BLOCK_v87_RESULT_CONFETTI_v1
+import confetti from "canvas-confetti";
 
 export default function ScoreResult() {
   const { publicId } = useParams<{ publicId: string }>();
@@ -10,6 +12,21 @@ export default function ScoreResult() {
   useEffect(() => {
     api.getApp(publicId!).then((r) => setApp(r.application)).catch(() => setApp(null));
   }, [publicId]);
+
+  // BI_WEBSITE_BLOCK_v87_RESULT_CONFETTI_v1 — celebrate approve scores
+  useEffect(() => {
+    if (!app || app.score_decision !== "approve") return;
+    const reduce = typeof window !== "undefined"
+      && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+    const end = Date.now() + 1200;
+    const tick = () => {
+      confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 } });
+      confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 } });
+      if (Date.now() < end) requestAnimationFrame(tick);
+    };
+    tick();
+  }, [app]);
 
   if (!app) return <div className="bi-card">Loading…</div>;
 
