@@ -2,9 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Institutional base styling */
+/* BI_WEBSITE_BLOCK_v83_BODY_PALETTE_PARITY_v1
+   BF-Website palette tokens (mirror of BF-Website body / Footer / Industries).
+   Use these instead of raw hex codes when reskinning BI body pages. */
+:root {
+  --bf-bg: #020817;
+  --bf-surface: #08132a;
+  --bf-surface-alt: #0d1b39;
+  --bf-footer: #071a2f;
+  --bf-cta: #2563eb;
+  --bf-cta-hover: #1d4ed8;
+}
+
+/* Institutional base styling — matched to BF-Website body bg */
 body {
-  @apply bg-slate-950 text-white antialiased;
+  background-color: var(--bf-bg);
+  @apply text-white antialiased;
 }
 
 a {
