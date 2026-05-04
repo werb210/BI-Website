@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
+// BI_WEBSITE_BLOCK_v90_LENDER_API_DOCS_v1
+import LenderApiDocs from "./pages/LenderApiDocs";
 // BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — mount marketing pages
 import Contact from "./pages/Contact";
 import WhatIsPGI from "./pages/WhatIsPGI";
@@ -38,6 +40,8 @@ export default function App() {
             <Route path="/applications/:publicId/score-result" element={<ScoreResult />} />
             <Route path="/applications/:publicId/form" element={<Application />} />
             <Route path="/applications/:publicId/thanks" element={<Thanks />} />
+            {/* BI_WEBSITE_BLOCK_v90_LENDER_API_DOCS_v1 — must precede /lender/* splat */}
+            <Route path="/lender/api" element={<LenderApiDocs />} />
             <Route path="/lender/*" element={<LenderPortal />} />
             <Route path="/referrer/*" element={<ReferrerPortal />} />
             <Route path="/application" element={<Navigate to="/applications/new" replace />} />
