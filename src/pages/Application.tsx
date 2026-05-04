@@ -72,6 +72,16 @@ const SECTIONS: Array<{ title: string; fields: FieldDef[] }> = [
   ]},
 ];
 
+// BI_WEBSITE_BLOCK_v85_APPLICATION_CARRIER_POLISH_v1 — fields the CORE
+// score pre-filled; rendered with the green "CORE" wordmark per carrier UX.
+const CORE_LOCKED: ReadonlySet<string> = new Set([
+  "country", "naics_code", "formation_date",
+  "loan_amount", "pgi_limit",
+  "annual_revenue", "ebitda", "total_debt", "monthly_debt_service",
+  "collateral_value", "enterprise_value",
+  "bankruptcy_history", "insolvency_history",
+  "personal_judgments", "business_judgments",
+]);
 const TOTAL_FIELDS = SECTIONS.reduce((n, s) => n + s.fields.length, 0);
 
 type State = Record<string, any> & { consents?: Record<string, boolean> };
@@ -90,6 +100,24 @@ function FieldInput({ field, state, set }: { field: FieldDef; state: State; set:
   const value = inConsents ? state.consents?.[field.key] : state[field.key];
 
   if (field.type === "boolean") {
+    // BI_WEBSITE_BLOCK_v85_APPLICATION_CARRIER_POLISH_v1 — Yes/No buttons
+    // outside Consents (carrier renders these as side-by-side rounded
+    // buttons). Consents stay as checkboxes (Q39-Q45).
+    if (!inConsents) {
+      const isYes = value === true;
+      const isNo = value === false;
+      const locked = CORE_LOCKED.has(field.key);
+      return (
+        <div className={`bi-field bi-field--bool ${locked ? "bi-field--core" : ""}`}>
+          <span className="bi-field-label">{field.label}{field.required && " *"}</span>
+          <div className="bi-yesno">
+            <button type="button" className={`bi-yesno-btn ${isYes ? "is-active" : ""}`} onClick={() => set(field.key, true)}>Yes</button>
+            <button type="button" className={`bi-yesno-btn ${isNo ? "is-active" : ""}`} onClick={() => set(field.key, false)}>No</button>
+            {locked && <span className="bi-core-mark">CORE</span>}
+          </div>
+        </div>
+      );
+    }
     return (
       <label className="bi-field flex items-center gap-2">
         <input type="checkbox" checked={!!value} onChange={(e)=>set(field.key, e.target.checked, inConsents)} />
@@ -99,6 +127,22 @@ function FieldInput({ field, state, set }: { field: FieldDef; state: State; set:
   }
 
   if (field.type === "select") {
+    // BI_WEBSITE_BLOCK_v85_APPLICATION_CARRIER_POLISH_v1 — country renders
+    // as side-by-side USA/Canada buttons per carrier UX.
+    if (field.key === "country") {
+      const locked = CORE_LOCKED.has(field.key);
+      return (
+        <div className={`bi-field ${locked ? "bi-field--core" : ""}`}>
+          <span className="bi-field-label">{field.label}{field.required && " *"}</span>
+          <div className="bi-country">
+            <button type="button" className={`bi-country-btn ${value === "US" ? "is-active" : ""}`} onClick={() => set(field.key, "US")}>USA</button>
+            <button type="button" className={`bi-country-btn ${value === "CA" ? "is-active" : ""}`} onClick={() => set(field.key, "CA")}>Canada</button>
+            {locked && <span className="bi-core-mark">CORE</span>}
+          </div>
+          <small>Set during application setup</small>
+        </div>
+      );
+    }
     return (
       <label className="bi-field"><span>{field.label}{field.required && " *"}</span>
         <select value={value ?? ""} onChange={(e)=>set(field.key, e.target.value)}>
@@ -110,11 +154,17 @@ function FieldInput({ field, state, set }: { field: FieldDef; state: State; set:
   }
 
   if (field.type === "currency") {
+    // BI_WEBSITE_BLOCK_v85_APPLICATION_CARRIER_POLISH_v1 — CORE marker
+    const locked = CORE_LOCKED.has(field.key);
     return (
-      <label className="bi-field"><span>{field.label}{field.required && " *"}</span>
-        <input type="number" inputMode="decimal" min="0" step="0.01"
-               value={value ?? ""} onChange={(e)=>set(field.key, e.target.value === "" ? "" : Number(e.target.value))}
-               placeholder="0" />
+      <label className={`bi-field ${locked ? "bi-field--core" : ""}`}>
+        <span className="bi-field-label">{field.label}{field.required && " *"}</span>
+        <div className="bi-input-row">
+          <input type="number" inputMode="decimal" min="0" step="0.01"
+                 value={value ?? ""} onChange={(e)=>set(field.key, e.target.value === "" ? "" : Number(e.target.value))}
+                 placeholder="$0" />
+          {locked && <span className="bi-core-mark">CORE</span>}
+        </div>
         {field.help && <small>{field.help}</small>}
       </label>
     );
@@ -226,10 +276,21 @@ export default function Application() {
           </Section>
         );
       })}
-      <div className="mt-6 flex gap-3">
-        <button className="secondary" disabled={busy} onClick={saveDraft}>Save Draft</button>
-        <button className="primary" disabled={busy} onClick={submit}>{busy ? "Submitting…" : "Submit"}</button>
-      </div>
+    </div>
+    {/* BI_WEBSITE_BLOCK_v85_APPLICATION_CARRIER_POLISH_v1 — sticky footer toolbar */}
+    <div className="bi-footer-toolbar">
+      <button type="button" className="bi-toolbar-btn" onClick={() => nav("/")} title="Home">
+        <span className="bi-toolbar-icon">⌂</span><span className="bi-toolbar-label">Home</span>
+      </button>
+      <button type="button" className="bi-toolbar-btn" onClick={() => { if (confirm("Delete this application?")) { setS({ consents: {} }); } }} title="Delete">
+        <span className="bi-toolbar-icon">🗑</span><span className="bi-toolbar-label">Delete</span>
+      </button>
+      <button type="button" className="bi-toolbar-btn" disabled={busy} onClick={saveDraft} title="Save">
+        <span className="bi-toolbar-icon">✎</span><span className="bi-toolbar-label">Save</span>
+      </button>
+      <button type="button" className="bi-toolbar-btn bi-toolbar-btn--primary" disabled={busy} onClick={submit} title="Submit">
+        <span className="bi-toolbar-icon">»</span><span className="bi-toolbar-label">{busy ? "Submitting…" : "Submit"}</span>
+      </button>
     </div>
   </div>;
 }

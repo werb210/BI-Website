@@ -30,3 +30,37 @@ a {
   border-radius: 8px;
   background: #1f2937;
 }
+
+/* BI_WEBSITE_BLOCK_v85_APPLICATION_CARRIER_POLISH_v1 — carrier-aligned polish */
+.bi-yesno, .bi-country { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: center; }
+.bi-yesno-btn, .bi-country-btn {
+  padding: 12px 18px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.04); color: inherit; cursor: pointer; transition: all 0.15s;
+}
+.bi-yesno-btn:hover, .bi-country-btn:hover { background: rgba(255,255,255,0.08); }
+.bi-yesno-btn.is-active, .bi-country-btn.is-active {
+  background: #34d399; color: #03291d; border-color: #34d399; font-weight: 600;
+}
+.bi-core-mark {
+  font-family: ui-monospace, monospace; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.08em; color: #34d399; padding-left: 8px;
+}
+.bi-field--core .bi-core-mark { display: inline; }
+.bi-input-row { display: flex; align-items: center; gap: 8px; }
+.bi-input-row input { flex: 1; }
+.bi-footer-toolbar {
+  position: sticky; bottom: 0; left: 0; right: 0; z-index: 30;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 4px; padding: 10px 16px; backdrop-filter: blur(12px);
+  background: rgba(2, 8, 23, 0.85); border-top: 1px solid rgba(255,255,255,0.08);
+  margin: 24px -16px -16px;
+}
+.bi-toolbar-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 10px; background: transparent; border: none; color: inherit;
+  cursor: pointer; border-radius: 8px; transition: background 0.15s;
+}
+.bi-toolbar-btn:hover { background: rgba(255,255,255,0.05); }
+.bi-toolbar-btn--primary { color: #34d399; }
+.bi-toolbar-icon { font-size: 18px; }
+.bi-toolbar-label { font-size: 11px; letter-spacing: 0.04em; }
