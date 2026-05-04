@@ -5,6 +5,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
+// BI_WEBSITE_BLOCK_v88_LENDER_API_DOCS_v1
+import LenderApiDocs from "./pages/LenderApiDocs";
 // BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — mount marketing pages
 import Contact from "./pages/Contact";
 import WhatIsPGI from "./pages/WhatIsPGI";
@@ -48,6 +50,8 @@ export default function App() {
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/coverage" element={<Coverage />} />
             <Route path="/why-it-matters" element={<WhyItMatters />} />
+            {/* BI_WEBSITE_BLOCK_v88_LENDER_API_DOCS_v1 */}
+            <Route path="/lender-api" element={<LenderApiDocs />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
