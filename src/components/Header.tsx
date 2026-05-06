@@ -7,7 +7,8 @@
 // as colours, look feel, header and footer but with the BI info."
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import logoUrl from "../../assets/logos/website logo.png";
+// BI_WEBSITE_BLOCK_v92 — translucent logo in the header (Todd Q1).
+import logoUrl from "../../assets/logos/50X50-transparent.png";
 import { getAuthUser, clearAuth, type AuthUser } from "../lib/auth";
 
 function MenuIcon({ open }: { open: boolean }) {
