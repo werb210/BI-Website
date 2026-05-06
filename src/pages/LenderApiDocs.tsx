@@ -176,7 +176,7 @@ export default function LenderApiDocs() {
     "public_id": "PGI-A1B2C3D4",
     "score_decision": "approve",
     "score_value": 87,
-    "next_step_url": "https://delightful-sand-05a55580f.7.azurestaticapps.net/applications/PGI-A1B2C3D4/score-result"
+    "next_step_url": "https://witty-moss-0886d220f.7.azurestaticapps.net/applications/PGI-A1B2C3D4/score-result"
   }
 }`}</pre>
           </div>

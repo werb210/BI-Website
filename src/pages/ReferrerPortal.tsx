@@ -51,7 +51,7 @@ export default function ReferrerPortal() {
   async function sendOtp() {
     setErr(null); setBusy(true);
     try {
-      await jsonFetch("/otp/request", { method: "POST", body: JSON.stringify({ phone, channel: "referrer" }) });
+      /* BI_WEBSITE_BLOCK_v93 */ await jsonFetch("/referrer/otp/start", { method: "POST", body: JSON.stringify({ phone }) });
       setStage("verify");
     } catch (e: any) { setErr(e?.message ?? "OTP send failed"); }
     finally { setBusy(false); }
@@ -60,7 +60,7 @@ export default function ReferrerPortal() {
   async function verifyOtp() {
     setErr(null); setBusy(true);
     try {
-      const r = await jsonFetch("/otp/verify", { method: "POST", body: JSON.stringify({ phone, code, channel: "referrer" }) });
+      /* BI_WEBSITE_BLOCK_v93 */ const r = await jsonFetch("/referrer/otp/verify", { method: "POST", body: JSON.stringify({ phone, code }) });
       const t = r?.token; if (!t) throw new Error("No token returned");
       localStorage.setItem("bi.ref_token", t); setToken(t);
       const me = await jsonFetch("/referrer/me", { method: "GET" }, t);

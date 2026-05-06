@@ -93,3 +93,162 @@ a {
 }
 .bi-template-link:hover { background: rgba(255,255,255,0.12); }
 .bi-template-link-em { text-decoration: underline; }
+
+/* BI_WEBSITE_BLOCK_v93_CSS_AND_OTP_REPAIRS_v1
+   Mobile-first legacy class definitions. Referenced across the site
+   but never authored, leaving every "primary" CTA invisible. */
+
+.bi-card {
+  max-width: 720px;
+  margin: 32px auto;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: var(--bf-surface);
+}
+@media (min-width: 768px) {
+  .bi-card { padding: 32px; }
+}
+.bi-card h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; }
+.bi-card h2 { font-size: 18px; font-weight: 600; margin: 16px 0 8px; }
+.bi-card p  { color: rgb(203 213 225); line-height: 1.55; }
+.bi-card small {
+  display: block; margin-top: 12px;
+  color: rgb(148 163 184); font-size: 12px; line-height: 1.5;
+}
+.bi-card label,
+.bi-card .bi-field {
+  display: block; margin-top: 14px;
+  font-size: 14px; color: rgb(203 213 225);
+}
+.bi-card label > span,
+.bi-card .bi-field > span {
+  display: block; margin-bottom: 6px; text-transform: capitalize;
+}
+.bi-card input[type="text"],
+.bi-card input[type="number"],
+.bi-card input[type="tel"],
+.bi-card input[type="email"],
+.bi-card input[type="password"],
+.bi-card input[type="date"],
+.bi-card select,
+.bi-card textarea,
+.bi-field input,
+.bi-field select,
+.bi-field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: var(--bf-bg);
+  color: #fff;
+  font-size: 16px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.bi-card input:focus,
+.bi-card select:focus,
+.bi-card textarea:focus,
+.bi-field input:focus {
+  outline: none;
+  border-color: var(--bf-cta);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+button.primary,
+.primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 24px;
+  margin-top: 16px;
+  border-radius: 999px;
+  border: none;
+  background: var(--bf-cta);
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s, transform 0.05s;
+  -webkit-tap-highlight-color: transparent;
+}
+button.primary:hover, .primary:hover { background: var(--bf-cta-hover); }
+button.primary:active, .primary:active { transform: translateY(1px); }
+button.primary:disabled, .primary:disabled { opacity: 0.4; cursor: not-allowed; }
+@media (min-width: 640px) {
+  button.primary, .primary { width: auto; }
+}
+
+button.primary.big,
+.primary.big {
+  min-height: 56px;
+  padding: 16px 32px;
+  font-size: 16px;
+}
+
+button.ghost,
+.ghost,
+button.secondary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 20px;
+  margin-top: 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+button.ghost:hover, .ghost:hover,
+button.secondary:hover, .secondary:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+@media (min-width: 640px) {
+  button.ghost, .ghost,
+  button.secondary, .secondary { width: auto; }
+}
+
+.bi-progress { margin-bottom: 16px; }
+.bi-progress-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.bi-progress-bar > div {
+  height: 100%;
+  background: var(--bf-cta);
+  transition: width 0.3s;
+}
+.bi-progress > span { font-size: 12px; color: rgb(148 163 184); }
+
+.form-error {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.10);
+  border: 1px solid rgba(239, 68, 68, 0.30);
+  color: rgb(252 165 165);
+  font-size: 14px;
+}
+.bi-section {
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.bi-section h3 { font-size: 14px; font-weight: 600; margin: 0 0 6px; color: var(--bf-cta); }
+.bi-section ul { list-style: none; padding: 0; margin: 0; font-size: 13px; }
+.bi-section li { padding: 4px 0; color: rgb(203 213 225); }
