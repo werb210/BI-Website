@@ -52,9 +52,11 @@ export default function App() {
             {/* BI_WEBSITE_BLOCK_v90_LENDER_API_DOCS_v1 — must precede /lender/* splat */}
             <Route path="/lender/api" element={<LenderApiDocs />} />
             <Route path="/lender/*" element={<LenderPortal />} />
-            {/* BI_WEBSITE_BLOCK_v94 — referrer portal deferred to v2 */}
+            {/* BI_WEBSITE_BLOCK_v96_LAUNCH_UX_v2 — referrer portal restored */}
+            <Route path="/referrer/*" element={<ReferrerPortal />} />
             <Route path="/application" element={<Navigate to="/applications/new" replace />} />
-            {/* BI_WEBSITE_BLOCK_v94 — /referral redirect removed (referrer deferred) */}
+            {/* BI_WEBSITE_BLOCK_v96_LAUNCH_UX_v2 — /referral redirect restored */}
+            <Route path="/referral" element={<Navigate to="/referrer/login" replace />} />
             {/* BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — mount marketing pages */}
             <Route path="/contact" element={<Contact />} />
             <Route path="/intro" element={<Intro />} />

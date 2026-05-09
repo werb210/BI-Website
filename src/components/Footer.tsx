@@ -35,7 +35,8 @@ export default function Footer() {
           <h4 className="mb-4 text-white">Sign In</h4>
           <ul className="space-y-2">
             <li><Link to="/lender/login" className="block hover:text-white">Lender Login</Link></li>
-            {/* BI_WEBSITE_BLOCK_v94_LAUNCH_HARDENING_v1 — referrer login deferred */}
+            {/* BI_WEBSITE_BLOCK_v96_LAUNCH_UX_v2 — referrer login restored */}
+              <li><Link to="/referrer/login" className="block hover:text-white">Referral Login</Link></li>
           </ul>
         </div>
 

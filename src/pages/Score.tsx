@@ -74,6 +74,10 @@ export default function Score() {
         <span>Fill in Answers: {filled}/11</span>
       </header>
 
+      {/* BI_WEBSITE_BLOCK_v96_LAUNCH_UX_v2 — 2-column grid on md+ screens. NAICS, date, section
+          headings, terms, and actions all span both columns; financial fields pair up. */}
+      <div className="grid gap-3 md:grid-cols-2 [&_h3]:md:col-span-2 [&>label]:md:col-span-1">
+      <div className="md:col-span-2">
       <Field label="What is the NAICS code for the business?" hint="6-digit industry code">
         {/* BI_WEBSITE_BLOCK_v86_SCORE_NAICS_AND_UPLOAD_v1 — Look it up popover */}
         <div className="bi-naics-row">
@@ -105,6 +109,7 @@ export default function Score() {
           </div>
         )}
       </Field>
+      </div>
 
       <Field label="What month-year did this business start generating revenue?">
         <input type="month" value={v.formation_date.slice(0, 7)} onChange={(e) => set("formation_date", e.target.value + "-01")} />
@@ -150,6 +155,7 @@ export default function Score() {
         <input type="text" inputMode="decimal" value={fmtCurrency(v.enterprise_value)} onChange={(e) => set("enterprise_value", unfmtCurrency(e.target.value))} placeholder="$0" />
       </Field>
 
+      </div>
       {/* BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — T&C checkbox */}
       {/* BI_WEBSITE_BLOCK_v86_SCORE_NAICS_AND_UPLOAD_v1 — pre-filled template */}
       <div className="bi-template-row">

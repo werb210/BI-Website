@@ -1,134 +1,319 @@
-// BI_WEBSITE_BLOCK_v3_FULL_FIELD_RENDER_v1
+// BI_WEBSITE_BLOCK_v96_LAUNCH_UX_v2 — Lender Portal: phone+OTP login,
+// applications pipeline, and entry point to the lender application form.
+// API key auth still works on the server (back-compat for third-party
+// integrations) but the public portal flow is now OTP-only.
 import { useEffect, useState } from "react";
+import { Link, Routes, Route, useNavigate, Navigate } from "react-router-dom";
 
-const STAGES = ["new", "in_progress", "ready_for_submission", "submitted", "under_review", "information_required", "approved", "declined", "policy_issued"] as const;
-const STAGE_LABELS: Record<string, string> = {
-  new: "New",
-  in_progress: "In Progress",
-  ready_for_submission: "Ready for Submission",
-  submitted: "Submitted",
-  under_review: "Under Review",
-  information_required: "Information Required",
-  approved: "Approved",
-  declined: "Declined",
-  policy_issued: "Policy Issued",
+const BASE = (import.meta.env.VITE_BI_API_URL as string | undefined) ?? "/api/v1";
+const TOKEN_KEY = "bi.lender_token";
+const PHONE_KEY = "bi.lender_phone";
+
+type LenderInfo = {
+  id: string;
+  company_name?: string | null;
+  rep_full_name?: string | null;
+  rep_email?: string | null;
+  contact_phone_e164?: string | null;
 };
 
-const BASE = (import.meta.env.VITE_BI_API_URL || window.location.origin).replace(/\/$/, "") + "/api/v1";
+type AppRow = {
+  id: string;
+  public_id: string;
+  status: string;
+  business_name: string | null;
+  guarantor_name: string | null;
+  loan_amount: number | null;
+  pgi_limit: number | null;
+  annual_premium: number | null;
+  created_at: string;
+  updated_at: string;
+};
 
-async function lenderFetch(path: string, init: RequestInit, apiKey: string) {
+async function jsonFetch<T = any>(path: string, init: RequestInit, token?: string): Promise<T> {
   const r = await fetch(BASE + path, {
     ...init,
-    headers: { "Content-Type": "application/json", "X-API-Key": apiKey, ...(init.headers ?? {}) },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(init.headers ?? {}),
+    },
   });
   const data = await r.json().catch(() => ({}));
   if (!r.ok) throw Object.assign(new Error(data?.error ?? `HTTP ${r.status}`), { status: r.status, data });
-  return data;
+  return data as T;
 }
 
-const APPLICATION_FIELDS = [
-  "borrower_name","borrower_email","industry","annual_revenue","ebitda",
-  "total_debt","monthly_debt_service","loan_amount","pgi_limit",
-  "collateral_value","enterprise_value","years_in_business",
-  "owner_credit_score","debt_to_income","country","naics_code","formation_date",
-] as const;
+function fmtCurrency(n: number | null | undefined) {
+  if (n == null) return "—";
+  return n.toLocaleString("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 });
+}
 
-export default function LenderPortal() {
-  const [apiKey, setApiKey] = useState(localStorage.getItem("bi.lender_key") || "");
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [authed, setAuthed] = useState(false);
-  const [form, setForm] = useState<Record<string, any>>({ country: "CA", consent_attest: false, consent_pii: false, consent_terms: false });
-  const [apps, setApps] = useState<any[]>([]);
-  const [submitErr, setSubmitErr] = useState<string | null>(null);
+function StatusBadge({ status }: { status: string }) {
+  const tone =
+    status === "approved" || status === "policy_issued"
+      ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+      : status === "declined"
+      ? "bg-rose-500/15 text-rose-300 border-rose-500/30"
+      : "bg-blue-500/15 text-blue-300 border-blue-500/30";
+  return (
+    <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium ${tone}`}>
+      {status.replace(/_/g, " ")}
+    </span>
+  );
+}
+
+function Login() {
+  const nav = useNavigate();
+  const [stage, setStage] = useState<"phone" | "code">("phone");
+  const [phone, setPhone] = useState(localStorage.getItem(PHONE_KEY) ?? "");
+  const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
 
-  async function login() {
-    setAuthError(null);
-    if (!apiKey.trim()) { setAuthError("API key is required."); return; }
+  async function startOtp() {
+    setErr(null);
+    setBusy(true);
     try {
-      const list = await lenderFetch("/lender/applications", { method: "GET" }, apiKey.trim());
-      localStorage.setItem("bi.lender_key", apiKey.trim());
-      setApps(Array.isArray(list?.items) ? list.items : Array.isArray(list) ? list : []);
-      setAuthed(true);
+      await jsonFetch("/lender/otp/start", { method: "POST", body: JSON.stringify({ phone }) });
+      localStorage.setItem(PHONE_KEY, phone);
+      setStage("code");
     } catch (e: any) {
-      setAuthError(e?.message ?? "Authentication failed");
+      setErr(e?.message ?? "Failed to send code");
+    } finally {
+      setBusy(false);
     }
   }
 
-  function set(k: string, v: any) { setForm((p) => ({ ...p, [k]: v })); }
-
-  async function submit() {
-    setSubmitErr(null); setBusy(true);
+  async function verifyOtp() {
+    setErr(null);
+    setBusy(true);
     try {
-      if (!form.consent_attest || !form.consent_pii || !form.consent_terms) {
-        throw new Error("All three consents are required.");
-      }
-      const result = await lenderFetch("/lender/applications", {
-        method: "POST",
-        body: JSON.stringify(form),
-      }, apiKey.trim());
-      setApps((prev) => [{ ...form, id: result?.id ?? `tmp-${Date.now()}`, stage: result?.stage ?? "new" }, ...prev]);
-      setForm({ country: "CA", consent_attest: false, consent_pii: false, consent_terms: false });
+      const { token } = await jsonFetch<{ token: string; lender: LenderInfo }>(
+        "/lender/otp/verify",
+        { method: "POST", body: JSON.stringify({ phone, code }) },
+      );
+      localStorage.setItem(TOKEN_KEY, token);
+      nav("/lender/portal");
     } catch (e: any) {
-      setSubmitErr(e?.message ?? "Submission failed");
-    } finally { setBusy(false); }
+      setErr(
+        e?.status === 401
+          ? "Invalid code or phone not registered. Contact us if you don't have access yet."
+          : e?.message ?? "Verification failed",
+      );
+    } finally {
+      setBusy(false);
+    }
   }
 
-  useEffect(() => {
-    if (!authed) return;
-    const i = setInterval(async () => {
-      try {
-        const list = await lenderFetch("/lender/applications", { method: "GET" }, apiKey.trim());
-        setApps(Array.isArray(list?.items) ? list.items : Array.isArray(list) ? list : []);
-      } catch { /* ignore polling errors */ }
-    }, 30_000);
-    return () => clearInterval(i);
-  }, [authed, apiKey]);
+  return (
+    <main className="min-h-screen bg-bf-bg text-slate-200">
+      <section className="mx-auto w-full max-w-md px-5 py-12 md:px-8 md:py-16">
+        <div className="rounded-2xl border border-white/10 bg-bf-surface p-6 md:p-8">
+          <h1 className="text-center text-2xl font-bold text-white md:text-3xl">Lender Portal</h1>
+          <p className="mt-2 text-center text-sm text-slate-400">
+            Sign in via SMS to your registered phone number.
+          </p>
 
-  if (!authed) return (
-    <div className="bi-card lender">
-      <h1>Lender Portal</h1>
-      <p>Submit applications via your lender API key. Contact us if you don't have one.</p>
-      <label className="bi-field"><span>API key</span>
-        <input type="password" value={apiKey} onChange={(e)=>setApiKey(e.target.value)} />
-      </label>
-      {authError && <div className="form-error">{authError}</div>}
-      <button className="primary" onClick={login}>Verify & Continue</button>
-    </div>
+          {stage === "phone" ? (
+            <div className="mt-8 space-y-4">
+              <label className="block">
+                <span className="mb-1 block text-sm font-medium text-slate-300">
+                  Mobile phone (E.164 format)
+                </span>
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  placeholder="+15875551234"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full rounded-lg border border-white/15 bg-bf-bg px-4 py-3 text-white outline-none focus:border-blue-500"
+                />
+              </label>
+              {err ? <p className="text-sm text-rose-400">{err}</p> : null}
+              <button
+                type="button"
+                onClick={startOtp}
+                disabled={busy || !phone}
+                className="w-full rounded-full bg-blue-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-700"
+              >
+                {busy ? "Sending…" : "Send code"}
+              </button>
+              <p className="text-center text-xs text-slate-500">
+                Don't have access? Email{" "}
+                <a className="text-blue-400 hover:text-blue-300" href="mailto:lenders@boreal.financial">
+                  lenders@boreal.financial
+                </a>
+                .
+              </p>
+            </div>
+          ) : (
+            <div className="mt-8 space-y-4">
+              <label className="block">
+                <span className="mb-1 block text-sm font-medium text-slate-300">
+                  Verification code
+                </span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  placeholder="123456"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 8))}
+                  className="w-full rounded-lg border border-white/15 bg-bf-bg px-4 py-3 text-center text-xl tracking-[0.3em] text-white outline-none focus:border-blue-500"
+                />
+              </label>
+              {err ? <p className="text-sm text-rose-400">{err}</p> : null}
+              <button
+                type="button"
+                onClick={verifyOtp}
+                disabled={busy || code.length < 4}
+                className="w-full rounded-full bg-blue-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-700"
+              >
+                {busy ? "Verifying…" : "Verify & continue"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setStage("phone")}
+                className="w-full text-center text-sm text-slate-400 hover:text-slate-200"
+              >
+                ← Use a different phone
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+    </main>
   );
+}
+
+function Portal() {
+  const nav = useNavigate();
+  const [token] = useState(localStorage.getItem(TOKEN_KEY) ?? "");
+  const [me, setMe] = useState<LenderInfo | null>(null);
+  const [apps, setApps] = useState<AppRow[] | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!token) {
+      nav("/lender/login");
+      return;
+    }
+    (async () => {
+      try {
+        const meRes = await jsonFetch<{ lender: LenderInfo }>("/lender/me", { method: "GET" }, token);
+        setMe(meRes.lender);
+        const appsRes = await jsonFetch<{ applications: AppRow[] }>(
+          "/lender/applications/mine",
+          { method: "GET" },
+          token,
+        );
+        setApps(appsRes.applications);
+      } catch (e: any) {
+        if (e?.status === 401) {
+          localStorage.removeItem(TOKEN_KEY);
+          nav("/lender/login");
+          return;
+        }
+        setErr(e?.message ?? "Failed to load");
+      }
+    })();
+  }, [token, nav]);
+
+  function signOut() {
+    localStorage.removeItem(TOKEN_KEY);
+    nav("/lender/login");
+  }
 
   return (
-    <div className="bi-card lender">
-      <div className="flex justify-between items-center"><h1>Lender Portal Dashboard</h1>
-        <button className="secondary" onClick={() => { setAuthed(false); }}>Sign out</button></div>
-
-      <h2 className="mt-4">Submit New Application</h2>
-      <div className="grid md:grid-cols-2 gap-3 mt-2">
-        {APPLICATION_FIELDS.map((f)=>(
-          <label key={f} className="bi-field"><span>{f.replaceAll("_"," ")}</span>
-            <input value={form[f] ?? ""} onChange={(e)=>set(f,e.target.value)} />
-          </label>
-        ))}
-      </div>
-      <div className="mt-3 space-y-2">
-        {[["consent_attest","I attest the data submitted is accurate."],
-          ["consent_pii","I have the borrower's consent to share PII."],
-          ["consent_terms","I agree to the lender API terms of service."]].map(([k,label])=>(
-          <label key={k} className="block"><input type="checkbox" checked={!!form[k]} onChange={(e)=>set(k as string, e.target.checked)} /> {label}</label>
-        ))}
-      </div>
-      {submitErr && <div className="form-error mt-3">{submitErr}</div>}
-      <button className="primary mt-4" onClick={submit} disabled={busy}>{busy ? "Submitting…" : "Submit Application"}</button>
-
-      <h2 className="mt-6">9-Stage Pipeline</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {STAGES.map((st)=>(
-          <div key={st} className="bi-section">
-            <h3>{STAGE_LABELS[st]}</h3>
-            <ul>{apps.filter((a)=>a.stage===st).map((a)=><li key={a.id}>{a.id} · {a.borrower_name ?? "—"}</li>)}</ul>
+    <main className="min-h-screen bg-bf-bg text-slate-200">
+      <section className="mx-auto w-full max-w-6xl px-5 py-10 md:px-8 md:py-14">
+        <header className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-400">Lender</p>
+            <h1 className="mt-1 text-2xl font-bold text-white md:text-3xl">
+              {me?.company_name ?? "My Pipeline"}
+            </h1>
+            {me?.rep_full_name ? (
+              <p className="mt-1 text-sm text-slate-400">Welcome back, {me.rep_full_name}.</p>
+            ) : null}
           </div>
-        ))}
-      </div>
-    </div>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              to="/lender/applications/new"
+              className="rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-500"
+            >
+              + New Application
+            </Link>
+            <button
+              type="button"
+              onClick={signOut}
+              className="rounded-full border border-white/30 px-5 py-2 text-sm font-medium text-white transition hover:bg-white/5"
+            >
+              Sign out
+            </button>
+          </div>
+        </header>
+
+        {err ? <p className="mb-4 text-sm text-rose-400">{err}</p> : null}
+
+        {apps == null ? (
+          <p className="text-sm text-slate-400">Loading…</p>
+        ) : apps.length === 0 ? (
+          <div className="rounded-2xl border border-white/10 bg-bf-surface p-10 text-center">
+            <p className="text-slate-300">No applications yet.</p>
+            <Link
+              to="/lender/applications/new"
+              className="mt-4 inline-flex rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-500"
+            >
+              Submit your first application
+            </Link>
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-2xl border border-white/10 bg-bf-surface">
+            <table className="w-full text-left text-sm">
+              <thead className="border-b border-white/10 bg-white/5 text-xs uppercase tracking-wider text-slate-400">
+                <tr>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Business</th>
+                  <th className="px-4 py-3">Guarantor</th>
+                  <th className="px-4 py-3">Loan</th>
+                  <th className="px-4 py-3">PGI Limit</th>
+                  <th className="px-4 py-3">Premium</th>
+                  <th className="px-4 py-3">Submitted</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {apps.map((a) => (
+                  <tr key={a.id} className="hover:bg-white/5">
+                    <td className="px-4 py-3"><StatusBadge status={a.status} /></td>
+                    <td className="px-4 py-3 text-white">{a.business_name ?? "—"}</td>
+                    <td className="px-4 py-3 text-slate-300">{a.guarantor_name ?? "—"}</td>
+                    <td className="px-4 py-3 text-slate-300">{fmtCurrency(a.loan_amount)}</td>
+                    <td className="px-4 py-3 text-slate-300">{fmtCurrency(a.pgi_limit)}</td>
+                    <td className="px-4 py-3 text-slate-300">{fmtCurrency(a.annual_premium)}</td>
+                    <td className="px-4 py-3 text-xs text-slate-400">
+                      {new Date(a.created_at).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+    </main>
+  );
+}
+
+export default function LenderPortal() {
+  return (
+    <Routes>
+      <Route path="/" element={<Navigate to="/lender/portal" replace />} />
+      <Route path="login" element={<Login />} />
+      <Route path="portal" element={<Portal />} />
+      <Route path="*" element={<Navigate to="/lender/login" replace />} />
+    </Routes>
   );
 }
