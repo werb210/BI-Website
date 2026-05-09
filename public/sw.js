@@ -25,6 +25,10 @@ self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
+  // BI_WEBSITE_BLOCK_v95_LAUNCH_UX_v1 — skip protocols Cache API can't store (chrome-extension://, about:, etc).
+  // Browser extensions can fire fetch events whose URL scheme isn't http(s), and putting them
+  // into a Cache throws a TypeError that bubbles to the console.
+  if (url.protocol !== "http:" && url.protocol !== "https:") return;
   if (url.pathname.startsWith("/api/")) return;
   if (req.mode === "navigate") {
     e.respondWith(fetch(req).catch(() => caches.match(OFFLINE_URL)));
