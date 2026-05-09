@@ -35,8 +35,15 @@ export default function Footer() {
           <h4 className="mb-4 text-white">Sign In</h4>
           <ul className="space-y-2">
             <li><Link to="/lender/login" className="block hover:text-white">Lender Login</Link></li>
-            <li><Link to="/referrer/login" className="block hover:text-white">Referral Login</Link></li>
+            {/* BI_WEBSITE_BLOCK_v94_LAUNCH_HARDENING_v1 — referrer login deferred */}
           </ul>
+        </div>
+
+        <div className="md:col-span-3 mt-8 border-t border-white/10 pt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-400">
+          {/* BI_WEBSITE_BLOCK_v94_LAUNCH_HARDENING_v1 */}
+          <Link to="/privacy" className="hover:text-white">Privacy Policy</Link>
+          <Link to="/terms" className="hover:text-white">Terms of Service</Link>
+          <span className="opacity-60">© 2026 Boreal Insurance</span>
         </div>
       </div>
     </footer>

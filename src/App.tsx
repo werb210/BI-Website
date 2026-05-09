@@ -7,6 +7,9 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
 // BI_WEBSITE_BLOCK_v90_LENDER_API_DOCS_v1
+// BI_WEBSITE_BLOCK_v94_LAUNCH_HARDENING_v1
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 import LenderApiDocs from "./pages/LenderApiDocs";
 // BI_WEBSITE_BLOCK_v91_API_BASE_AND_DOCS_STAGE_v1
 import PgiDocuments from "./pages/PgiDocuments";
@@ -49,9 +52,9 @@ export default function App() {
             {/* BI_WEBSITE_BLOCK_v90_LENDER_API_DOCS_v1 — must precede /lender/* splat */}
             <Route path="/lender/api" element={<LenderApiDocs />} />
             <Route path="/lender/*" element={<LenderPortal />} />
-            <Route path="/referrer/*" element={<ReferrerPortal />} />
+            {/* BI_WEBSITE_BLOCK_v94 — referrer portal deferred to v2 */}
             <Route path="/application" element={<Navigate to="/applications/new" replace />} />
-            <Route path="/referral" element={<Navigate to="/referrer/login" replace />} />
+            {/* BI_WEBSITE_BLOCK_v94 — /referral redirect removed (referrer deferred) */}
             {/* BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — mount marketing pages */}
             <Route path="/contact" element={<Contact />} />
             <Route path="/intro" element={<Intro />} />
@@ -59,6 +62,8 @@ export default function App() {
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/coverage" element={<Coverage />} />
             <Route path="/why-it-matters" element={<WhyItMatters />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
