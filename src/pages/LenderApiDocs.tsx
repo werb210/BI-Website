@@ -1,7 +1,10 @@
 // BI_WEBSITE_BLOCK_v90_LENDER_API_DOCS_v1
 import { useState } from "react";
 
-const BI_SERVER = "https://bi-server-cse0apamgkheb9d5.canadacentral-01.azurewebsites.net";
+// BI_WEBSITE_BLOCK_v94_LAUNCH_HARDENING_v1
+// API URL is environment-driven so we can swap to a custom domain (e.g.
+// api.boreal.financial) without a code change.
+const BI_SERVER = (import.meta.env.VITE_BI_API_URL as string | undefined) ?? "https://bi-server-cse0apamgkheb9d5.canadacentral-01.azurewebsites.net";
 
 const SAMPLES: Record<string, { label: string; submit: string; list: string }> = {
   curl: {
