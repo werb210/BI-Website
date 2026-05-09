@@ -1,79 +1,113 @@
-// BI_WEBSITE_BLOCK_v83_BODY_PALETTE_PARITY_v1 — reskin to BF-Website pattern
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { api } from "../lib/api";
+// BI_WEBSITE_BLOCK_v95_LAUNCH_UX_v1 — PGI marketing landing page.
+import { Link } from "react-router-dom";
 
-type Row = { public_id: string; status: string; score_value: number | null; pgi_limit: number; updated_at: string };
+function Section({ id, eyebrow, title, children }: { id?: string; eyebrow?: string; title: string; children: React.ReactNode }) {
+  return (
+    <section id={id} className="mx-auto max-w-5xl px-5 py-14 md:px-8 md:py-20">
+      {eyebrow ? (
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-400">{eyebrow}</p>
+      ) : null}
+      <h2 className="text-2xl font-bold text-white md:text-3xl">{title}</h2>
+      <div className="mt-6 space-y-4 text-base leading-relaxed text-slate-300 md:text-lg">{children}</div>
+    </section>
+  );
+}
+
+function FeatureCard({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-bf-surface p-6 transition hover:bg-bf-surfaceAlt">
+      <h3 className="text-lg font-semibold text-white">{title}</h3>
+      <p className="mt-2 text-sm text-slate-300 md:text-base">{body}</p>
+    </div>
+  );
+}
 
 export default function Home() {
-  const nav = useNavigate();
-  const [rows, setRows] = useState<Row[]>([]);
-
-  useEffect(() => {
-    const ids: string[] = JSON.parse(localStorage.getItem("bi.my_apps") || "[]");
-    Promise.all(ids.map((id) => api.getApp(id).then((r) => r.application).catch(() => null))).then((all) =>
-      setRows(all.filter(Boolean)),
-    );
-  }, []);
-
   return (
-    <main className="min-h-screen bg-bf-bg text-white">
-      <section className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-16">
-        <h1 className="text-3xl font-bold md:text-5xl">Welcome back</h1>
-        <p className="mt-3 text-slate-300 md:text-lg">The place to manage personal guarantee insurance.</p>
-
-        <div className="mt-10 flex items-center justify-between">
-          <h2 className="text-2xl font-semibold">Your Applications</h2>
-          <span className="text-sm text-slate-400">{rows.length} total</span>
+    <main className="min-h-screen bg-bf-bg text-slate-200">
+      <section className="mx-auto max-w-5xl px-5 py-16 text-center md:px-8 md:py-24">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-blue-400">
+          Personal Guarantee Insurance
+        </p>
+        <h1 className="text-3xl font-bold leading-tight text-white md:text-5xl">
+          Protect your personal assets when you sign for your business loan
+        </h1>
+        <p className="mx-auto mt-5 max-w-2xl text-base text-slate-300 md:text-lg">
+          Personal Guarantee Insurance (PGI) covers up to 80% of your personal liability if your
+          business defaults — letting you grow your business without putting your home, savings, or
+          family at risk.
+        </p>
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Link
+            to="/quote"
+            className="w-full rounded-full bg-blue-600 px-7 py-3 text-base font-semibold text-white transition hover:bg-blue-500 sm:w-auto"
+          >
+            Get a Free Quote
+          </Link>
+          <Link
+            to="/applications/new"
+            className="w-full rounded-full border border-white/30 px-7 py-3 text-base font-semibold text-white transition hover:bg-white/5 sm:w-auto"
+          >
+            Apply Now
+          </Link>
         </div>
-
-        {rows.length === 0 ? (
-          <div className="mt-6 rounded-2xl border border-white/10 bg-bf-surface p-8 text-center">
-            <p className="text-slate-300">No applications yet.</p>
-            <button
-              type="button"
-              onClick={() => nav("/applications/new")}
-              className="mt-4 inline-flex items-center justify-center rounded-full bg-bf-cta px-6 py-3 text-sm font-semibold text-white transition hover:bg-bf-ctaHover"
-            >
-              Start Application
-            </button>
-          </div>
-        ) : (
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {rows.map((r) => (
-              <article
-                key={r.public_id}
-                className="rounded-2xl border border-white/10 bg-bf-surface p-5 transition hover:bg-bf-surfaceAlt"
-              >
-                <span className="inline-block rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide">
-                  {r.status === "in_progress" ? "Draft" : r.status}
-                </span>
-                <p className="mt-3 text-xs uppercase tracking-wider text-slate-400">Personal Guarantee Insurance</p>
-                <h3 className="mt-1 text-lg font-semibold">Draft Application</h3>
-                <p className="mt-2 text-sm text-slate-400">App# {r.public_id}</p>
-                <p className="mt-1 text-sm text-slate-300">CORE Score: {r.score_value ?? "—"}</p>
-                <p className="mt-1 text-xs text-slate-500">Updated {new Date(r.updated_at).toLocaleString()}</p>
-                <button
-                  type="button"
-                  onClick={() => nav(`/applications/${r.public_id}/form`)}
-                  className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-bf-cta px-4 py-2 text-sm font-semibold text-white transition hover:bg-bf-ctaHover"
-                >
-                  Continue →
-                </button>
-              </article>
-            ))}
-          </div>
-        )}
       </section>
-
-      <button
-        type="button"
-        onClick={() => nav("/applications/new")}
-        className="fixed bottom-6 right-6 z-40 inline-flex items-center justify-center rounded-full bg-bf-cta px-6 py-3 text-sm font-semibold text-white shadow-2xl transition hover:bg-bf-ctaHover"
-        aria-label="Start new application"
-      >
-        + New Application
-      </button>
+      <Section id="what-is-pgi" eyebrow="What is PGI" title="A safety net for the entrepreneur">
+        <p>
+          When you take out a business loan, lenders almost always require a personal guarantee —
+          you, the owner, become personally responsible if the business cannot repay. That puts
+          your home, your investments, and your family's financial security on the line.
+        </p>
+        <p>
+          Personal Guarantee Insurance transfers most of that risk away from you. If your business
+          defaults and the lender enforces the guarantee, your PGI policy pays out a defined
+          percentage of the loss, protecting your personal assets.
+        </p>
+      </Section>
+      <Section id="how-it-works" eyebrow="How it works" title="Three simple steps">
+        <div className="grid gap-5 sm:grid-cols-3">
+          <FeatureCard title="1 · Get a quote" body="Tell us your loan amount, coverage percentage, and whether the debt is secured. You get an indicative premium in seconds." />
+          <FeatureCard title="2 · Apply online" body="Submit a short business profile and a few financial documents. Our underwriting platform scores eligibility automatically." />
+          <FeatureCard title="3 · Get covered" body="Once approved, your policy is bound. If the worst happens and the guarantee is enforced, PGI covers up to 80% of the personal liability." />
+        </div>
+      </Section>
+      <Section id="who-needs-pgi" eyebrow="Who it's for" title="Built for Canadian business owners">
+        <div className="grid gap-5 sm:grid-cols-2">
+          <FeatureCard title="Owners signing personal guarantees" body="Every business loan, line of credit, equipment lease, or commercial mortgage that requires your personal signature on the guarantee." />
+          <FeatureCard title="Founders raising growth capital" body="When new debt is the difference between expanding and stalling, PGI lets you say yes without risking everything you've built." />
+          <FeatureCard title="Buyers acquiring a business" body="M&A acquisition financing typically demands personal guarantees that can dwarf your net worth. PGI right-sizes the personal exposure." />
+          <FeatureCard title="Family-owned operators" body="Protect generational wealth and the family home from a single bad year, supplier failure, or industry downturn." />
+        </div>
+      </Section>
+      <Section id="why-it-matters" eyebrow="Why it matters" title="What's at stake without coverage">
+        <p>
+          A personal guarantee is unlimited by default. A $500,000 loan can become a $500,000 claim
+          against your personal estate — your home, your investments, your retirement savings, and
+          in some cases your spouse's assets too.
+        </p>
+        <p>
+          PGI is the same idea as any other form of insurance: a small predictable cost today
+          replaces a catastrophic, unpredictable loss tomorrow. For most business owners, an
+          annual PGI premium is a fraction of one percent of the personal exposure they're taking
+          on every time they sign a guarantee.
+        </p>
+      </Section>
+      <section className="mx-auto max-w-5xl px-5 pb-20 md:px-8">
+        <div className="rounded-2xl border border-blue-500/30 bg-blue-600/10 p-8 text-center md:p-12">
+          <h2 className="text-2xl font-bold text-white md:text-3xl">
+            See your premium in under a minute
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-base text-slate-300 md:text-lg">
+            Three questions. No personal information required for the indicative quote.
+          </p>
+          <Link
+            to="/quote"
+            className="mt-6 inline-flex rounded-full bg-blue-600 px-7 py-3 text-base font-semibold text-white transition hover:bg-blue-500"
+          >
+            Get My Quote
+          </Link>
+        </div>
+      </section>
     </main>
   );
 }
