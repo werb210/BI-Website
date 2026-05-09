@@ -106,7 +106,10 @@ export default function Header() {
               <Link to="/applications/new" className="text-white/80 hover:text-white">
                 Apply
               </Link>
-              {/* BI_WEBSITE_BLOCK_v95_LAUNCH_UX_v1 — Referral Login deferred to v2; Lender stays in scope */}
+              {/* BI_WEBSITE_BLOCK_v96_LAUNCH_UX_v2 — Referral Login restored (deferred ≠ removed). */}
+              <Link to="/referrer/login" className="text-white/80 hover:text-white">
+                Referral Login
+              </Link>
               <Link to="/lender/login" className="text-white/80 hover:text-white">
                 Lender Login
               </Link>
@@ -190,7 +193,10 @@ export default function Header() {
                   <Link to="/applications/new" className="text-white/80" onClick={() => setOpen(false)}>
                     Apply
                   </Link>
-                  {/* BI_WEBSITE_BLOCK_v95_LAUNCH_UX_v1 — Referral Login deferred */}
+                  {/* BI_WEBSITE_BLOCK_v96_LAUNCH_UX_v2 — Referral Login restored. */}
+                  <Link to="/referrer/login" className="text-white/80" onClick={() => setOpen(false)}>
+                    Referral Login
+                  </Link>
                   <Link to="/lender/login" className="text-white/80" onClick={() => setOpen(false)}>
                     Lender Login
                   </Link>
