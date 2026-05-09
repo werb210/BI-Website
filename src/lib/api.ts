@@ -5,6 +5,18 @@ const BASE = ((import.meta.env.VITE_API_URL as string | undefined)
   || (import.meta.env.VITE_BI_API_URL as string | undefined)
   || window.location.origin).replace(/\/$/, "") + "/api/v1";
 
+// BI_WEBSITE_BLOCK_v97_OTP_GATE_AND_FLOW_v1 — applicant token helpers (OTP gate before CORE)
+const APPLICANT_TOKEN_KEY = "bi.applicant_token";
+export function getApplicantToken(): string | null {
+  try { return localStorage.getItem(APPLICANT_TOKEN_KEY); } catch { return null; }
+}
+export function setApplicantToken(tok: string) {
+  try { localStorage.setItem(APPLICANT_TOKEN_KEY, tok); } catch { /* noop */ }
+}
+export function clearApplicantToken() {
+  try { localStorage.removeItem(APPLICANT_TOKEN_KEY); } catch { /* noop */ }
+}
+
 async function jsonFetch(path: string, init?: RequestInit) {
   const r = await fetch(BASE + path, {
     ...init,
@@ -16,7 +28,19 @@ async function jsonFetch(path: string, init?: RequestInit) {
 }
 
 export const api = {
-  score: (body: any) => jsonFetch("/applications/score", { method: "POST", body: JSON.stringify(body) }),
+  // BI_WEBSITE_BLOCK_v97_OTP_GATE_AND_FLOW_v1 — score requires applicant JWT (server uses phone from token)
+  score: (body: any) => {
+    const tok = getApplicantToken();
+    return jsonFetch("/applications/score", {
+      method: "POST",
+      body: JSON.stringify(body),
+      headers: tok ? { Authorization: `Bearer ${tok}` } : {},
+    });
+  },
+  applicantOtpStart: (phone: string) =>
+    jsonFetch("/applicants/otp/start", { method: "POST", body: JSON.stringify({ phone }) }),
+  applicantOtpVerify: (phone: string, code: string) =>
+    jsonFetch("/applicants/otp/verify", { method: "POST", body: JSON.stringify({ phone, code }) }),
   getApp: (publicId: string) => jsonFetch(`/applications/${publicId}`),
   patchApp: (publicId: string, body: any) =>
     jsonFetch(`/applications/${publicId}`, { method: "PATCH", body: JSON.stringify(body) }),

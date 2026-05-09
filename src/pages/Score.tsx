@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 // BI_WEBSITE_BLOCK_v86_SCORE_NAICS_AND_UPLOAD_v1
 import { NAICS_TOP } from "../data/naicsTop";
@@ -16,10 +16,6 @@ const LOAN_MAX = 1_000_000;
 
 export default function Score() {
   const nav = useNavigate();
-  const [params] = useSearchParams();
-  const country = params.get("country") || "CA";
-  if (country !== "CA") { nav("/applications/new"); }
-
   // BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — added `terms` so the
   // progress denominator and submit gate match the carrier's 11/11 bar.
   const [v, setV] = useState({
@@ -39,6 +35,8 @@ export default function Score() {
       ).slice(0, 12);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // BI_WEBSITE_BLOCK_v97_OTP_GATE_AND_FLOW_v1 — country state replaces the prior URL search param.
+  const [country, setCountry] = useState<"CA" | "US">("CA");
 
   function set<K extends keyof typeof v>(k: K, val: string) {
     setV({ ...v, [k]: val });
@@ -77,6 +75,17 @@ export default function Score() {
       {/* BI_WEBSITE_BLOCK_v96_LAUNCH_UX_v2 — 2-column grid on md+ screens. NAICS, date, section
           headings, terms, and actions all span both columns; financial fields pair up. */}
       <div className="grid gap-3 md:grid-cols-2 [&_h3]:md:col-span-2 [&>label]:md:col-span-1">
+      {/* BI_WEBSITE_BLOCK_v97_OTP_GATE_AND_FLOW_v1 — country picker (was a separate /country page). */}
+      <div className="md:col-span-2">
+        <label className="bi-field">
+          <span className="bi-field-label">Country of business</span>
+          <select value={country} onChange={(e) => setCountry(e.target.value as "CA" | "US")}>
+            <option value="CA">🇨🇦 Canada</option>
+            <option value="US" disabled>🇺🇸 United States — coming soon</option>
+          </select>
+          <small className="bi-field-hint">Only Canadian businesses are supported at launch.</small>
+        </label>
+      </div>
       <div className="md:col-span-2">
       <Field label="What is the NAICS code for the business?" hint="6-digit industry code">
         {/* BI_WEBSITE_BLOCK_v86_SCORE_NAICS_AND_UPLOAD_v1 — Look it up popover */}

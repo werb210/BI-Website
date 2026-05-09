@@ -42,7 +42,8 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/quote" element={<Quote />} />
             <Route path="/applications/new" element={<NewApplication />} />
-            <Route path="/applications/new/country" element={<Country />} />
+            {/* BI_WEBSITE_BLOCK_v97_OTP_GATE_AND_FLOW_v1 — country picker moved into the score form */}
+            <Route path="/applications/new/country" element={<Navigate to="/applications/new" replace />} />
             <Route path="/applications/new/score" element={<Score />} />
             <Route path="/applications/:publicId/score-result" element={<ScoreResult />} />
             <Route path="/applications/:publicId/form" element={<Application />} />
