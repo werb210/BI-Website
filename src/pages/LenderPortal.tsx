@@ -2,8 +2,10 @@
 // applications pipeline, and entry point to the lender application form.
 // API key auth still works on the server (back-compat for third-party
 // integrations) but the public portal flow is now OTP-only.
-import { useEffect, useState } from "react";
+// BI_WEBSITE_BLOCK_v98_OTP_AUTOFORWARD_ALL_v1 — auto-forward OTP UX
+import { useEffect, useRef, useState } from "react";
 import { Link, Routes, Route, useNavigate, Navigate } from "react-router-dom";
+import { isPhoneReady, isCodeReady, OTP_CODE_LENGTH } from "../lib/otpAutoForward";
 
 const BASE = (import.meta.env.VITE_BI_API_URL as string | undefined) ?? "/api/v1";
 const TOKEN_KEY = "bi.lender_token";
@@ -64,38 +66,50 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 function Login() {
+  // BI_WEBSITE_BLOCK_v98_OTP_AUTOFORWARD_ALL_v1
   const nav = useNavigate();
   const [stage, setStage] = useState<"phone" | "code">("phone");
   const [phone, setPhone] = useState(localStorage.getItem(PHONE_KEY) ?? "");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const codeRef = useRef<HTMLInputElement | null>(null);
+  const startedRef = useRef(false);
+  const verifiedRef = useRef(false);
 
-  async function startOtp() {
+  async function startOtp(p: string) {
+    if (startedRef.current || busy) return;
+    startedRef.current = true;
     setErr(null);
     setBusy(true);
     try {
-      await jsonFetch("/lender/otp/start", { method: "POST", body: JSON.stringify({ phone }) });
-      localStorage.setItem(PHONE_KEY, phone);
+      await jsonFetch("/lender/otp/start", { method: "POST", body: JSON.stringify({ phone: p }) });
+      localStorage.setItem(PHONE_KEY, p);
       setStage("code");
+      setTimeout(() => codeRef.current?.focus(), 0);
     } catch (e: any) {
+      startedRef.current = false;
       setErr(e?.message ?? "Failed to send code");
     } finally {
       setBusy(false);
     }
   }
 
-  async function verifyOtp() {
+  async function verifyOtp(p: string, c: string) {
+    if (verifiedRef.current || busy) return;
+    verifiedRef.current = true;
     setErr(null);
     setBusy(true);
     try {
       const { token } = await jsonFetch<{ token: string; lender: LenderInfo }>(
         "/lender/otp/verify",
-        { method: "POST", body: JSON.stringify({ phone, code }) },
+        { method: "POST", body: JSON.stringify({ phone: p, code: c }) },
       );
       localStorage.setItem(TOKEN_KEY, token);
       nav("/lender/portal");
     } catch (e: any) {
+      verifiedRef.current = false;
+      setCode("");
       setErr(
         e?.status === 401
           ? "Invalid code or phone not registered. Contact us if you don't have access yet."
@@ -105,6 +119,18 @@ function Login() {
       setBusy(false);
     }
   }
+
+  // Auto-forward on valid phone digit count
+  useEffect(() => {
+    if (stage === "phone" && isPhoneReady(phone)) void startOtp(phone);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phone, stage]);
+
+  // Auto-submit on 6th digit
+  useEffect(() => {
+    if (stage === "code" && isCodeReady(code)) void verifyOtp(phone, code);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [code, stage]);
 
   return (
     <main className="min-h-screen bg-bf-bg text-slate-200">
@@ -119,27 +145,24 @@ function Login() {
             <div className="mt-8 space-y-4">
               <label className="block">
                 <span className="mb-1 block text-sm font-medium text-slate-300">
-                  Mobile phone (E.164 format)
+                  Mobile phone
                 </span>
                 <input
                   type="tel"
                   inputMode="tel"
                   autoComplete="tel"
-                  placeholder="+15875551234"
+                  autoFocus
+                  placeholder="(587) 555-1234"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full rounded-lg border border-white/15 bg-bf-bg px-4 py-3 text-white outline-none focus:border-blue-500"
+                  disabled={busy}
+                  className="w-full rounded-lg border border-white/15 bg-bf-bg px-4 py-3 text-white outline-none focus:border-blue-500 disabled:opacity-60"
                 />
               </label>
+              <p className="text-xs text-slate-500">
+                {busy ? "Sending code…" : "We'll text a code as soon as you finish typing."}
+              </p>
               {err ? <p className="text-sm text-rose-400">{err}</p> : null}
-              <button
-                type="button"
-                onClick={startOtp}
-                disabled={busy || !phone}
-                className="w-full rounded-full bg-blue-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-700"
-              >
-                {busy ? "Sending…" : "Send code"}
-              </button>
               <p className="text-center text-xs text-slate-500">
                 Don't have access? Email{" "}
                 <a className="text-blue-400 hover:text-blue-300" href="mailto:lenders@boreal.financial">
@@ -155,28 +178,26 @@ function Login() {
                   Verification code
                 </span>
                 <input
+                  ref={codeRef}
                   type="text"
                   inputMode="numeric"
                   autoComplete="one-time-code"
+                  autoFocus
                   placeholder="123456"
+                  maxLength={OTP_CODE_LENGTH}
                   value={code}
-                  onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 8))}
-                  className="w-full rounded-lg border border-white/15 bg-bf-bg px-4 py-3 text-center text-xl tracking-[0.3em] text-white outline-none focus:border-blue-500"
+                  onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, "").slice(0, OTP_CODE_LENGTH))}
+                  disabled={busy}
+                  className="w-full rounded-lg border border-white/15 bg-bf-bg px-4 py-3 text-center text-xl tracking-[0.3em] text-white outline-none focus:border-blue-500 disabled:opacity-60"
                 />
               </label>
+              <p className="text-xs text-slate-500">{busy ? "Verifying…" : `Enter the ${OTP_CODE_LENGTH}-digit code sent to ${phone}.`}</p>
               {err ? <p className="text-sm text-rose-400">{err}</p> : null}
               <button
                 type="button"
-                onClick={verifyOtp}
-                disabled={busy || code.length < 4}
-                className="w-full rounded-full bg-blue-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-700"
-              >
-                {busy ? "Verifying…" : "Verify & continue"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setStage("phone")}
-                className="w-full text-center text-sm text-slate-400 hover:text-slate-200"
+                onClick={() => { setStage("phone"); setCode(""); setErr(null); startedRef.current = false; verifiedRef.current = false; }}
+                disabled={busy}
+                className="w-full text-center text-sm text-slate-400 hover:text-slate-200 disabled:opacity-60"
               >
                 ← Use a different phone
               </button>
