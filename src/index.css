@@ -264,3 +264,11 @@ input[type="date"]::-webkit-datetime-edit-fields-wrapper,
 input[type="month"]::-webkit-datetime-edit-fields-wrapper { color: #fff; }
 input[type="date"]::-webkit-calendar-picker-indicator,
 input[type="month"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+/* BI_WEBSITE_BLOCK_v110_APP_FORM_AND_SW_v1 */
+.bi-asap-btn { padding: 0 12px; height: 38px; border-radius: 8px; background: #1a2c47; color: #93c5fd; border: 1px solid #3b82f6; font-size: 12px; font-weight: 700; letter-spacing: 1px; cursor: pointer; white-space: nowrap; }
+.bi-asap-btn:hover { background: #243752; }
+.bi-submit-card { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; align-items: stretch; }
+.bi-submit-primary { padding: 14px 20px; border-radius: 12px; background: #10b981; color: white; font-size: 16px; font-weight: 700; border: none; cursor: pointer; }
+.bi-submit-primary:hover:not(:disabled) { background: #059669; }
+.bi-submit-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.bi-submit-hint { color: #94a3b8; text-align: center; font-size: 13px; }

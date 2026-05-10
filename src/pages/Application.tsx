@@ -80,7 +80,8 @@ const CORE_LOCKED: ReadonlySet<string> = new Set([
   "bankruptcy_history", "insolvency_history",
   "personal_judgments", "business_judgments",
 ]);
-const TOTAL_FIELDS = SECTIONS.reduce((n, s) => n + s.fields.length, 0);
+// BI_WEBSITE_BLOCK_v110 — required-only count so optional fields do not feel required.
+const TOTAL_FIELDS = SECTIONS.reduce((n, s) => n + s.fields.filter((f) => f.required).length, 0);
 
 type State = Record<string, any> & { consents?: Record<string, boolean> };
 
@@ -179,9 +180,19 @@ function FieldInput({ field, state, set }: { field: FieldDef; state: State; set:
   }
 
   if (field.type === "date") {
+    // BI_WEBSITE_BLOCK_v110 — slice ISO timestamps from the server (e.g., "2022-05-01T00:00:00.000Z")
+    // to YYYY-MM-DD, the only format <input type="date"> accepts. Silences the
+    // "value does not conform to required format" console spam.
+    const v = (typeof value === "string" && value.length > 10) ? value.slice(0, 10) : (value ?? "");
     return (
       <label className="bi-field"><span>{field.label}{field.required && " *"}</span>
-        <input type="date" value={value ?? ""} onChange={(e)=>set(field.key, e.target.value)} />
+        <div className="bi-input-row">
+          <input type="date" value={v} onChange={(e)=>set(field.key, e.target.value)} />
+          {field.key === "policy_start_date" && (
+            <button type="button" className="bi-asap-btn"
+                    onClick={() => set(field.key, new Date().toISOString().slice(0, 10))}>ASAP</button>
+          )}
+        </div>
       </label>
     );
   }
@@ -237,7 +248,7 @@ export default function Application() {
   }
 
   const answered = useMemo(
-    () => SECTIONS.reduce((n, sec) => n + sec.fields.filter((f) => isAnswered(f, s)).length, 0),
+    () => SECTIONS.reduce((n, sec) => n + sec.fields.filter((f) => f.required && isAnswered(f, s)).length, 0),
     [s]
   );
 
@@ -256,6 +267,8 @@ export default function Application() {
       // BI_WEBSITE_BLOCK_v91_API_BASE_AND_DOCS_STAGE_v1 — go to docs stage first
       nav(`/applications/${publicId}/documents`);
     } catch (ex: any) {
+      // BI_WEBSITE_BLOCK_v110 — log full error context so submit failures can be diagnosed.
+      console.error("[submit] failed:", { status: ex?.status, message: ex?.message, data: ex?.data });
       if (ex?.data?.fields?.length) {
         setMissing(ex.data.fields);
         setErr(`Please complete: ${ex.data.fields.join(", ")}`);
@@ -277,9 +290,10 @@ export default function Application() {
       <UploadAndScrape publicId={publicId!} onApply={(merged) => setS((p: State) => ({ ...p, ...merged }))} />
       {err && <div className="form-error">{err}</div>}
       {SECTIONS.map((sec) => {
-        const a = sec.fields.filter((f) => isAnswered(f, s)).length;
+        const a = sec.fields.filter((f) => f.required && isAnswered(f, s)).length;
+        const t = sec.fields.filter((f) => f.required).length;
         return (
-          <Section key={sec.title} title={sec.title} answered={a} total={sec.fields.length} defaultOpen>
+          <Section key={sec.title} title={sec.title} answered={a} total={t} defaultOpen>
             <div className="grid gap-3 md:grid-cols-2">
               {sec.fields.map((f) => <FieldInput key={f.key} field={f} state={s} set={set} />)}
             </div>
@@ -298,9 +312,14 @@ export default function Application() {
       <button type="button" className="bi-toolbar-btn" disabled={busy} onClick={saveDraft} title="Save">
         <span className="bi-toolbar-icon">✎</span><span className="bi-toolbar-label">Save</span>
       </button>
-      <button type="button" className="bi-toolbar-btn bi-toolbar-btn--primary" disabled={busy} onClick={submit} title="Submit">
-        <span className="bi-toolbar-icon">»</span><span className="bi-toolbar-label">{busy ? "Submitting…" : "Submit"}</span>
+    </div>
+    {/* BI_WEBSITE_BLOCK_v110 — primary Submit moved out of toolbar to right after Consents per UX request. */}
+    <div className="bi-card bi-submit-card">
+      {err && <div className="form-error">{err}</div>}
+      <button type="button" className="bi-submit-primary" disabled={busy} onClick={submit}>
+        {busy ? "Submitting\u2026" : "Submit application"}
       </button>
+      <small className="bi-submit-hint">Once submitted, you will be taken to the document upload step.</small>
     </div>
   </div>;
 }
