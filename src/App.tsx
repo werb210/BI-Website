@@ -19,6 +19,9 @@ import WhatIsPGI from "./pages/WhatIsPGI";
 import HowItWorks from "./pages/HowItWorks";
 import Coverage from "./pages/Coverage";
 import WhyItMatters from "./pages/WhyItMatters";
+// BI_WEBSITE_BLOCK_v99_MARKETING_HOME_v1
+import CSBFP from "./pages/CSBFP";
+import Resources from "./pages/Resources";
 import Intro from "./pages/Intro";
 import NewApplication from "./pages/NewApplication";
 import Country from "./pages/Country";
@@ -65,6 +68,9 @@ export default function App() {
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/coverage" element={<Coverage />} />
             <Route path="/why-it-matters" element={<WhyItMatters />} />
+            {/* BI_WEBSITE_BLOCK_v99_MARKETING_HOME_v1 */}
+            <Route path="/csbfp" element={<CSBFP />} />
+            <Route path="/resources" element={<Resources />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="*" element={<Navigate to="/" replace />} />
