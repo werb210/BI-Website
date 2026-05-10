@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 // BI_WEBSITE_BLOCK_v86_SCORE_NAICS_AND_UPLOAD_v1
@@ -13,6 +13,10 @@ function unfmtCurrency(s: string): string { return s.replace(/[^0-9]/g, ""); }
 
 const EBITDA_MIN = 50_000;
 const LOAN_MAX = 1_000_000;
+// BI_WEBSITE_BLOCK_v107_SCORE_PGI_EBITDA_AUTOSAVE_v1
+const DRAFT_KEY = "bi.score_draft";
+const EBITDA_KEYS = ["net_income", "interest", "taxes", "depreciation", "amortization"] as const;
+type EbitdaKey = typeof EBITDA_KEYS[number];
 
 export default function Score() {
   const nav = useNavigate();
@@ -37,6 +41,43 @@ export default function Score() {
   const [busy, setBusy] = useState(false);
   // BI_WEBSITE_BLOCK_v97_OTP_GATE_AND_FLOW_v1 — country state replaces the prior URL search param.
   const [country, setCountry] = useState<"CA" | "US">("CA");
+  // BI_WEBSITE_BLOCK_v107_SCORE_PGI_EBITDA_AUTOSAVE_v1
+  const [savedAt, setSavedAt] = useState<Date | null>(null);
+  const [ebitdaCalcOpen, setEbitdaCalcOpen] = useState(false);
+  const [ebitdaParts, setEbitdaParts] = useState<Record<EbitdaKey, string>>({ net_income: "", interest: "", taxes: "", depreciation: "", amortization: "" });
+  const ebitdaSum = EBITDA_KEYS.reduce((s, k) => s + Number(ebitdaParts[k] || 0), 0);
+
+  // Restore draft on mount.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const d = JSON.parse(raw);
+      if (d.v) setV(d.v);
+      if (d.terms) setTerms(true);
+      if (d.country) setCountry(d.country);
+      if (d.ebitdaParts) setEbitdaParts(d.ebitdaParts);
+    } catch { /* noop */ }
+  }, []);
+
+  // Debounced autosave (1500ms after last change).
+  useEffect(() => {
+    const id = setTimeout(() => {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ v, terms, country, ebitdaParts }));
+        setSavedAt(new Date());
+      } catch { /* noop */ }
+    }, 1500);
+    return () => clearTimeout(id);
+  }, [v, terms, country, ebitdaParts]);
+
+  // Default PGI to 50% of loan when loan first entered.
+  useEffect(() => {
+    const loan = Number(v.loan_amount);
+    if (loan > 0 && Number(v.pgi_limit) === 0) {
+      setV((prev) => ({ ...prev, pgi_limit: String(Math.round(loan * 0.5)) }));
+    }
+  }, [v.loan_amount, v.pgi_limit]);
 
   function set<K extends keyof typeof v>(k: K, val: string) {
     setV({ ...v, [k]: val });
@@ -54,6 +95,7 @@ export default function Score() {
     setBusy(true);
     try {
       const r = await api.score({ country, ...v });
+      try { localStorage.removeItem(DRAFT_KEY); } catch { /* noop */ }
       nav(`/applications/${r.public_id}/score-result`);
     } catch (ex: any) {
       setErr(ex.message ?? "Could not run score");
@@ -70,6 +112,7 @@ export default function Score() {
       <header className="bi-progress">
         <div className="bi-progress-bar"><div style={{ width: `${(filled / 11) * 100}%` }} /></div>
         <span>Fill in Answers: {filled}/11</span>
+        {savedAt && <span style={{ marginLeft: "auto", fontSize: "0.75rem", opacity: 0.7 }}>✓ Saved</span>}
       </header>
 
       {/* BI_WEBSITE_BLOCK_v96_LAUNCH_UX_v2 — 2-column grid on md+ screens. NAICS, date, section
@@ -134,7 +177,7 @@ export default function Score() {
       </Field>
 
       <Field label="Please declare your desired PGI limit.">
-        <input type="text" inputMode="decimal" value={fmtCurrency(v.pgi_limit)} onChange={(e) => set("pgi_limit", unfmtCurrency(e.target.value))} placeholder="$0" />
+        <PgiSlider loan={Number(v.loan_amount)} value={Number(v.pgi_limit)} onChange={(n) => set("pgi_limit", String(n))} />
       </Field>
 
       <h3 className="bi-section-divider">FINANCIAL INFORMATION</h3>
@@ -148,6 +191,10 @@ export default function Score() {
         {Number(v.ebitda) > 0 && Number(v.ebitda) < EBITDA_MIN && (
           <div className="field-error">Minimum is ${EBITDA_MIN.toLocaleString()}</div>
         )}
+        <button type="button" onClick={() => setEbitdaCalcOpen(!ebitdaCalcOpen)} style={{ marginTop: 6, background: "none", border: "none", color: "#60a5fa", fontSize: "0.85rem", cursor: "pointer", padding: 0, textAlign: "left" }}>
+          {ebitdaCalcOpen ? "Hide calculator ▲" : "Help me calculate ▼"}
+        </button>
+        {ebitdaCalcOpen && <EbitdaCalc parts={ebitdaParts} onChange={setEbitdaParts} sum={ebitdaSum} onApply={() => set("ebitda", String(ebitdaSum))} />}
       </Field>
 
       <Field label="What is the total business debt?">
@@ -188,6 +235,48 @@ export default function Score() {
         <button className="primary big" disabled={busy || filled < 11} onClick={submit}>
           {busy ? "Calculating CORE Score…" : "Get my CORE Score"}
         </button>
+      </div>
+    </div>
+  );
+}
+
+function PgiSlider({ loan, value, onChange }: { loan: number; value: number; onChange: (n: number) => void }) {
+  const max80 = Math.floor(loan * 0.80);
+  const pct = loan > 0 ? Math.round((value / loan) * 100) : 0;
+  const safePct = Math.min(80, Math.max(0, pct));
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+        <span style={{ fontSize: "0.85rem", opacity: 0.85 }}>{loan > 0 ? `${safePct}% of loan` : "Enter loan amount first"}</span>
+        <strong>${value.toLocaleString()}</strong>
+      </div>
+      <input type="range" min={0} max={80} step={5} value={safePct} disabled={loan <= 0}
+        onChange={(e) => onChange(Math.round(loan * (Number(e.target.value) / 100)))}
+        style={{ width: "100%", accentColor: "#2563eb" }} />
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", opacity: 0.6, marginTop: 4 }}>
+        <span>0%</span>
+        <span>{loan > 0 ? `Max 80% = $${max80.toLocaleString()}` : "Max 80%"}</span>
+      </div>
+    </div>
+  );
+}
+
+function EbitdaCalc({ parts, onChange, sum, onApply }: { parts: Record<EbitdaKey, string>; onChange: (p: Record<EbitdaKey, string>) => void; sum: number; onApply: () => void }) {
+  const labels: Record<EbitdaKey, string> = { net_income: "Net income", interest: "Interest", taxes: "Taxes", depreciation: "Depreciation", amortization: "Amortization" };
+  return (
+    <div style={{ marginTop: 8, padding: 12, border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, background: "rgba(255,255,255,0.02)" }}>
+      {EBITDA_KEYS.map((k) => (
+        <div key={k} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+          <span style={{ flex: 1, fontSize: "0.85rem" }}>{labels[k]}</span>
+          <input type="text" inputMode="decimal" value={fmtCurrency(parts[k])}
+            onChange={(e) => onChange({ ...parts, [k]: unfmtCurrency(e.target.value) })}
+            placeholder="$0"
+            style={{ width: 140, padding: "6px 8px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.05)", color: "white" }} />
+        </div>
+      ))}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 8, marginTop: 4 }}>
+        <span>EBITDA = <strong>${sum.toLocaleString()}</strong></span>
+        <button type="button" className="ghost" onClick={onApply} disabled={sum === 0}>Use this value</button>
       </div>
     </div>
   );
