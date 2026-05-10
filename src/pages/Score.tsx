@@ -168,12 +168,6 @@ export default function Score() {
 
       </div>
       {/* BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — T&C checkbox */}
-      {/* BI_WEBSITE_BLOCK_v86_SCORE_NAICS_AND_UPLOAD_v1 — pre-filled template */}
-      <div className="bi-template-row">
-        <a href="/templates/pgi-score-template.csv" download className="bi-template-link">
-          ⬆ Upload a pre-filled <span className="bi-template-link-em">template</span>
-        </a>
-      </div>
 
       <label className="bi-field bi-terms">
         <input

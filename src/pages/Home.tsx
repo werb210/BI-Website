@@ -56,12 +56,6 @@ export default function Home() {
         <h2 className="text-3xl font-bold text-white text-center">Why Boreal Insurance</h2>
         <div className="mt-10 grid gap-6 md:grid-cols-3">{WHY.map((w) => (<div key={w.t}><h3 className="text-lg font-semibold text-white">{w.t}</h3><p className="mt-2 text-sm text-bf-textMuted">{w.d}</p></div>))}</div>
       </section>
-      <section className="mx-auto max-w-5xl px-5 py-12 border-t border-subtle">
-        <div className="rounded-2xl bg-bf-surface border border-card p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div><h3 className="text-xl font-semibold text-white">For lenders</h3><p className="mt-1 text-sm text-bf-textMuted">Submit applications via API or our lender portal. Your borrowers get insured personal guarantees; you reduce default loss exposure.</p></div>
-          <div className="flex gap-3"><Link to="/lender/login" className="rounded-full border border-white/30 px-5 py-2 text-white">Lender login</Link><Link to="/lender/api" className="rounded-full bg-bf-cta hover:bg-bf-ctaHover px-5 py-2 text-white">API docs</Link></div>
-        </div>
-      </section>
       <section className="mx-auto max-w-3xl px-5 py-16 border-t border-subtle">
         <h2 className="text-3xl font-bold text-white text-center">Frequently asked questions</h2>
         <div className="mt-8 space-y-2">

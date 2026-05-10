@@ -1,7 +1,7 @@
 // BI_WEBSITE_BLOCK_v3_FULL_FIELD_RENDER_v1
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { api } from "../lib/api";
+import { api, getApplicantToken } from "../lib/api";
 import { CoreBadge } from "../components/CoreBadge";
 import { Section } from "../components/Section";
 import { UploadAndScrape } from "../components/UploadAndScrape";
@@ -18,8 +18,6 @@ const SECTIONS: Array<{ title: string; fields: FieldDef[] }> = [
     { key: "guarantor_phone", label: "Phone", type: "phone", required: true },
   ]},
   { title: "Business", fields: [
-    { key: "country", label: "Country", type: "select", required: true,
-      options: [{ value: "CA", label: "Canada" }] },
     { key: "business_name", label: "Legal business name", type: "text", required: true },
     { key: "business_address", label: "Business address", type: "text", required: true },
     { key: "business_website", label: "Website (optional)", type: "text" },
@@ -216,7 +214,18 @@ export default function Application() {
   useEffect(() => {
     api.getApp(publicId!).then((r) => {
       if (r.application.score_decision !== "approve") { nav("/"); return; }
-      setS({ consents: {}, ...r.application });
+      // v102: prefill guarantor_phone from OTP-verified applicant phone.
+      let app: any = { consents: {}, ...r.application };
+      if (!app.guarantor_phone) {
+        try {
+          const tok = getApplicantToken();
+          if (tok) {
+            const payload = JSON.parse(atob(tok.split(".")[1]));
+            if (payload?.phone) app.guarantor_phone = payload.phone;
+          }
+        } catch {}
+      }
+      setS(app);
       setLoaded(true);
     }).catch((e) => setErr(e?.message ?? "Failed to load application"));
   }, [nav, publicId]);
