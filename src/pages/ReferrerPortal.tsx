@@ -51,6 +51,25 @@ export default function ReferrerPortal() {
     })();
   }, [token]);
 
+  // BI_WEBSITE_BLOCK_v108_WEBOTP_AND_OTP_NAME_v1 — auto-forward on 6th digit.
+  useEffect(() => {
+    if (stage === "verify" && code.length === 6) void verifyOtp();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [code, stage]);
+
+  // WebOTP API — programmatic SMS read on Android Chrome.
+  useEffect(() => {
+    if (stage !== "verify") return;
+    if (typeof window === "undefined" || !("OTPCredential" in window)) return;
+    const ctrl = new AbortController();
+    // @ts-expect-error WebOTP API not in standard lib.dom
+    navigator.credentials.get({ otp: { transport: ["sms"] }, signal: ctrl.signal })
+      .then((cred: any) => { if (cred?.code && /^\d{6}$/.test(cred.code)) setCode(cred.code); })
+      .catch(() => { /* dismissed or no SMS arrived */ });
+    return () => ctrl.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stage]);
+
   async function sendOtp() {
     setErr(null); setBusy(true);
     try {
@@ -109,7 +128,7 @@ export default function ReferrerPortal() {
     <div className="bi-card">
       <h1>Verify OTP</h1>
       <label className="bi-field"><span>6-digit code</span>
-        <input value={code} onChange={(e)=>setCode(e.target.value)} maxLength={6} />
+        <input type="text" inputMode="numeric" autoComplete="one-time-code" autoFocus name="code" placeholder="123456" maxLength={6} value={code} onChange={(e)=>setCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))} disabled={busy} style={{ textAlign: "center", fontSize: "1.5rem", letterSpacing: "0.3em" }} />
       </label>
       {err && <div className="form-error">{err}</div>}
       <button className="primary" onClick={verifyOtp} disabled={busy || code.length !== 6}>{busy ? "Verifying…" : "Verify"}</button>

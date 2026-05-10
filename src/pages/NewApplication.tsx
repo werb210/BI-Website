@@ -77,6 +77,19 @@ export default function NewApplication() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code, stage]);
 
+  // BI_WEBSITE_BLOCK_v108_WEBOTP_AND_OTP_NAME_v1 — programmatic SMS read on Android Chrome.
+  useEffect(() => {
+    if (stage !== "code") return;
+    if (typeof window === "undefined" || !("OTPCredential" in window)) return;
+    const ctrl = new AbortController();
+    // @ts-expect-error WebOTP API not in standard lib.dom
+    navigator.credentials.get({ otp: { transport: ["sms"] }, signal: ctrl.signal })
+      .then((cred: any) => { if (cred?.code && /^\d{6}$/.test(cred.code)) setCode(cred.code); })
+      .catch(() => { /* dismissed or no SMS arrived */ });
+    return () => ctrl.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stage]);
+
   function backToPhone() {
     setStage("phone");
     setCode("");
@@ -127,6 +140,7 @@ export default function NewApplication() {
               inputMode="numeric"
               autoComplete="one-time-code"
               autoFocus
+              name="code"
               placeholder="123456"
               maxLength={OTP_CODE_LENGTH}
               value={code}
