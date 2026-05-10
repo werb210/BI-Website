@@ -118,7 +118,7 @@ export default function NewApplication() {
           </small>
         </>
       ) : (
-        <>
+        <form onSubmit={(e) => { e.preventDefault(); void verifyOtp(phone, code); }}>
           <label className="bi-field">
             <span className="bi-field-label">Verification code</span>
             <input
@@ -150,7 +150,7 @@ export default function NewApplication() {
           >
             ← Use a different phone
           </button>
-        </>
+        </form>
       )}
     </div>
   );

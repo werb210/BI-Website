@@ -66,7 +66,7 @@ a {
 .bi-toolbar-label { font-size: 11px; letter-spacing: 0.04em; }
 
 /* BI_WEBSITE_BLOCK_v86_SCORE_NAICS_AND_UPLOAD_v1 */
-.bi-naics-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.bi-naics-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .bi-lookup-btn {
   padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.18);
   background: rgba(255,255,255,0.04); color: inherit; cursor: pointer; white-space: nowrap;
@@ -76,7 +76,7 @@ a {
   margin-top: 8px; padding: 12px; border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.12); background: rgba(8,19,42,0.95); backdrop-filter: blur(8px);
 }
-.bi-naics-popover-head { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-bottom: 8px; }
+.bi-naics-popover-head { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
 .bi-naics-results { list-style: none; padding: 0; margin: 0; max-height: 320px; overflow-y: auto; }
 .bi-naics-results li button {
   width: 100%; display: grid; grid-template-columns: 80px 1fr; gap: 12px; padding: 10px;
@@ -252,3 +252,15 @@ button.secondary:hover, .secondary:hover {
 .bi-section h3 { font-size: 14px; font-weight: 600; margin: 0 0 6px; color: var(--bf-cta); }
 .bi-section ul { list-style: none; padding: 0; margin: 0; font-size: 13px; }
 .bi-section li { padding: 4px 0; color: rgb(203 213 225); }
+
+/* BI_WEBSITE_BLOCK_v102_HOME_SCORE_APPLICATION_POLISH_v1 — dark date pickers */
+input[type="date"], input[type="month"] {
+  color-scheme: dark;
+  color: #fff;
+}
+input[type="date"]::-webkit-datetime-edit,
+input[type="month"]::-webkit-datetime-edit { color: #fff; }
+input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+input[type="month"]::-webkit-datetime-edit-fields-wrapper { color: #fff; }
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="month"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
