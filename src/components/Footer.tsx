@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 export default function Footer() {
   return (
     <footer className="bg-[#071a2f] py-16 text-gray-300">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-8 md:grid-cols-3">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-8 md:grid-cols-4">
         <div>
           <h3 className="mb-4 font-semibold text-white">Boreal Insurance</h3>
           <p>Personal guarantee insurance for Canadian businesses.</p>
@@ -40,7 +40,21 @@ export default function Footer() {
           </ul>
         </div>
 
-        <div className="md:col-span-3 mt-8 border-t border-white/10 pt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-400">
+        {/* BI_WEBSITE_BLOCK_v105_MARKETING_TIER_2_v1 — Contact (placeholders) */}
+        <div>
+          <h4 className="mb-4 text-white">Contact</h4>
+          <ul className="space-y-2 text-sm">
+            <li><a href="tel:+1-000-000-0000" className="hover:text-white">1-XXX-XXX-XXXX</a></li>
+            <li><a href="mailto:hello@boreal.financial" className="hover:text-white">hello@boreal.financial</a></li>
+            <li className="opacity-70">Mon–Fri 8am–6pm MT</li>
+          </ul>
+        </div>
+
+        <div className="md:col-span-4 mt-4 text-xs text-gray-400 leading-relaxed">
+          Boreal Insurance is operated by Boreal Insurance Brokerage Inc. [licensee details — placeholder], a licensed insurance brokerage. Personal Guarantee Insurance policies are underwritten by Markel Canada Limited (A-rated by AM Best, S&amp;P, and Fitch). Coverage is subject to underwriting approval, policy terms, and exclusions. Premium estimates are non-binding until a policy is bound and the first premium is paid. For complaints, contact our Compliance Officer at compliance@boreal.financial [placeholder] or your provincial insurance regulator.
+        </div>
+
+        <div className="md:col-span-4 mt-8 border-t border-white/10 pt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-400">
           {/* BI_WEBSITE_BLOCK_v94_LAUNCH_HARDENING_v1 */}
           <Link to="/privacy" className="hover:text-white">Privacy Policy</Link>
           <Link to="/terms" className="hover:text-white">Terms of Service</Link>
