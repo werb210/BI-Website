@@ -75,8 +75,8 @@ export default function Score() {
       {/* BI_WEBSITE_BLOCK_v96_LAUNCH_UX_v2 — 2-column grid on md+ screens. NAICS, date, section
           headings, terms, and actions all span both columns; financial fields pair up. */}
       <div className="grid gap-3 md:grid-cols-2 [&_h3]:md:col-span-2 [&>label]:md:col-span-1">
-      {/* BI_WEBSITE_BLOCK_v97_OTP_GATE_AND_FLOW_v1 — country picker (was a separate /country page). */}
-      <div className="md:col-span-2">
+      {/* BI_WEBSITE_BLOCK_v97_OTP_GATE_AND_FLOW_v1 — country picker — v100: col-span-1 to pair with date. */}
+      <div className="md:col-span-1">
         <label className="bi-field">
           <span className="bi-field-label">Country of business</span>
           <select value={country} onChange={(e) => setCountry(e.target.value as "CA" | "US")}>
@@ -85,6 +85,13 @@ export default function Score() {
           </select>
           <small className="bi-field-hint">Only Canadian businesses are supported at launch.</small>
         </label>
+      </div>
+      {/* BI_WEBSITE_BLOCK_v100_SCORE_LAYOUT_AND_BRAND_v2 — date paired with country. */}
+      <div className="md:col-span-1">
+        <Field label="What month-year did this business start generating revenue?">
+          <input type="month" value={v.formation_date.slice(0, 7)} onChange={(e) => set("formation_date", e.target.value + "-01")} />
+          <small>Enter month and year, e.g. January 2015</small>
+        </Field>
       </div>
       <div className="md:col-span-2">
       <Field label="What is the NAICS code for the business?" hint="6-digit industry code">
@@ -119,11 +126,6 @@ export default function Score() {
         )}
       </Field>
       </div>
-
-      <Field label="What month-year did this business start generating revenue?">
-        <input type="month" value={v.formation_date.slice(0, 7)} onChange={(e) => set("formation_date", e.target.value + "-01")} />
-        <small>Enter month and year, e.g. January 2015</small>
-      </Field>
 
       <h3 className="bi-section-divider">LOAN & GUARANTEE DETAILS</h3>
 

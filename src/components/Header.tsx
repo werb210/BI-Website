@@ -8,7 +8,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 // BI_WEBSITE_BLOCK_v92 — translucent logo in the header (Todd Q1).
-import logoUrl from "../../assets/logos/50X50-transparent.png";
+import logoUrl from "../../assets/logos/300X300-transparent.png";
 import { getAuthUser, clearAuth, type AuthUser } from "../lib/auth";
 
 function MenuIcon({ open }: { open: boolean }) {
