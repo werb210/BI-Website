@@ -100,7 +100,7 @@ export default function Header() {
             </>
           ) : (
             <>
-              <Link to="/quote" className="text-white/80 hover:text-white">
+              <Link to="?quote=1" className="text-white/80 hover:text-white">
                 Quote
               </Link>
               <Link to="/applications/new" className="text-white/80 hover:text-white">
@@ -187,7 +187,7 @@ export default function Header() {
                 </>
               ) : (
                 <>
-                  <Link to="/quote" className="text-white/80" onClick={() => setOpen(false)}>
+                  <Link to="?quote=1" className="text-white/80" onClick={() => setOpen(false)}>
                     Quote
                   </Link>
                   <Link to="/applications/new" className="text-white/80" onClick={() => setOpen(false)}>

@@ -13,7 +13,8 @@ const ICN = {
   card:"M2 6h20v12H2z M2 10h20",
   tool:"M14.7 6.3l3 3L7 20H4v-3L14.7 6.3z M13 6l5 5",
   leaf:"M21 3c-9 0-18 9-18 18 0 0 9-1 12-4 4-4 6-9 6-14z",
-  eye:"M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z M12 9a3 3 0 100 6 3 3 0 000-6z"
+  eye:"M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z M12 9a3 3 0 100 6 3 3 0 000-6z",
+  warn:"M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z M12 9v4 M12 17h.01"
 };
 function Icon({ d, className = "h-6 w-6" }: { d: string; className?: string }) {
   return (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}><path d={d} /></svg>);
@@ -23,6 +24,7 @@ const STEPS = [{n:"1",i:ICN.bolt,t:"Quote in 60 seconds",d:"Tell us about your l
 const COVERAGE = ["Covers the personal guarantee on your business loan — not the loan itself.","Pays the lender if your guarantee is called after the business is unable to repay.","Available for Canadian businesses with $50K+ EBITDA and 12+ months of revenue history."];
 const LOANS = [{i:ICN.bank,t:"CSBFP loans",d:"Canada Small Business Financing Program loans with the 25% personal guarantee."},{i:ICN.cal,t:"Term loans",d:"Bank term loans secured by a personal guarantee from a director or shareholder."},{i:ICN.card,t:"Lines of credit",d:"Operating lines and revolving facilities backed by a personal guarantee."},{i:ICN.tool,t:"Equipment financing",d:"Equipment loans and leases where the lender requires a personal guarantee."}];
 const WHY = [{i:ICN.leaf,t:"Canadian-built",d:"Designed for Canadian SMEs, underwritten by Markel — A-rated by AM Best, S&P, Fitch."},{i:ICN.bolt,t:"Fast decisions",d:"Quote in 60 seconds. Underwriting in 5 business days. No broker required."},{i:ICN.eye,t:"Transparent pricing",d:"See your premium before you submit. No hidden fees. Known annual renewal."}];
+const HOW_PGI = [{n:"1",t:"You sign + insure",d:"The bank requires a personal guarantee on your loan. You buy a Boreal PGI policy at the same time — premium is a fraction of the loan size.",i:ICN.doc,c:"text-bf-cta",b:"border-bf-cta/30",bg:"bg-bf-cta/5"},{n:"2",t:"Business defaults",d:"Worst case: revenue drops, the business can’t repay. The bank moves to call your personal guarantee.",i:ICN.warn,c:"text-amber-400",b:"border-amber-400/30",bg:"bg-amber-400/5"},{n:"3",t:"Markel pays the bank",d:"Your PGI policy pays the lender directly, up to your declared limit. Your home, RRSP, and family savings stay protected.",i:ICN.shield,c:"text-emerald-400",b:"border-emerald-400/30",bg:"bg-emerald-400/5"}];
 const FAQ = [{q:"What does PGI actually cover?",a:"PGI covers your personal guarantee. If your business defaults and the lender calls the guarantee, the insurance pays the lender up to your declared limit."},{q:"How is this different from credit insurance?",a:"Credit insurance protects the lender. PGI protects you, the guarantor. Different policy, different beneficiary."},{q:"What does it cost?",a:"Premiums depend on loan size, business financials, and coverage limit. A $500K loan with $400K coverage is typically in the low thousands per year."},{q:"Can I add coverage to a loan I already have?",a:"Yes. Existing personal guarantees are eligible as long as the loan is in good standing."},{q:"What if the business is sold or refinanced?",a:"Coverage ends when the underlying loan is repaid or the personal guarantee is released. Premiums stop accordingly."},{q:"Is this available across Canada?",a:"Yes — all 10 provinces and 3 territories. US coverage is in development."},{q:"Will this affect my credit?",a:"No. Applying for PGI does not pull credit. Only Markel underwriting reviews your financial documents — no credit bureau involvement."},{q:"How fast does the lender accept this policy?",a:"Most Canadian lenders accept Markel coverage immediately. We provide a certificate of insurance you can forward to your loan officer the same day."},{q:"What happens if my business closes?",a:"If the underlying loan is paid off through dissolution, the policy ends with the loan. If the lender calls the guarantee, the policy pays — that is exactly what it is for."},{q:"What documents do I need?",a:"Most recent T2 corporate return (CRA Notice of Assessment), 6 months of business bank statements, current year-to-date financials, and your loan agreement or term sheet."},{q:"Can a co-guarantor be covered too?",a:"Yes. Each guarantor is underwritten and insured separately. Apply once and we coordinate the joint policy."}];
 
 export default function Home() {
@@ -41,7 +43,7 @@ export default function Home() {
         <p className="mt-4 text-base sm:text-lg text-bf-textMuted">Insure your personal guarantee. Protect your family. Quote in 60 seconds.</p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Link to="/applications/new" className="rounded-full bg-bf-cta hover:bg-bf-ctaHover px-7 py-3 font-medium text-white">Apply Now</Link>
-          <Link to="/quote" className="rounded-full border border-white/30 px-7 py-3 font-medium text-white">Get a Free Quote</Link>
+          <Link to="?quote=1" className="rounded-full border border-white/30 px-7 py-3 font-medium text-white">Get a Free Quote</Link>
         </div>
         <p className="mt-4 text-sm text-bf-textMuted">Or <a href="tel:+1-000-000-0000" className="text-bf-cta hover:underline">speak with a licensed broker</a></p>
         <div className="mt-8 flex justify-center"><MarkelBadge /></div>
@@ -70,6 +72,11 @@ export default function Home() {
       <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
         <h2 className="text-3xl font-bold text-white text-center">What your policy covers</h2>
         <ul className="mt-8 mx-auto max-w-2xl space-y-4">{COVERAGE.map((c, i) => (<li key={i} className="flex gap-3"><span className="text-bf-cta">●</span><span className="text-bf-textMuted">{c}</span></li>))}</ul>
+      </section>
+      <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
+        <h2 className="text-3xl font-bold text-white text-center">How PGI protects you</h2>
+        <p className="mt-3 text-center text-sm text-bf-textMuted max-w-2xl mx-auto">If the worst happens, your policy steps in so the bank’s recovery doesn’t come from your personal assets.</p>
+        <div className="mt-10 grid gap-4 md:grid-cols-3">{HOW_PGI.map((s) => (<div key={s.n} className={"rounded-2xl border p-6 " + s.b + " " + s.bg}><div className="flex items-start justify-between"><span className={"flex h-10 w-10 items-center justify-center rounded-full bg-bf-bg font-bold " + s.c}>{s.n}</span><div className={s.c}><Icon d={s.i} className="h-7 w-7"/></div></div><h3 className="mt-4 text-lg font-semibold text-white">{s.t}</h3><p className="mt-2 text-sm text-bf-textMuted">{s.d}</p></div>))}</div>
       </section>
       <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
         <h2 className="text-3xl font-bold text-white text-center">Loans we can insure</h2>
