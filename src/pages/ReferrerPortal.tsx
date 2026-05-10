@@ -9,7 +9,10 @@ const STAGE_LABELS: Record<string, string> = {
   declined: "Declined", policy_issued: "Issued",
 };
 
-const BASE = (import.meta.env.VITE_BI_API_URL || window.location.origin).replace(/\/$/, "") + "/api/v1";
+// BI_WEBSITE_BLOCK_v103_OTP_BASE_FIX_AND_WARMUP_v1 — mirror lib/api.ts BASE.
+const BASE = ((import.meta.env.VITE_API_URL as string | undefined)
+  || (import.meta.env.VITE_BI_API_URL as string | undefined)
+  || window.location.origin).replace(/\/$/, "") + "/api/v1";
 
 async function jsonFetch(path: string, init: RequestInit, token?: string) {
   const r = await fetch(BASE + path, {

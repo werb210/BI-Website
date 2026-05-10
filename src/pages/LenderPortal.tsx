@@ -7,7 +7,10 @@ import { useEffect, useRef, useState } from "react";
 import { Link, Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import { isPhoneReady, isCodeReady, OTP_CODE_LENGTH } from "../lib/otpAutoForward";
 
-const BASE = (import.meta.env.VITE_BI_API_URL as string | undefined) ?? "/api/v1";
+// BI_WEBSITE_BLOCK_v103_OTP_BASE_FIX_AND_WARMUP_v1 — mirror lib/api.ts BASE.
+const BASE = ((import.meta.env.VITE_API_URL as string | undefined)
+  || (import.meta.env.VITE_BI_API_URL as string | undefined)
+  || window.location.origin).replace(/\/$/, "") + "/api/v1";
 const TOKEN_KEY = "bi.lender_token";
 const PHONE_KEY = "bi.lender_phone";
 

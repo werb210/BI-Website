@@ -7,6 +7,14 @@ import "./index.css";
 // BI_WEBSITE_BLOCK_v168_CARRIER_RESKIN_v1 — carrier-aligned theme
 import "./styles/carrier.css";
 
+// BI_WEBSITE_BLOCK_v103_OTP_BASE_FIX_AND_WARMUP_v1 — wake the B1 worker on first paint.
+try {
+  const __apiBase = ((import.meta.env.VITE_API_URL as string | undefined)
+    || (import.meta.env.VITE_BI_API_URL as string | undefined)
+    || window.location.origin).replace(/\/$/, "");
+  fetch(__apiBase + "/health", { method: "GET", mode: "cors" }).catch(() => {});
+} catch { /* noop */ }
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />
