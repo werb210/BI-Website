@@ -5,6 +5,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import QuoteModal from "./components/QuoteModal";
 import Home from "./pages/Home";
 // BI_WEBSITE_BLOCK_v90_LENDER_API_DOCS_v1
 // BI_WEBSITE_BLOCK_v94_LAUNCH_HARDENING_v1
@@ -40,6 +41,7 @@ export default function App() {
       <div className="bi-app-shell">
       <div className="flex min-h-screen flex-col">
         <Header />
+        <QuoteModal />
         <main className="bi-main flex-1">
           <Routes>
             <Route path="/" element={<Home />} />
