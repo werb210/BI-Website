@@ -3,11 +3,26 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import MarkelBadge from "../components/MarkelBadge";
+// BI_WEBSITE_BLOCK_v105_MARKETING_TIER_2_v1 — inline SVG icon set (no extra deps).
+const ICN = {
+  bolt:"M13 2L3 14h7l-1 8 10-12h-7l1-8z",
+  doc:"M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M9 13l2 2 4-4",
+  shield:"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z",
+  bank:"M3 10h18 M3 14h18 M5 10V6h14v4 M3 22V10 M21 22V10 M9 22v-8 M15 22v-8",
+  cal:"M3 4h18v18H3z M16 2v4 M8 2v4 M3 10h18",
+  card:"M2 6h20v12H2z M2 10h20",
+  tool:"M14.7 6.3l3 3L7 20H4v-3L14.7 6.3z M13 6l5 5",
+  leaf:"M21 3c-9 0-18 9-18 18 0 0 9-1 12-4 4-4 6-9 6-14z",
+  eye:"M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z M12 9a3 3 0 100 6 3 3 0 000-6z"
+};
+function Icon({ d, className = "h-6 w-6" }: { d: string; className?: string }) {
+  return (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}><path d={d} /></svg>);
+}
 type Row = { public_id: string };
-const STEPS = [{n:"1",t:"Quote in 60 seconds",d:"Tell us about your loan and business. We show a coverage range and target premium immediately — no broker call required."},{n:"2",t:"Underwriting decision",d:"Submit a few documents (CRA notice, bank statements, financials). Markel's underwriters respond within 5 business days."},{n:"3",t:"Coverage live at signature",d:"Sign the policy, pay the first premium. Your personal guarantee is insured up to your declared limit. Annual renewals."}];
+const STEPS = [{n:"1",i:ICN.bolt,t:"Quote in 60 seconds",d:"Tell us about your loan and business. We show a coverage range and target premium immediately — no broker call required."},{n:"2",i:ICN.doc,t:"Underwriting decision",d:"Submit a few documents (CRA notice, bank statements, financials). Markel's underwriters respond within 5 business days."},{n:"3",i:ICN.shield,t:"Coverage live at signature",d:"Sign the policy, pay the first premium. Your personal guarantee is insured up to your declared limit. Annual renewals."}];
 const COVERAGE = ["Covers the personal guarantee on your business loan — not the loan itself.","Pays the lender if your guarantee is called after the business is unable to repay.","Available for Canadian businesses with $50K+ EBITDA and 12+ months of revenue history."];
-const LOANS = [{t:"🏦 CSBFP loans",d:"Canada Small Business Financing Program loans with the 25% personal guarantee."},{t:"📋 Term loans",d:"Bank term loans secured by a personal guarantee from a director or shareholder."},{t:"💳 Lines of credit",d:"Operating lines and revolving facilities backed by a personal guarantee."},{t:"🔧 Equipment financing",d:"Equipment loans and leases where the lender requires a personal guarantee."}];
-const WHY = [{t:"🍁 Canadian-built",d:"Designed for Canadian SMEs, underwritten by Markel — A-rated by AM Best, S&P, Fitch."},{t:"⚡ Fast decisions",d:"Quote in 60 seconds. Underwriting in 5 business days. No broker required."},{t:"💰 Transparent pricing",d:"See your premium before you submit. No hidden fees. Known annual renewal."}];
+const LOANS = [{i:ICN.bank,t:"CSBFP loans",d:"Canada Small Business Financing Program loans with the 25% personal guarantee."},{i:ICN.cal,t:"Term loans",d:"Bank term loans secured by a personal guarantee from a director or shareholder."},{i:ICN.card,t:"Lines of credit",d:"Operating lines and revolving facilities backed by a personal guarantee."},{i:ICN.tool,t:"Equipment financing",d:"Equipment loans and leases where the lender requires a personal guarantee."}];
+const WHY = [{i:ICN.leaf,t:"Canadian-built",d:"Designed for Canadian SMEs, underwritten by Markel — A-rated by AM Best, S&P, Fitch."},{i:ICN.bolt,t:"Fast decisions",d:"Quote in 60 seconds. Underwriting in 5 business days. No broker required."},{i:ICN.eye,t:"Transparent pricing",d:"See your premium before you submit. No hidden fees. Known annual renewal."}];
 const FAQ = [{q:"What does PGI actually cover?",a:"PGI covers your personal guarantee. If your business defaults and the lender calls the guarantee, the insurance pays the lender up to your declared limit."},{q:"How is this different from credit insurance?",a:"Credit insurance protects the lender. PGI protects you, the guarantor. Different policy, different beneficiary."},{q:"What does it cost?",a:"Premiums depend on loan size, business financials, and coverage limit. A $500K loan with $400K coverage is typically in the low thousands per year."},{q:"Can I add coverage to a loan I already have?",a:"Yes. Existing personal guarantees are eligible as long as the loan is in good standing."},{q:"What if the business is sold or refinanced?",a:"Coverage ends when the underlying loan is repaid or the personal guarantee is released. Premiums stop accordingly."},{q:"Is this available across Canada?",a:"Yes — all 10 provinces and 3 territories. US coverage is in development."},{q:"Will this affect my credit?",a:"No. Applying for PGI does not pull credit. Only Markel underwriting reviews your financial documents — no credit bureau involvement."},{q:"How fast does the lender accept this policy?",a:"Most Canadian lenders accept Markel coverage immediately. We provide a certificate of insurance you can forward to your loan officer the same day."},{q:"What happens if my business closes?",a:"If the underlying loan is paid off through dissolution, the policy ends with the loan. If the lender calls the guarantee, the policy pays — that is exactly what it is for."},{q:"What documents do I need?",a:"Most recent T2 corporate return (CRA Notice of Assessment), 6 months of business bank statements, current year-to-date financials, and your loan agreement or term sheet."},{q:"Can a co-guarantor be covered too?",a:"Yes. Each guarantor is underwritten and insured separately. Apply once and we coordinate the joint policy."}];
 
 export default function Home() {
@@ -28,6 +43,7 @@ export default function Home() {
           <Link to="/applications/new" className="rounded-full bg-bf-cta hover:bg-bf-ctaHover px-7 py-3 font-medium text-white">Apply Now</Link>
           <Link to="/quote" className="rounded-full border border-white/30 px-7 py-3 font-medium text-white">Get a Free Quote</Link>
         </div>
+        <p className="mt-4 text-sm text-bf-textMuted">Or <a href="tel:+1-000-000-0000" className="text-bf-cta hover:underline">speak with a licensed broker</a></p>
         <div className="mt-8 flex justify-center"><MarkelBadge /></div>
       </section>
       <section className="mx-auto max-w-5xl px-5 py-8 border-t border-subtle">
@@ -48,7 +64,7 @@ export default function Home() {
       <section id="how-it-works" className="mx-auto max-w-5xl px-5 py-16">
         <h2 className="text-3xl font-bold text-white text-center">How it works</h2>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {STEPS.map((s) => (<div key={s.n} className="rounded-2xl border border-card bg-bf-surface p-6"><div className="text-bf-cta text-2xl font-bold">{s.n}</div><h3 className="mt-2 text-lg font-semibold text-white">{s.t}</h3><p className="mt-2 text-sm text-bf-textMuted">{s.d}</p></div>))}
+          {STEPS.map((s) => (<div key={s.n} className="rounded-2xl border border-card bg-bf-surface p-6"><div className="flex items-start justify-between"><div className="text-bf-cta text-2xl font-bold">{s.n}</div><div className="text-bf-cta opacity-80"><Icon d={s.i}/></div></div><h3 className="mt-2 text-lg font-semibold text-white">{s.t}</h3><p className="mt-2 text-sm text-bf-textMuted">{s.d}</p></div>))}
         </div>
       </section>
       <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
@@ -57,7 +73,7 @@ export default function Home() {
       </section>
       <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
         <h2 className="text-3xl font-bold text-white text-center">Loans we can insure</h2>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{LOANS.map((l) => (<div key={l.t} className="rounded-2xl border border-card bg-bf-surface p-5"><h3 className="text-base font-semibold text-white">{l.t}</h3><p className="mt-2 text-sm text-bf-textMuted">{l.d}</p></div>))}</div>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{LOANS.map((l) => (<div key={l.t} className="rounded-2xl border border-card bg-bf-surface p-5"><div className="text-bf-cta mb-3"><Icon d={l.i}/></div><h3 className="text-base font-semibold text-white">{l.t}</h3><p className="mt-2 text-sm text-bf-textMuted">{l.d}</p></div>))}</div>
       </section>
       <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
         <h2 className="text-3xl font-bold text-white text-center">Compare your options</h2>
@@ -69,7 +85,7 @@ export default function Home() {
       </section>
       <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
         <h2 className="text-3xl font-bold text-white text-center">Why Boreal Insurance</h2>
-        <div className="mt-10 grid gap-6 md:grid-cols-3">{WHY.map((w) => (<div key={w.t}><h3 className="text-lg font-semibold text-white">{w.t}</h3><p className="mt-2 text-sm text-bf-textMuted">{w.d}</p></div>))}</div>
+        <div className="mt-10 grid gap-6 md:grid-cols-3">{WHY.map((w) => (<div key={w.t}><div className="text-bf-cta mb-2"><Icon d={w.i}/></div><h3 className="text-lg font-semibold text-white">{w.t}</h3><p className="mt-2 text-sm text-bf-textMuted">{w.d}</p></div>))}</div>
       </section>
       <section className="mx-auto max-w-3xl px-5 py-16 border-t border-subtle">
         <h2 className="text-3xl font-bold text-white text-center">Frequently asked questions</h2>
