@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" role="img" aria-label="How PGI protects you: sign loan and PGI, default happens, Markel pays the bank, you stay safe">
+  <defs>
+    <marker id="ar-blue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#3b82f6"/></marker>
+    <marker id="ar-amber" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#f59e0b"/></marker>
+    <marker id="ar-emerald" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#10b981"/></marker>
+  </defs>
+  <text x="600" y="32" font-family="ui-sans-serif, system-ui, sans-serif" font-size="22" font-weight="700" fill="#ffffff" text-anchor="middle">How PGI protects you</text>
+  <text x="600" y="56" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" fill="#94a3b8" text-anchor="middle">Your policy steps in so the bank's recovery doesn't come from your personal assets.</text>
+
+  <!-- Step 1: Sign loan + PGI -->
+  <g transform="translate(40, 90)">
+    <rect width="240" height="200" rx="16" fill="#0f1f3a" stroke="#3b82f6" stroke-width="2"/>
+    <g transform="translate(96, 28)" stroke="#3b82f6" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13l2 2 4-4"/>
+    </g>
+    <text x="120" y="118" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="700" letter-spacing="1.5" fill="#3b82f6" text-anchor="middle">STEP 1</text>
+    <text x="120" y="142" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700" fill="#ffffff" text-anchor="middle">Sign loan + PGI</text>
+    <text x="120" y="170" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#94a3b8" text-anchor="middle">Bank requires a personal</text>
+    <text x="120" y="186" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#94a3b8" text-anchor="middle">guarantee. You insure it.</text>
+  </g>
+  <line x1="290" y1="190" x2="335" y2="190" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#ar-blue)"/>
+
+  <!-- Step 2: Default -->
+  <g transform="translate(345, 90)">
+    <rect width="240" height="200" rx="16" fill="#1f1810" stroke="#f59e0b" stroke-width="2"/>
+    <g transform="translate(96, 28)" stroke="#f59e0b" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/>
+    </g>
+    <text x="120" y="118" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="700" letter-spacing="1.5" fill="#f59e0b" text-anchor="middle">STEP 2</text>
+    <text x="120" y="142" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700" fill="#ffffff" text-anchor="middle">Default happens</text>
+    <text x="120" y="170" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#94a3b8" text-anchor="middle">Bank moves to call</text>
+    <text x="120" y="186" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#94a3b8" text-anchor="middle">your personal guarantee.</text>
+  </g>
+  <line x1="595" y1="190" x2="640" y2="190" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#ar-amber)"/>
+
+  <!-- Step 3: PGI pays -->
+  <g transform="translate(650, 90)">
+    <rect width="240" height="200" rx="16" fill="#0c2620" stroke="#10b981" stroke-width="2"/>
+    <g transform="translate(96, 28)" stroke="#10b981" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/>
+    </g>
+    <text x="120" y="118" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="700" letter-spacing="1.5" fill="#10b981" text-anchor="middle">STEP 3</text>
+    <text x="120" y="142" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700" fill="#ffffff" text-anchor="middle">Markel pays the bank</text>
+    <text x="120" y="170" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#94a3b8" text-anchor="middle">PGI policy pays the lender</text>
+    <text x="120" y="186" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#94a3b8" text-anchor="middle">directly, up to your limit.</text>
+  </g>
+  <line x1="900" y1="190" x2="945" y2="190" stroke="#10b981" stroke-width="2.5" marker-end="url(#ar-emerald)"/>
+
+  <!-- Result: You stay safe -->
+  <g transform="translate(955, 90)">
+    <rect width="200" height="200" rx="16" fill="#0c2620" stroke="#10b981" stroke-width="2.5"/>
+    <g transform="translate(76, 28)" stroke="#10b981" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 12L12 3l9 9"/><path d="M5 10v10h14V10"/><path d="M9 16l2 2 4-4"/>
+    </g>
+    <text x="100" y="118" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="700" letter-spacing="1.5" fill="#10b981" text-anchor="middle">RESULT</text>
+    <text x="100" y="142" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700" fill="#ffffff" text-anchor="middle">You stay safe</text>
+    <text x="100" y="170" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#94a3b8" text-anchor="middle">House, RRSP, savings —</text>
+    <text x="100" y="186" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#94a3b8" text-anchor="middle">protected.</text>
+  </g>
+</svg>
