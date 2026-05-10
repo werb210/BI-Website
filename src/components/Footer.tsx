@@ -18,6 +18,7 @@ export default function Footer() {
           <ul className="space-y-2">
             <li><Link to="/quote" className="block hover:text-white">Get a Quote</Link></li>
             <li><Link to="/applications/new" className="block hover:text-white">Apply Now</Link></li>
+            <li><Link to="?faq=1" className="block hover:text-white">FAQ</Link></li>
             <li>
               <a
                 href="https://boreal.financial"

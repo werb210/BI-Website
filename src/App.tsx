@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import QuoteModal from "./components/QuoteModal";
+import FaqModal, { FaqPage } from "./components/Faq";
 import Home from "./pages/Home";
 // BI_WEBSITE_BLOCK_v90_LENDER_API_DOCS_v1
 // BI_WEBSITE_BLOCK_v94_LAUNCH_HARDENING_v1
@@ -42,9 +43,11 @@ export default function App() {
       <div className="flex min-h-screen flex-col">
         <Header />
         <QuoteModal />
+        <FaqModal />
         <main className="bi-main flex-1">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/faq" element={<FaqPage />} />
             <Route path="/quote" element={<Quote />} />
             <Route path="/applications/new" element={<NewApplication />} />
             {/* BI_WEBSITE_BLOCK_v97_OTP_GATE_AND_FLOW_v1 — country picker moved into the score form */}
