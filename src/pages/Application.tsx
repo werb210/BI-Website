@@ -314,7 +314,7 @@ export default function Application() {
       </button>
     </div>
     {/* BI_WEBSITE_BLOCK_v110 — primary Submit moved out of toolbar to right after Consents per UX request. */}
-    <div className="bi-card bi-submit-card">
+    <div className="bi-card bi-submit-card" data-v111-submit-fix="1">
       {err && <div className="form-error">{err}</div>}
       <button type="button" className="bi-submit-primary" disabled={busy} onClick={submit}>
         {busy ? "Submitting\u2026" : "Submit application"}

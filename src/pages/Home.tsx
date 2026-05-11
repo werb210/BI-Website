@@ -22,7 +22,8 @@ function Icon({ d, className = "h-6 w-6" }: { d: string; className?: string }) {
 type Row = { public_id: string };
 const STEPS = [{n:"1",i:ICN.bolt,t:"Quote in 60 seconds",d:"Tell us about your loan and business. We show a coverage range and target premium immediately — no broker call required."},{n:"2",i:ICN.doc,t:"Underwriting decision",d:"Submit a few documents (CRA notice, bank statements, financials). Markel's underwriters respond within 5 business days."},{n:"3",i:ICN.shield,t:"Coverage live at signature",d:"Sign the policy, pay the first premium. Your personal guarantee is insured up to your declared limit. Annual renewals."}];
 const COVERAGE = ["Covers the personal guarantee on your business loan — not the loan itself.","Pays the lender if your guarantee is called after the business is unable to repay.","Available for Canadian businesses with $50K+ EBITDA and 12+ months of revenue history."];
-const LOANS = [{i:ICN.bank,t:"CSBFP loans",d:"Canada Small Business Financing Program loans with the 25% personal guarantee."},{i:ICN.cal,t:"Term loans",d:"Bank term loans secured by a personal guarantee from a director or shareholder."},{i:ICN.card,t:"Lines of credit",d:"Operating lines and revolving facilities backed by a personal guarantee."},{i:ICN.tool,t:"Equipment financing",d:"Equipment loans and leases where the lender requires a personal guarantee."}];
+const LOANS = [{i:ICN.bank,t:"CSBFP loans",d:"Canada Small Business Financing Program loans with the 25% personal guarantee."},{i:ICN.cal,t:"Term loans",d:"Bank term loans secured by a personal guarantee from a director or shareholder."},{i:ICN.card,t:"Lines of credit",d:"Operating lines and revolving facilities backed by a personal guarantee."},{i:ICN.tool,t:"Equipment financing",d:"Equipment loans and leases where the lender requires a personal guarantee."},{i:ICN.shield,t:"Commercial real estate",d:"Real estate purchase, refinance, and development loans secured by a personal guarantee."},{i:ICN.doc,t:"Acquisitions & VTBs",d:"Business acquisitions and vendor-takeback financing where the buyer signs a personal guarantee."},{i:ICN.warn,t:"Other PG-required deals",d:"Any commercial transaction where a lender or counterparty requires a personal guarantee."}];
+// v111-deals-expanded
 const WHY = [{i:ICN.leaf,t:"Canadian-built",d:"Designed for Canadian SMEs, underwritten by Markel — A-rated by AM Best, S&P, Fitch."},{i:ICN.bolt,t:"Fast decisions",d:"Quote in 60 seconds. Underwriting in 5 business days. No broker required."},{i:ICN.eye,t:"Transparent pricing",d:"See your premium before you submit. No hidden fees. Known annual renewal."}];
 
 export default function Home() {
@@ -49,7 +50,7 @@ export default function Home() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
           <div><div className="text-2xl font-bold text-white">A-rated</div><div className="mt-1 text-sm text-bf-textMuted">Underwriter rated by AM Best, S&amp;P, Fitch</div></div>
           <div><div className="text-2xl font-bold text-white">All 13</div><div className="mt-1 text-sm text-bf-textMuted">Provinces and territories covered</div></div>
-          <div><div className="text-2xl font-bold text-white">Backed by</div><div className="mt-1 text-sm text-bf-textMuted">Boreal Financial — Canadian built</div></div>
+          {/* v111-trust-strip: Backed-by column removed */}
         </div>
       </section>
       {rows.length > 0 && (
@@ -74,7 +75,7 @@ export default function Home() {
         <img src="/pgi-diagram.svg" alt="How PGI protects you: sign loan and PGI, default happens, Markel pays the bank, you stay safe" className="w-full h-auto" />
       </section>
       <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
-        <h2 className="text-3xl font-bold text-white text-center">Loans we can insure</h2>
+        <h2 className="text-3xl font-bold text-white text-center">Deals we can insure</h2>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{LOANS.map((l) => (<div key={l.t} className="rounded-2xl border border-card bg-bf-surface p-5"><div className="text-bf-cta mb-3"><Icon d={l.i}/></div><h3 className="text-base font-semibold text-white">{l.t}</h3><p className="mt-2 text-sm text-bf-textMuted">{l.d}</p></div>))}</div>
       </section>
       <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
