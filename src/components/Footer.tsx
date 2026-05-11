@@ -52,7 +52,7 @@ export default function Footer() {
         </div>
 
         <div className="md:col-span-4 mt-4 text-xs text-gray-400 leading-relaxed">
-          Boreal Insurance is operated by Boreal Insurance Brokerage Inc. [licensee details — placeholder], a licensed insurance brokerage. Personal Guarantee Insurance policies are underwritten by Markel Canada Limited (A-rated by AM Best, S&amp;P, and Fitch). Coverage is subject to underwriting approval, policy terms, and exclusions. Premium estimates are non-binding until a policy is bound and the first premium is paid. For complaints, contact our Compliance Officer at compliance@boreal.financial [placeholder] or your provincial insurance regulator.
+          Boreal Insurance is a referral platform operated by Boreal Financial. We are not a licensed insurance broker, agent, or adviser. We introduce Canadian businesses to licensed brokers who arrange Personal Guarantee Insurance underwritten by Markel Canada Limited (A-rated by AM Best, S&amp;P, and Fitch). Coverage is subject to underwriting approval, policy terms, and exclusions issued by the licensed broker and insurer. Premium estimates shown here are illustrative and non-binding; final terms are set when a licensed broker binds a policy. Questions about this referral service: hello@boreal.financial.
         </div>
 
         <div className="md:col-span-4 mt-8 border-t border-white/10 pt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-400">
