@@ -290,3 +290,28 @@ main, .app-shell, body {
 @media (max-width: 640px) {
   .bi-submit-card[data-v111-submit-fix] { bottom: 88px; }
 }
+
+/* BI_WEBSITE_BLOCK_v118: native date/month inputs render invisible in dark UI
+   on macOS Safari/Chrome unless color-scheme is set. */
+input[type="month"],
+input[type="date"],
+input[type="datetime-local"] {
+  /* v118-date-input-dark */
+  color: #e5e7eb !important;
+  color-scheme: dark;
+  background: #0a1120;
+  border: 1px solid #2c3a52;
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+input[type="month"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+  opacity: 0.8;
+}
+input[type="month"]::-webkit-datetime-edit,
+input[type="date"]::-webkit-datetime-edit {
+  color: #e5e7eb;
+}
