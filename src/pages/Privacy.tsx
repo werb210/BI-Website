@@ -8,7 +8,7 @@ export default function Privacy() {
 
         <div className="space-y-8 text-base leading-relaxed text-slate-300">
           <p>
-            Boreal Insurance ("we", "us") respects your privacy. This Privacy Policy describes
+            Boreal Risk Management ("we", "us") respects your privacy. This Privacy Policy describes
             how we collect, use, and protect personal information when you use boreal.financial
             and related services.
           </p>
