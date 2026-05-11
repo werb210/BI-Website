@@ -63,7 +63,7 @@ export default function LenderPortal() {
   }, []);
 
   useEffect(() => {
-    if (!token) { navigate("/lender/login"); return; }
+    if (!token) { window.location.replace("/lender/login"); return; } /* v119-hardnav */
     let alive = true;
     (async () => {
       try {
@@ -89,7 +89,7 @@ export default function LenderPortal() {
 
   function signOut() {
     try { localStorage.removeItem("bi.lender_token"); localStorage.removeItem("bi.lender_phone"); localStorage.removeItem("bi.lender_key"); } catch {}
-    navigate("/lender/login");
+    window.location.replace("/lender/login"); /* v119-hardnav */
   }
 
   const grouped = useMemo(() => {
@@ -110,7 +110,7 @@ export default function LenderPortal() {
           <div style={{ opacity: 0.7 }}>{totalCount === 0 ? "No applications yet." : `${totalCount} application${totalCount === 1 ? "" : "s"} in pipeline.`}</div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={() => navigate("/lender/applications/new")}
+          <button onClick={() => window.location.assign("/lender/applications/new") /* v119-hardnav */}
             style={{ background: "#3b82f6", color: "white", border: "none", padding: "10px 18px", borderRadius: 8, cursor: "pointer", fontWeight: 600 }}>
             + New Application
           </button>
@@ -130,7 +130,7 @@ export default function LenderPortal() {
       ) : totalCount === 0 ? (
         <div style={{ background: "#0f1729", border: "1px solid #1c2538", borderRadius: 12, padding: 48, textAlign: "center" }}>
           <p style={{ margin: "0 0 16px", opacity: 0.7 }}>No applications yet.</p>
-          <button onClick={() => navigate("/lender/applications/new")}
+          <button onClick={() => window.location.assign("/lender/applications/new") /* v119-hardnav */}
             style={{ background: "#3b82f6", color: "white", border: "none", padding: "12px 24px", borderRadius: 8, cursor: "pointer", fontWeight: 600 }}>
             Submit your first application
           </button>
@@ -150,7 +150,7 @@ export default function LenderPortal() {
                 const loan = a.core_inputs?.loan_amount ?? a.loan_amount;
                 return (
                   <div key={a.id}
-                    onClick={() => navigate(`/lender/applications/${a.application_code || a.id}`)}
+                    onClick={() => window.location.assign(`/lender/applications/${a.application_code || a.id}`) /* v119-hardnav */}
                     style={{ background: "#0a1120", border: "1px solid #2c3a52", borderRadius: 8, padding: 12, marginBottom: 8, cursor: "pointer" }}>
                     <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{a.company_name || a.application_code || "—"}</div>
                     {a.guarantor_name && <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 4 }}>{a.guarantor_name}</div>}
