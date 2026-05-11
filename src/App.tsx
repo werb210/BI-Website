@@ -35,6 +35,7 @@ import Quote from "./pages/Quote";
 import LenderPortal from "./pages/LenderPortal";
 import ReferrerPortal from "./pages/ReferrerPortal";
 import LenderApplicationNew from "./pages/LenderApplicationNew";
+import LenderApplicationDetail from "./pages/LenderApplicationDetail";
 
 export default function App() {
   return (
@@ -80,7 +81,8 @@ export default function App() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+                  <Route path="/lender/applications/:code" element={<LenderApplicationDetail />} />
+      </Routes>
         </main>
         <Footer />
       </div>
