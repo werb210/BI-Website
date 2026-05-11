@@ -9,7 +9,7 @@ export default function Footer() {
     <footer className="bg-[#071a2f] py-16 text-gray-300">
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-8 md:grid-cols-4">
         <div>
-          <h3 className="mb-4 font-semibold text-white">Boreal Insurance</h3>
+          <h3 className="mb-4 font-semibold text-white">Boreal Risk Management</h3>
           <p>Personal guarantee insurance for Canadian businesses.</p>
         </div>
 
@@ -52,14 +52,14 @@ export default function Footer() {
         </div>
 
         <div className="md:col-span-4 mt-4 text-xs text-gray-400 leading-relaxed">
-          Boreal Insurance is a referral platform operated by Boreal Financial. We are not a licensed insurance broker, agent, or adviser. We introduce Canadian businesses to licensed brokers who arrange Personal Guarantee Insurance underwritten by Markel Canada Limited (A-rated by AM Best, S&amp;P, and Fitch). Coverage is subject to underwriting approval, policy terms, and exclusions issued by the licensed broker and insurer. Premium estimates shown here are illustrative and non-binding; final terms are set when a licensed broker binds a policy. Questions about this referral service: hello@boreal.financial.
+          Boreal Risk Management is a referral platform operated by Boreal Financial. We are not a licensed insurance broker, agent, or adviser. We introduce Canadian businesses to licensed brokers who arrange Personal Guarantee Insurance underwritten by Markel Canada Limited (A-rated by AM Best, S&amp;P, and Fitch). Coverage is subject to underwriting approval, policy terms, and exclusions issued by the licensed broker and insurer. Premium estimates shown here are illustrative and non-binding; final terms are set when a licensed broker binds a policy. Questions about this referral service: hello@boreal.financial.
         </div>
 
         <div className="md:col-span-4 mt-8 border-t border-white/10 pt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-400">
           {/* BI_WEBSITE_BLOCK_v94_LAUNCH_HARDENING_v1 */}
           <Link to="/privacy" className="hover:text-white">Privacy Policy</Link>
           <Link to="/terms" className="hover:text-white">Terms of Service</Link>
-          <span className="opacity-60">© 2026 Boreal Insurance</span>
+          <span className="opacity-60">© 2026 Boreal Risk Management</span>
         </div>
       </div>
     </footer>

@@ -1,10 +1,11 @@
 // BI_WEBSITE_BLOCK_v95_LAUNCH_UX_v1 — 3-step centered quote wizard with live premium calc.
+// BI_WEBSITE_BLOCK_v121_BRAND_RATE_AND_LEASE_v1 — secured-only, rate 2.75%, step 3 toggle removed.
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const MAX_LOAN = 1_000_000;
 const MIN_LOAN = 10_000;
-const RATE = { secured: 0.016, unsecured: 0.04 };
+const RATE = 0.0275;
 
 function fmtCurrency(n: number) {
   return n.toLocaleString("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 });
@@ -25,21 +26,20 @@ export default function Quote() {
   const nav = useNavigate();
   const [loan, setLoan] = useState(500_000);
   const [coveragePct, setCoveragePct] = useState(0.5);
-  const [type, setType] = useState<"secured" | "unsecured">("secured");
 
   const coverageAmount = useMemo(
     () => Math.round(Math.min(Math.max(loan, 0), MAX_LOAN) * coveragePct),
     [loan, coveragePct]
   );
   const annualPremium = useMemo(
-    () => Math.round(coverageAmount * RATE[type]),
-    [coverageAmount, type]
+    () => Math.round(coverageAmount * RATE),
+    [coverageAmount]
   );
 
   function applyNow() {
     sessionStorage.setItem(
       "bi.quote",
-      JSON.stringify({ loan, coveragePct, type, coverageAmount, annualPremium })
+      JSON.stringify({ loan, coveragePct, type: "secured", coverageAmount, annualPremium })
     );
     nav("/applications/new");
   }
@@ -52,7 +52,7 @@ export default function Quote() {
         <header className="mb-10 text-center">
           <h1 className="text-3xl font-bold text-white md:text-4xl">Get Your PGI Quote</h1>
           <p className="mt-3 text-base text-slate-400 md:text-lg">
-            Three quick questions. Indicative annual premium in seconds.
+            Two quick questions. Indicative annual premium in seconds.
           </p>
         </header>
 
@@ -60,9 +60,7 @@ export default function Quote() {
           <div>
             <StepLabel n={1}>How much is your debt to cover with PGI?</StepLabel>
             <div className="relative">
-              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                $
-              </span>
+              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
               <input
                 type="number"
                 inputMode="numeric"
@@ -103,40 +101,9 @@ export default function Quote() {
               <span>5%</span>
               <span>Max 80%</span>
             </div>
-          </div>
-
-          <div>
-            <StepLabel n={3}>Is the debt secured or unsecured?</StepLabel>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <button
-                type="button"
-                onClick={() => setType("secured")}
-                className={`rounded-lg border p-4 text-left transition ${
-                  type === "secured"
-                    ? "border-blue-500 bg-blue-600/10"
-                    : "border-white/15 bg-bf-bg hover:border-white/30"
-                }`}
-              >
-                <div className="font-semibold text-white">Secured</div>
-                <div className="mt-1 text-xs text-slate-400">
-                  Backed by tangible collateral. Lower rate ({(RATE.secured * 100).toFixed(1)}%).
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setType("unsecured")}
-                className={`rounded-lg border p-4 text-left transition ${
-                  type === "unsecured"
-                    ? "border-blue-500 bg-blue-600/10"
-                    : "border-white/15 bg-bf-bg hover:border-white/30"
-                }`}
-              >
-                <div className="font-semibold text-white">Unsecured</div>
-                <div className="mt-1 text-xs text-slate-400">
-                  No specific collateral. Higher rate ({(RATE.unsecured * 100).toFixed(1)}%).
-                </div>
-              </button>
-            </div>
+            <p className="mt-2 text-xs text-slate-500">
+              Indicative rate {(RATE * 100).toFixed(2)}% applied to the covered amount.
+            </p>
           </div>
 
           <div className="rounded-xl border border-blue-500/30 bg-blue-600/10 p-5 text-center">

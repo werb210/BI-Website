@@ -11,7 +11,7 @@ export default function Navbar() {
           to="/"
           className="text-xl font-semibold tracking-tight hover:opacity-90"
         >
-          Boreal Insurance
+          Boreal Risk Management
         </Link>
 
         {/* Desktop Nav */}

@@ -69,13 +69,13 @@ export default function Header() {
         <Link to="/" className="flex items-center gap-3 sm:gap-4" onClick={() => setOpen(false)}>
           <img
             src={logoUrl}
-            alt="Boreal Insurance"
+            alt="Boreal Risk Management"
             className="h-12 w-auto object-contain md:h-16"
             loading="lazy"
             decoding="async"
           />
           <span className="text-base font-semibold tracking-wide text-white sm:text-xl">
-            Boreal Insurance
+            Boreal Risk Management
           </span>
         </Link>
 

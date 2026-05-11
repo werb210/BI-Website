@@ -1,9 +1,10 @@
 // BI_WEBSITE_BLOCK_v106_DIAGRAM_AND_QUOTE_MODAL_v1
+// BI_WEBSITE_BLOCK_v121_BRAND_RATE_AND_LEASE_v1 — secured-only, rate 2.75%, debt-type toggle removed.
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 const MAX_LOAN = 1_000_000, MIN_LOAN = 10_000;
-const RATE = { secured: 0.016, unsecured: 0.04 };
+const RATE = 0.0275;
 const fmt = (n: number) => n.toLocaleString("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 });
 
 export default function QuoteModal() {
@@ -12,9 +13,8 @@ export default function QuoteModal() {
   const nav = useNavigate();
   const [loan, setLoan] = useState(500_000);
   const [pct, setPct] = useState(0.5);
-  const [type, setType] = useState<"secured" | "unsecured">("secured");
   const cov = useMemo(() => Math.round(Math.min(Math.max(loan, 0), MAX_LOAN) * pct), [loan, pct]);
-  const prem = useMemo(() => Math.round(cov * RATE[type]), [cov, type]);
+  const prem = useMemo(() => Math.round(cov * RATE), [cov]);
 
   function close() {
     const next = new URLSearchParams(params);
@@ -22,7 +22,7 @@ export default function QuoteModal() {
     setParams(next, { replace: true });
   }
   function applyNow() {
-    sessionStorage.setItem("bi.quote", JSON.stringify({ loan, coveragePct: pct, type, coverageAmount: cov, annualPremium: prem }));
+    sessionStorage.setItem("bi.quote", JSON.stringify({ loan, coveragePct: pct, type: "secured", coverageAmount: cov, annualPremium: prem }));
     close();
     nav("/applications/new");
   }
@@ -45,7 +45,7 @@ export default function QuoteModal() {
         <button type="button" onClick={close} aria-label="Close" className="absolute -top-3 -right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-bf-bg border border-white/20 text-white text-xl hover:bg-white/10">×</button>
         <div className="rounded-2xl border border-white/10 bg-bf-surface p-6 md:p-8">
           <h2 className="text-2xl font-bold text-white text-center md:text-3xl">Get your PGI quote</h2>
-          <p className="mt-2 text-center text-sm text-slate-400">Three quick questions. Indicative annual premium.</p>
+          <p className="mt-2 text-center text-sm text-slate-400">Two quick questions. Indicative annual premium.</p>
           <div className="mt-6 space-y-6">
             <div>
               <label className="block text-sm font-medium text-white mb-2">1. How much debt to cover?</label>
@@ -59,17 +59,7 @@ export default function QuoteModal() {
               <div className="flex items-center justify-between text-sm text-white mb-2"><span>2. Coverage</span><span className="text-lg font-semibold">{Math.round(pct * 100)}%</span></div>
               <input type="range" min={5} max={80} step={5} value={Math.round(pct * 100)} onChange={(e) => setPct(Number(e.target.value) / 100)} className="w-full accent-blue-600" />
               <div className="flex justify-between text-xs text-slate-500"><span>5%</span><span>Max 80%</span></div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-white mb-2">3. Debt type</label>
-              <div className="grid grid-cols-2 gap-3">
-                {(["secured", "unsecured"] as const).map((t) => (
-                  <button key={t} type="button" onClick={() => setType(t)} className={"rounded-lg border p-3 text-left transition " + (type === t ? "border-blue-500 bg-blue-600/10" : "border-white/15 bg-bf-bg hover:border-white/30")}>
-                    <div className="font-semibold text-white capitalize">{t}</div>
-                    <div className="mt-1 text-xs text-slate-400">{(RATE[t] * 100).toFixed(1)}% rate</div>
-                  </button>
-                ))}
-              </div>
+              <p className="mt-2 text-xs text-slate-500">Indicative rate {(RATE * 100).toFixed(2)}% applied to the covered amount.</p>
             </div>
             <div className="rounded-xl border border-blue-500/30 bg-blue-600/10 p-5 text-center">
               <p className="text-sm text-slate-300">To cover <span className="font-semibold text-white">{Math.round(pct * 100)}%</span> of <span className="font-semibold text-white">{fmt(loan)}</span>, annual premium is</p>

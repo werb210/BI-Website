@@ -1,12 +1,12 @@
+// BI_WEBSITE_BLOCK_v121_BRAND_RATE_AND_LEASE_v1 — secured-only, rate 2.75%, loan-type select removed.
 import { useState } from "react";
 import Card from "./ui/Card";
 
+const RATE = 0.0275;
+
 export default function PremiumCalculator() {
   const [amount, setAmount] = useState(500000);
-  const [type, setType] = useState("secured");
-
-  const rate = type === "secured" ? 0.016 : 0.04;
-  const premium = amount * rate;
+  const premium = amount * RATE;
 
   return (
     <Card className="mt-10">
@@ -20,15 +20,7 @@ export default function PremiumCalculator() {
         onChange={(e) => setAmount(Number(e.target.value))}
       />
 
-      <label className="block text-sm text-white/80 mt-4 mb-2">Loan Type</label>
-      <select
-        className="w-full p-2 rounded-md bg-brand-bgAlt border border-card"
-        value={type}
-        onChange={(e) => setType(e.target.value)}
-      >
-        <option value="secured">Secured (1.6%)</option>
-        <option value="unsecured">Unsecured (4.0%)</option>
-      </select>
+      <p className="mt-2 text-xs text-white/60">Indicative rate {(RATE * 100).toFixed(2)}%.</p>
 
       <div className="mt-6 font-semibold text-lg">
         Estimated Annual Premium: ${premium.toLocaleString()}

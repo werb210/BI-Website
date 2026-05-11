@@ -72,7 +72,7 @@ export default function MayaChat() {
           <div
             className="bg-brand-bg text-white p-[14px] rounded-t-[14px] font-semibold"
           >
-            Maya – Boreal Insurance
+            Maya – Boreal Risk Management
           </div>
 
           <div

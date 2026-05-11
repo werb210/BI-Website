@@ -8,7 +8,7 @@ export default function Terms() {
 
         <div className="space-y-8 text-base leading-relaxed text-slate-300">
           <p>
-            These Terms of Service govern your use of boreal.financial and any Boreal Insurance
+            These Terms of Service govern your use of boreal.financial and any Boreal Risk Management
             products or services.
           </p>
 

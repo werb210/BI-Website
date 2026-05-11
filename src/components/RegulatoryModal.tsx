@@ -4,7 +4,7 @@ export default function RegulatoryModal({ onClose }: any) {
       <div className="modal-content">
         <h2>Regulatory Information</h2>
         <p>
-          Boreal Insurance acts as a referral partner. We do not provide advice.
+          Boreal Risk Management acts as a referral partner. We do not provide advice.
         </p>
         <button onClick={onClose}>Continue</button>
       </div>
