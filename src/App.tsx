@@ -34,6 +34,7 @@ import Thanks from "./pages/Thanks";
 import Quote from "./pages/Quote";
 import LenderPortal from "./pages/LenderPortal";
 import ReferrerPortal from "./pages/ReferrerPortal";
+import LenderApplicationNew from "./pages/LenderApplicationNew";
 
 export default function App() {
   return (
