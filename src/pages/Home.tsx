@@ -44,7 +44,6 @@ export default function Home() {
           <Link to="/applications/new" className="rounded-full bg-bf-cta hover:bg-bf-ctaHover px-7 py-3 font-medium text-white">Apply Now</Link>
           <Link to="?quote=1" className="rounded-full border border-white/30 px-7 py-3 font-medium text-white">Get a Free Quote</Link>
         </div>
-        <p className="mt-4 text-sm text-bf-textMuted">Or <a href="tel:+1-000-000-0000" className="text-bf-cta hover:underline">speak with a licensed broker</a></p>
         <div className="mt-8 flex justify-center"><MarkelBadge /></div>
       </section>
       <section className="mx-auto max-w-5xl px-5 py-8 border-t border-subtle">

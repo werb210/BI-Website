@@ -43,7 +43,7 @@ export default function ScoreResult() {
         <div className="core-validity">Quote valid for 30 days</div>
         <div className="bi-actions">
           <button onClick={() => nav("/")}>Return</button>
-          <button className="primary" onClick={() => nav(`/applications/${publicId}/form`)}>Apply for Quote</button>
+          <button className="primary" onClick={() => nav(`/applications/${publicId}/form`)}>Apply for Coverage</button>
         </div>
       </div>
     );
