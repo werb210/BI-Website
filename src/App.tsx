@@ -35,6 +35,7 @@ import Quote from "./pages/Quote";
 import LenderPortal from "./pages/LenderPortal";
 import ReferrerPortal from "./pages/ReferrerPortal";
 import LenderApplicationNew from "./pages/LenderApplicationNew";
+import LenderLogin from "./pages/LenderLogin"; // BI_WEBSITE_BLOCK_v120_MULTI_LENDER_PUBLIC_AND_LENDER_DOCS_AND_LOGIN_v1
 import LenderApplicationDetail from "./pages/LenderApplicationDetail";
 
 export default function App() {
@@ -80,8 +81,12 @@ export default function App() {
             <Route path="/resources" element={<Resources />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
+            {/* BI_WEBSITE_BLOCK_v120_MULTI_LENDER_PUBLIC_AND_LENDER_DOCS_AND_LOGIN_v1 — explicit lender routes BEFORE catchall and BEFORE /lender/* */}
+            <Route path="/lender/login" element={<LenderLogin />} />
+            <Route path="/lender/portal" element={<LenderPortal />} />
+            <Route path="/lender/applications/new" element={<LenderApplicationNew />} />
+            <Route path="/lender/applications/:code" element={<LenderApplicationDetail />} />
             <Route path="*" element={<Navigate to="/" replace />} />
-                  <Route path="/lender/applications/:code" element={<LenderApplicationDetail />} />
       </Routes>
         </main>
         <Footer />
