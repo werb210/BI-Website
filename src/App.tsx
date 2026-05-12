@@ -38,6 +38,7 @@ import ReferrerPortal from "./pages/ReferrerPortal";
 import LenderApplicationNew from "./pages/LenderApplicationNew";
 import LenderLogin from "./pages/LenderLogin"; // BI_WEBSITE_BLOCK_v120_MULTI_LENDER_PUBLIC_AND_LENDER_DOCS_AND_LOGIN_v1
 import LenderApplicationDetail from "./pages/LenderApplicationDetail";
+import LenderApplicationTimeline from "./pages/LenderApplicationTimeline"; // BI_WEBSITE_BLOCK_v126_DEMO_SANDBOX_AND_CARRIER_FEEDBACK_v1
 
 export default function App() {
   return (
@@ -88,6 +89,7 @@ export default function App() {
             <Route path="/lender/portal" element={<LenderPortal />} />
             <Route path="/lender/applications/new" element={<LenderApplicationNew />} />
             <Route path="/lender/applications/:code" element={<LenderApplicationDetail />} />
+            <Route path="/lender/applications/:code/timeline" element={<LenderApplicationTimeline />} /> {/* BI_WEBSITE_BLOCK_v126_DEMO_SANDBOX_AND_CARRIER_FEEDBACK_v1 */}
             <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
         </main>

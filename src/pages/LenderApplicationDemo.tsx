@@ -1,3 +1,4 @@
+// BI_WEBSITE_BLOCK_v126_DEMO_SANDBOX_AND_CARRIER_FEEDBACK_v1
 // BI_WEBSITE_BLOCK_v125_LENDER_FIXES_AND_PUBLIC_POLISH_v1
 // Demo lender application page for sales presentations.
 // - All fields pre-filled with realistic demo data (resets on every page load).
@@ -7,7 +8,7 @@
 //   (skips the doc upload step since the docs are simulated).
 // - Refresh resets the form to the demo defaults; the submitted app row stays
 //   in the pipeline.
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   API_BASE,
@@ -37,6 +38,28 @@ const DEMO_FILENAMES: Record<string, string> = {
 export default function LenderApplicationDemo() {
   const navigate = useNavigate();
   const token = useMemo(() => getLenderToken(), []);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      if (!token) return;
+      try {
+        const real = localStorage.getItem("bi.lender_token") || "";
+        if (real) localStorage.setItem("bi.real_token_backup", real);
+        const r = await fetch(`${API_BASE}/api/v1/lender/demo/session`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await r.json().catch(() => ({}));
+        const demoToken = data?.token || data?.access_token;
+        if (alive && demoToken) {
+          localStorage.setItem("bi.lender_token", demoToken);
+          localStorage.setItem("bi.is_demo_session", "1");
+        }
+      } catch {}
+    })();
+    return () => { alive = false; };
+  }, [token]);
 
   // State seeded from demo defaults — refresh = reset to demo state.
   const [f, setF] = useState<LenderFormState>(demoLenderForm);

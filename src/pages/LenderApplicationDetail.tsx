@@ -120,6 +120,11 @@ export default function LenderApplicationDetail() {
         style={{ background: "transparent", border: "none", color: "#cbd5e1", padding: "8px 0", cursor: "pointer", marginBottom: 16, fontSize: 14 }}>
         ← Back to portal
       </button>
+      {/* BI_WEBSITE_BLOCK_v126_DEMO_SANDBOX_AND_CARRIER_FEEDBACK_v1 */}
+      <button onClick={() => navigate(`/lender/applications/${code}/timeline`)}
+        style={{ background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1", padding: "6px 12px", borderRadius: 6, cursor: "pointer", marginLeft: 12, marginBottom: 16, fontSize: 13 }}>
+        Carrier timeline →
+      </button>
 
       {loading ? (
         <div style={{ opacity: 0.6, padding: 48, textAlign: "center" }}>Loading…</div>
