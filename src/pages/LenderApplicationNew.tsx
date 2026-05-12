@@ -3,7 +3,7 @@
 // scope in ../components/lenderFormShared so React keeps the same DOM nodes
 // across renders — fixes the bug where only the first character was accepted.
 // 3-column layout, full PGI-parity field set.
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   API_BASE,
@@ -29,10 +29,34 @@ export default function LenderApplicationNew() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<string | null>(null);
+  // BI_WEBSITE_BLOCK_v133_LENDER_FORM_AUTOSAVE_v1 — draft auto-save state.
+  const [savedAt, setSavedAt] = useState<Date | null>(null);
 
   function set<K extends keyof LenderFormState>(k: K, v: LenderFormState[K]) {
     setF((p) => ({ ...p, [k]: v }));
   }
+  // BI_WEBSITE_BLOCK_v133_LENDER_FORM_AUTOSAVE_v1 — restore draft on mount.
+  const DRAFT_KEY = "bi.lender_draft";
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") setF((prev) => ({ ...prev, ...parsed }));
+    } catch { /* noop */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // BI_WEBSITE_BLOCK_v133_LENDER_FORM_AUTOSAVE_v1 — debounced autosave (1500ms after last change).
+  useEffect(() => {
+    const id = setTimeout(() => {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(f));
+        setSavedAt(new Date());
+      } catch { /* noop */ }
+    }, 1500);
+    return () => clearTimeout(id);
+  }, [f]);
   function pickFile(slot: string, e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     setFiles((p) => ({ ...p, [slot]: file }));
@@ -81,7 +105,7 @@ export default function LenderApplicationNew() {
         setError(docsData?.error || `Document upload failed (${docsR.status}). Application created but docs not attached.`);
         return;
       }
-      navigate("/lender/portal");
+      try { localStorage.removeItem(DRAFT_KEY); } catch { /* noop */ } /* BI_WEBSITE_BLOCK_v133_LENDER_FORM_AUTOSAVE_v1 */ navigate("/lender/portal");
     } catch (e: any) {
       setError(e?.message || "Network error");
     } finally {
@@ -97,6 +121,7 @@ export default function LenderApplicationNew() {
           <div style={{ fontSize: 12, letterSpacing: 1, opacity: 0.7 }}>LENDER</div>
           <h1 style={{ fontSize: 28, margin: 0 }}>New Application</h1>
         </div>
+        {savedAt && <span style={{ marginRight: 12, fontSize: "0.75rem", opacity: 0.7 }}>✓ Saved {savedAt.toLocaleTimeString()}</span>}
         <button type="button" onClick={() => navigate("/lender/portal")}
           style={{ background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1", padding: "8px 16px", borderRadius: 8 }}>Cancel</button>
       </div>
