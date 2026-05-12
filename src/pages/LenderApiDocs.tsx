@@ -1,3 +1,4 @@
+// BI_WEBSITE_BLOCK_v127_BRAND_TRIM_AND_API_LABEL_v1
 // BI_WEBSITE_BLOCK_v90_LENDER_API_DOCS_v1
 import { useState } from "react";
 
@@ -98,7 +99,7 @@ export default function LenderApiDocs() {
       <div className="mx-auto max-w-4xl">
         <header className="mb-10">
           <div className="text-xs uppercase tracking-widest text-bf-textMuted">BI Lender API · v1</div>
-          <h1 className="mt-2 text-4xl font-bold">Boreal Risk Management Lender API</h1>
+          <h1 className="mt-2 text-4xl font-bold">Boreal Risk Lender API</h1>
           <p className="mt-3 text-bf-textMuted">
             Submit Personal Guarantee Insurance (PGI) applications programmatically.
             JSON over HTTPS. Bearer-key auth. CORE Score returned synchronously.

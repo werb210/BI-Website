@@ -1,4 +1,5 @@
 // BI_WEBSITE_BLOCK_v126_DEMO_SANDBOX_AND_CARRIER_FEEDBACK_v1
+// BI_WEBSITE_BLOCK_v127_BRAND_TRIM_AND_API_LABEL_v1
 // BI_WEBSITE_BLOCK_v115_LENDER_DASHBOARD_v1
 // BI_WEBSITE_BLOCK_v125_LENDER_FIXES_AND_PUBLIC_POLISH_v1
 //   - Carrier API button (opens /lender/api docs in new tab).
@@ -153,7 +154,7 @@ export default function LenderPortal() {
           </a>
           <a href="/lender/api" target="_blank" rel="noopener"
             style={{ ...BTN, background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1", textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
-            Carrier API
+            API Docs
           </a>
           <button onClick={signOut}
             style={{ ...BTN, background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1" }}>
