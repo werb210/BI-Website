@@ -94,7 +94,10 @@ export default function Score() {
 
     setBusy(true);
     try {
-      const r = await api.score({ country, ...v });
+      // BI_WEBSITE_BLOCK_v135_REFERRER_PORTAL_v1 — attribute to referrer if we landed with ?ref=
+      let _ref_code: string | null = null;
+      try { _ref_code = localStorage.getItem("bi.referral_code"); } catch { /* noop */ }
+      const r = await api.score({ country, ...v, ref_code: _ref_code || undefined });
       try { localStorage.removeItem(DRAFT_KEY); } catch { /* noop */ }
       nav(`/applications/${r.public_id}/score-result`);
     } catch (ex: any) {
