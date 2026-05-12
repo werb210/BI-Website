@@ -156,6 +156,11 @@ export default function LenderPortal() {
             style={{ ...BTN, background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1", textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
             API Docs
           </a>
+          {/* BI_WEBSITE_BLOCK_v131_LENDER_SANDBOX_PANEL_v1 — self-service API keys + sandbox */}
+          <a href="/lender/sandbox"
+            style={{ ...BTN, background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1", textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
+            🔑 API Keys
+          </a>
           <button onClick={signOut}
             style={{ ...BTN, background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1" }}>
             Sign out
@@ -193,7 +198,7 @@ export default function LenderPortal() {
                   onClick={() => navigate(`/lender/applications/${a.application_code || a.id}`)}
                   style={{ background: "#0a1120", border: "1px solid #2c3a52", borderRadius: 8, padding: 12, marginBottom: 8, cursor: "pointer" }}
                 >
-                  <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{company}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}><div style={{ fontWeight: 600, fontSize: 14 }}>{company}</div>{(a as any).is_demo === true && (<span style={{ fontSize: 9, padding: "1px 6px", borderRadius: 4, background: "rgba(251, 191, 36, 0.15)", color: "#fbbf24", border: "1px solid rgba(251, 191, 36, 0.4)", letterSpacing: 0.5 }}>TEST</span>)}</div>
                   {a.guarantor_name && <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 4 }}>{a.guarantor_name}</div>}
                   <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, fontSize: 12 }}>
                     <span style={{ opacity: 0.7 }}>{fmtAmount(loan)}</span>

@@ -13,6 +13,7 @@ import Home from "./pages/Home";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import LenderApiDocs from "./pages/LenderApiDocs";
+import LenderSandbox from "./pages/LenderSandbox"; // BI_WEBSITE_BLOCK_v131_LENDER_SANDBOX_PANEL_v1
 // BI_WEBSITE_BLOCK_v91_API_BASE_AND_DOCS_STAGE_v1
 import PgiDocuments from "./pages/PgiDocuments";
 // BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — mount marketing pages
@@ -67,6 +68,7 @@ export default function App() {
             <Route path="/applications/:publicId/saved" element={<Saved />} /> {/* BI_WEBSITE_BLOCK_v130_DEFER_DOCS_FLOW_v1 */}
             {/* BI_WEBSITE_BLOCK_v90_LENDER_API_DOCS_v1 — must precede /lender/* splat */}
             <Route path="/lender/api" element={<LenderApiDocs />} />
+            <Route path="/lender/sandbox" element={<LenderSandbox />} /> {/* BI_WEBSITE_BLOCK_v131_LENDER_SANDBOX_PANEL_v1 */}
             <Route path="/lender/*" element={<LenderPortal />} />
             {/* BI_WEBSITE_BLOCK_v96_LAUNCH_UX_v2 — referrer portal restored */}
             <Route path="/referrer/*" element={<ReferrerPortal />} />
