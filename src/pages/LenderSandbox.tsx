@@ -76,6 +76,9 @@ export default function LenderSandbox() {
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [tryResult, setTryResult] = useState<{ status: number; body: any } | null>(null);
+  // BI_WEBSITE_BLOCK_v132_LIVE_KEY_REQUEST_v1 — gates the live-key mint button.
+  const [liveKeysEnabled, setLiveKeysEnabled] = useState<boolean | null>(null);
+  const [requestSent, setRequestSent] = useState(false);
 
   const token = useMemo(() => {
     try { return localStorage.getItem("bi.lender_token") || ""; } catch { return ""; }
@@ -98,6 +101,35 @@ export default function LenderSandbox() {
       setKeys(data.keys || []);
     } catch (e: any) {
       setErr(e?.message || "Network error");
+    }
+    // BI_WEBSITE_BLOCK_v132_LIVE_KEY_REQUEST_v1 — pull live_keys_enabled flag from /lender/me.
+    try {
+      const r = await fetch(`${API_BASE}/api/v1/lender/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (r.ok) {
+        const me = await r.json();
+        setLiveKeysEnabled(me?.live_keys_enabled === true || me?.lender?.live_keys_enabled === true);
+      }
+    } catch { /* non-fatal */ }
+  }
+
+  // BI_WEBSITE_BLOCK_v132_LIVE_KEY_REQUEST_v1 — request live-key access; staff is SMSed.
+  async function requestLive() {
+    setBusy(true); setErr(null);
+    try {
+      const r = await fetch(`${API_BASE}/api/v1/lender/api-keys/request-live`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!r.ok) { setErr(`Request failed (${r.status})`); return; }
+      const data = await r.json();
+      if (data?.already_enabled) { setLiveKeysEnabled(true); }
+      else { setRequestSent(true); }
+    } catch (e: any) {
+      setErr(e?.message || "Network error");
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -245,10 +277,25 @@ export default function LenderSandbox() {
             Live keys begin with <code className="rounded bg-bf-bg/70 px-1">bk_live_</code>. Applications created with them go straight to the carrier. Treat them like a password.
           </p>
           <div className="mt-4">
-            <button disabled={busy} onClick={() => generate("live")} className="rounded-md border border-amber-500/40 px-5 py-2 font-medium text-amber-200 hover:bg-amber-500/10 disabled:opacity-50">
-              {busy ? "Generating…" : "Generate live key"}
-            </button>
-          </div>
+            {liveKeysEnabled === true ? (
+              <button disabled={busy} onClick={() => generate("live")} className="rounded-md border border-amber-500/40 px-5 py-2 font-medium text-amber-200 hover:bg-amber-500/10 disabled:opacity-50">
+                {busy ? "Generating…" : "Generate live key"}
+              </button>
+            ) : requestSent ? (
+              <div className="rounded border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-200">
+                ✓ Request sent — Boreal staff have been notified. You'll receive an SMS when live keys are enabled for your account.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="rounded border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-100">
+                  Live keys are off by default. Test your integration with a sandbox key first; once you're ready, request approval here and our team will SMS you when it's enabled (usually same business day).
+                </div>
+                <button disabled={busy || liveKeysEnabled === null} onClick={requestLive} className="rounded-md border border-amber-500/40 px-5 py-2 font-medium text-amber-200 hover:bg-amber-500/10 disabled:opacity-50">
+                  {busy ? "Requesting…" : "Request live keys"}
+                </button>
+              </div>
+            )}
+          </div> {/* BI_WEBSITE_BLOCK_v132_LIVE_KEY_REQUEST_v1 */}
           {liveKeys.length > 0 && (
             <ul className="mt-4 space-y-2">
               {liveKeys.map((k) => (
