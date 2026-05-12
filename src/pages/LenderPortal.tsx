@@ -1,6 +1,9 @@
 // BI_WEBSITE_BLOCK_v115_LENDER_DASHBOARD_v1
-// BI_WEBSITE_BLOCK_v123_LENDER_FORM_AND_PORTAL_v1 — kanban always rendered (even with zero apps).
-// Uses React Router useNavigate instead of window.location.replace (no reload loop).
+// BI_WEBSITE_BLOCK_v125_LENDER_FIXES_AND_PUBLIC_POLISH_v1
+//   - Carrier API button (opens /lender/api docs in new tab).
+//   - Demo App button (loads /lender/demo).
+//   - Kanban remains always-rendered.
+//   - Uses useNavigate (no reload loop).
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -8,9 +11,12 @@ type App = {
   id: string;
   application_code?: string;
   company_name?: string | null;
+  business_name?: string | null;
   guarantor_name?: string | null;
   status?: string | null;
   loan_amount?: number | string | null;
+  pgi_application_id?: string | null;
+  carrier_received_at?: string | null;
   updated_at?: string | null;
   created_at?: string | null;
   core_inputs?: any;
@@ -18,7 +24,7 @@ type App = {
 
 type Stage = { key: string; label: string; statuses: string[] };
 const STAGES: Stage[] = [
-  { key: "submitted",    label: "Submitted",    statuses: ["new_application", "submitted"] },
+  { key: "submitted",    label: "Submitted",    statuses: ["new_application", "submitted", "ready_for_submission"] },
   { key: "underwriting", label: "Underwriting", statuses: ["underwriting", "in_review"] },
   { key: "conditional",  label: "Conditional",  statuses: ["conditional_approval", "conditional"] },
   { key: "bound",        label: "Bound",        statuses: ["bound", "approved", "issued"] },
@@ -107,6 +113,8 @@ export default function LenderPortal() {
 
   const totalCount = apps?.length || 0;
 
+  const BTN: React.CSSProperties = { padding: "10px 16px", borderRadius: 8, cursor: "pointer", fontWeight: 600, fontSize: 14, whiteSpace: "nowrap" };
+
   return (
     <div style={{ maxWidth: 1400, margin: "0 auto", padding: "24px 24px 64px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
@@ -119,17 +127,21 @@ export default function LenderPortal() {
               `${totalCount} application${totalCount === 1 ? "" : "s"} in pipeline.`}
           </div>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button
-            onClick={() => navigate("/lender/applications/new")}
-            style={{ background: "#3b82f6", color: "white", border: "none", padding: "10px 18px", borderRadius: 8, cursor: "pointer", fontWeight: 600 }}
-          >
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <button onClick={() => navigate("/lender/applications/new")}
+            style={{ ...BTN, background: "#3b82f6", color: "white", border: "none" }}>
             + New Application
           </button>
-          <button
-            onClick={signOut}
-            style={{ background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1", padding: "10px 18px", borderRadius: 8, cursor: "pointer" }}
-          >
+          <a href="/lender/demo" onClick={(e) => { e.preventDefault(); navigate("/lender/demo"); }}
+            style={{ ...BTN, background: "transparent", border: "1px solid #fbbf24", color: "#fbbf24", textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
+            ▶ Live Demo
+          </a>
+          <a href="/lender/api" target="_blank" rel="noopener"
+            style={{ ...BTN, background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1", textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
+            Carrier API
+          </a>
+          <button onClick={signOut}
+            style={{ ...BTN, background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1" }}>
             Sign out
           </button>
         </div>
@@ -139,7 +151,6 @@ export default function LenderPortal() {
         <div style={{ background: "#3a1010", color: "#fecaca", padding: 12, borderRadius: 8, marginBottom: 16 }}>{error}</div>
       )}
 
-      {/* Pipeline is ALWAYS rendered. Empty columns are visible placeholders. */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(240px, 1fr))", gap: 12, overflowX: "auto" }}
            className="lender-pipeline-grid">
         {STAGES.map((s) => (
@@ -152,18 +163,24 @@ export default function LenderPortal() {
               <div style={{ opacity: 0.3, fontSize: 13, padding: "16px 8px", textAlign: "center" }}>—</div>
             ) : grouped[s.key].map((a) => {
               const loan = a.core_inputs?.loan_amount ?? a.loan_amount;
+              const company = a.company_name || a.business_name || a.application_code || "—";
               return (
                 <div
                   key={a.id}
                   onClick={() => navigate(`/lender/applications/${a.application_code || a.id}`)}
                   style={{ background: "#0a1120", border: "1px solid #2c3a52", borderRadius: 8, padding: 12, marginBottom: 8, cursor: "pointer" }}
                 >
-                  <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{a.company_name || a.application_code || "—"}</div>
+                  <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{company}</div>
                   {a.guarantor_name && <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 4 }}>{a.guarantor_name}</div>}
                   <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, fontSize: 12 }}>
                     <span style={{ opacity: 0.7 }}>{fmtAmount(loan)}</span>
                     <span style={{ opacity: 0.5 }}>{daysSince(a.updated_at || a.created_at)}</span>
                   </div>
+                  {a.pgi_application_id && (
+                    <div style={{ marginTop: 6, fontSize: 11, color: "#34d399", display: "flex", alignItems: "center", gap: 4 }}>
+                      <span>✓</span><span>Received by carrier</span>
+                    </div>
+                  )}
                 </div>
               );
             })}

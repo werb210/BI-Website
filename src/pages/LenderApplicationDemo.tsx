@@ -1,31 +1,45 @@
 // BI_WEBSITE_BLOCK_v125_LENDER_FIXES_AND_PUBLIC_POLISH_v1
-// Lender New Application. Helpers (Field/TextIn/YesNoSelect) live at module
-// scope in ../components/lenderFormShared so React keeps the same DOM nodes
-// across renders — fixes the bug where only the first character was accepted.
-// 3-column layout, full PGI-parity field set.
+// Demo lender application page for sales presentations.
+// - All fields pre-filled with realistic demo data (resets on every page load).
+// - All 7 document slots show as "pre-loaded" (no real file IO required).
+// - "Live demo" badge in the corner so demo apps are visually distinct.
+// - Submit posts a real application row to the logged-in lender's pipeline
+//   (skips the doc upload step since the docs are simulated).
+// - Refresh resets the form to the demo defaults; the submitted app row stays
+//   in the pipeline.
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   API_BASE,
-  blankLenderForm,
   buildLenderSubmitBody,
+  demoLenderForm,
   DOC_SLOTS,
   Field,
   getLenderToken,
   LenderFormState,
-  REQUIRED_KEYS,
   SECTION,
   SECTION_TITLE,
   TextIn,
   YesNoSelect,
 } from "../components/lenderFormShared";
 
-export default function LenderApplicationNew() {
+// Fake "uploaded" file names so the slot panel looks done without real IO.
+const DEMO_FILENAMES: Record<string, string> = {
+  annual_y1: "FY2025_audited_statements.pdf",
+  annual_y2: "FY2024_audited_statements.pdf",
+  annual_y3: "FY2023_audited_statements.pdf",
+  profit_loss: "interim_p_and_l_2026.pdf",
+  balance_sheet: "interim_balance_sheet_2026.pdf",
+  ar_aging: "ar_aging_2026Q1.xlsx",
+  ap_aging: "ap_aging_2026Q1.xlsx",
+};
+
+export default function LenderApplicationDemo() {
   const navigate = useNavigate();
   const token = useMemo(() => getLenderToken(), []);
 
-  const [f, setF] = useState<LenderFormState>(blankLenderForm);
-  const [files, setFiles] = useState<Record<string, File | undefined>>({});
+  // State seeded from demo defaults — refresh = reset to demo state.
+  const [f, setF] = useState<LenderFormState>(demoLenderForm);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<string | null>(null);
@@ -33,14 +47,9 @@ export default function LenderApplicationNew() {
   function set<K extends keyof LenderFormState>(k: K, v: LenderFormState[K]) {
     setF((p) => ({ ...p, [k]: v }));
   }
-  function pickFile(slot: string, e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    setFiles((p) => ({ ...p, [slot]: file }));
-  }
 
-  const missingFields = REQUIRED_KEYS.filter((k) => !String(f[k]).trim());
-  const missingDocs = DOC_SLOTS.filter((d) => d.required && !files[d.key]);
-  const canSubmit = missingFields.length === 0 && missingDocs.length === 0 && !busy && !!token;
+  // No missing fields, no missing docs — demo state is complete by definition.
+  const canSubmit = !busy && !!token;
 
   async function onSubmit() {
     if (!canSubmit) return;
@@ -57,30 +66,9 @@ export default function LenderApplicationNew() {
         setError(data?.message || data?.error || `Submit failed (${r.status})`);
         return;
       }
-      const code: string | undefined = data?.application_code;
-      if (!code) {
-        setError("Submit succeeded but no application_code returned.");
-        return;
-      }
-
-      setProgress("Uploading documents…");
-      const fd = new FormData();
-      for (const slot of DOC_SLOTS) {
-        const file = files[slot.key];
-        if (!file) continue;
-        fd.append("files", file);
-        fd.append("doc_types", slot.key);
-      }
-      const docsR = await fetch(`${API_BASE}/api/v1/lender/applications/${code}/documents`, {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${token}` },
-        body: fd,
-      });
-      if (!docsR.ok) {
-        const docsData = await docsR.json().catch(() => ({}));
-        setError(docsData?.error || `Document upload failed (${docsR.status}). Application created but docs not attached.`);
-        return;
-      }
+      // Demo skips the document upload step — the slots only LOOK uploaded.
+      // The app row exists in the pipeline; staff can ignore or delete it
+      // after the demo if they want a clean slate.
       navigate("/lender/portal");
     } catch (e: any) {
       setError(e?.message || "Network error");
@@ -94,14 +82,16 @@ export default function LenderApplicationNew() {
     <div style={{ maxWidth: 1400, margin: "0 auto", padding: "24px 24px 96px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <div>
-          <div style={{ fontSize: 12, letterSpacing: 1, opacity: 0.7 }}>LENDER</div>
+          <div style={{ fontSize: 12, letterSpacing: 1, opacity: 0.7 }}>
+            LENDER · <span style={{ color: "#fbbf24" }}>LIVE DEMO</span>
+          </div>
           <h1 style={{ fontSize: 28, margin: 0 }}>New Application</h1>
         </div>
         <button type="button" onClick={() => navigate("/lender/portal")}
           style={{ background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1", padding: "8px 16px", borderRadius: 8 }}>Cancel</button>
       </div>
       <p style={{ opacity: 0.7, marginBottom: 24 }}>
-        Enter the deal details and upload required documents.
+        Demo data shown. Edit any field freely; refresh to reset. Submitting creates a real row in your pipeline.
       </p>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16 }} className="lender-form-grid">
@@ -111,16 +101,16 @@ export default function LenderApplicationNew() {
           }
         `}</style>
 
-        {/* COL 1: APPLICANT + BUSINESS */}
+        {/* COL 1 */}
         <div>
           <div style={SECTION}>
             <h2 style={SECTION_TITLE}>Applicant</h2>
             <Field label="Company name *"><TextIn value={f.company_name} onChange={(v) => set("company_name", v)} /></Field>
             <Field label="Guarantor name *"><TextIn value={f.guarantor_name} onChange={(v) => set("guarantor_name", v)} /></Field>
-            <Field label="Guarantor phone *"><TextIn value={f.guarantor_phone} onChange={(v) => set("guarantor_phone", v)} placeholder="+15551234567" /></Field>
+            <Field label="Guarantor phone *"><TextIn value={f.guarantor_phone} onChange={(v) => set("guarantor_phone", v)} /></Field>
             <Field label="Guarantor email *"><TextIn value={f.guarantor_email} onChange={(v) => set("guarantor_email", v)} type="email" /></Field>
             <Field label="Guarantor date of birth *"><TextIn value={f.guarantor_dob} onChange={(v) => set("guarantor_dob", v)} type="date" /></Field>
-            <Field label="Guarantor address *"><TextIn value={f.guarantor_address} onChange={(v) => set("guarantor_address", v)} placeholder="Street, City, Province, Postal" /></Field>
+            <Field label="Guarantor address *"><TextIn value={f.guarantor_address} onChange={(v) => set("guarantor_address", v)} /></Field>
           </div>
           <div style={SECTION}>
             <h2 style={SECTION_TITLE}>Business</h2>
@@ -135,10 +125,10 @@ export default function LenderApplicationNew() {
                 <option value="Other">Other</option>
               </select>
             </Field>
-            <Field label="Business number *"><TextIn value={f.business_number} onChange={(v) => set("business_number", v)} placeholder="CRA business number" /></Field>
+            <Field label="Business number *"><TextIn value={f.business_number} onChange={(v) => set("business_number", v)} /></Field>
             <Field label="Business address *"><TextIn value={f.business_address} onChange={(v) => set("business_address", v)} /></Field>
-            <Field label="Website (optional)"><TextIn value={f.business_website} onChange={(v) => set("business_website", v)} placeholder="https://" /></Field>
-            <Field label="NAICS code *"><TextIn value={f.naics} onChange={(v) => set("naics", v)} placeholder="6-digit code" /></Field>
+            <Field label="Website (optional)"><TextIn value={f.business_website} onChange={(v) => set("business_website", v)} /></Field>
+            <Field label="NAICS code *"><TextIn value={f.naics} onChange={(v) => set("naics", v)} /></Field>
             <Field label="Business start date *"><TextIn value={f.business_start_date} onChange={(v) => set("business_start_date", v)} type="date" /></Field>
             <Field label="Country">
               <select value={f.country} onChange={(e) => set("country", e.target.value as any)}
@@ -150,7 +140,7 @@ export default function LenderApplicationNew() {
           </div>
         </div>
 
-        {/* COL 2: LOAN + FINANCIALS */}
+        {/* COL 2 */}
         <div>
           <div style={SECTION}>
             <h2 style={SECTION_TITLE}>Loan</h2>
@@ -185,7 +175,7 @@ export default function LenderApplicationNew() {
           </div>
         </div>
 
-        {/* COL 3: RISK + DOCUMENTS */}
+        {/* COL 3 */}
         <div>
           <div style={SECTION}>
             <h2 style={SECTION_TITLE}>Risk</h2>
@@ -203,22 +193,21 @@ export default function LenderApplicationNew() {
           <div style={SECTION}>
             <h2 style={SECTION_TITLE}>Required documents</h2>
             <p style={{ fontSize: 12, opacity: 0.6, margin: "0 0 12px" }}>
-              All required before submit. PDF, XLSX, DOCX or CSV.
+              All documents pre-loaded for demo. In a real application you would upload each file.
             </p>
             {DOC_SLOTS.map((d) => (
               <div key={d.key} style={{ marginBottom: 12 }}>
                 <div style={{ fontSize: 12, opacity: 0.85, marginBottom: 6, lineHeight: 1.3 }}>
                   {d.label}{d.required && <span style={{ color: "#fca5a5" }}> *</span>}
                 </div>
-                <input
-                  type="file"
-                  accept=".pdf,.csv,.xlsx,.xls,.doc,.docx,.md"
-                  onChange={(e) => pickFile(d.key, e)}
-                  style={{ display: "block", color: "#cbd5e1", fontSize: 12 }}
-                />
-                {files[d.key] && (
-                  <div style={{ fontSize: 11, opacity: 0.6, marginTop: 4 }}>{files[d.key]?.name}</div>
-                )}
+                <div style={{
+                  background: "#0a1120", border: "1px solid #1f9d55", borderRadius: 6,
+                  padding: "8px 12px", display: "flex", alignItems: "center", gap: 8, fontSize: 12,
+                }}>
+                  <span style={{ color: "#34d399", fontWeight: 700 }}>✓</span>
+                  <span style={{ color: "#cbd5e1" }}>{DEMO_FILENAMES[d.key] ?? "document.pdf"}</span>
+                  <span style={{ marginLeft: "auto", color: "#94a3b8", fontSize: 11 }}>ready</span>
+                </div>
               </div>
             ))}
           </div>
@@ -228,11 +217,6 @@ export default function LenderApplicationNew() {
       {!token && <div style={{ background: "#3a1010", color: "#fecaca", padding: 12, borderRadius: 8, marginTop: 16 }}>Not signed in as a lender. <a href="/lender/login" style={{ color: "#60a5fa" }}>Sign in</a> first.</div>}
       {error && <div style={{ background: "#3a1010", color: "#fecaca", padding: 12, borderRadius: 8, marginTop: 16 }}>{error}</div>}
       {progress && <div style={{ background: "#0f1729", border: "1px solid #1c2538", color: "#cbd5e1", padding: 12, borderRadius: 8, marginTop: 16 }}>{progress}</div>}
-
-      <div style={{ marginTop: 16, fontSize: 13, opacity: 0.7 }}>
-        {missingFields.length > 0 && <div>Fields remaining: {missingFields.length}</div>}
-        {missingDocs.length > 0 && <div>Documents remaining: {missingDocs.length}</div>}
-      </div>
 
       <div style={{ marginTop: 24, display: "flex", gap: 12, justifyContent: "flex-end" }}>
         <button type="button" onClick={() => navigate("/lender/portal")}
