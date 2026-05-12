@@ -1,3 +1,4 @@
+// BI_WEBSITE_BLOCK_v126_DEMO_SANDBOX_AND_CARRIER_FEEDBACK_v1
 // BI_WEBSITE_BLOCK_v115_LENDER_DASHBOARD_v1
 // BI_WEBSITE_BLOCK_v125_LENDER_FIXES_AND_PUBLIC_POLISH_v1
 //   - Carrier API button (opens /lender/api docs in new tab).
@@ -17,6 +18,8 @@ type App = {
   loan_amount?: number | string | null;
   pgi_application_id?: string | null;
   carrier_received_at?: string | null;
+  carrier_last_event?: string | null;
+  carrier_last_event_at?: string | null;
   updated_at?: string | null;
   created_at?: string | null;
   core_inputs?: any;
@@ -104,6 +107,18 @@ export default function LenderPortal() {
     navigate("/lender/login", { replace: true });
   }
 
+  const demoActive = useMemo(() => { try { return localStorage.getItem("bi.is_demo_session") === "1"; } catch { return false; } }, []);
+
+  function exitDemo() {
+    try {
+      const backup = localStorage.getItem("bi.real_token_backup") || "";
+      if (backup) localStorage.setItem("bi.lender_token", backup);
+      localStorage.removeItem("bi.real_token_backup");
+      localStorage.removeItem("bi.is_demo_session");
+    } catch {}
+    window.location.reload();
+  }
+
   const grouped = useMemo(() => {
     const out: Record<string, App[]> = {};
     for (const s of STAGES) out[s.key] = [];
@@ -147,6 +162,13 @@ export default function LenderPortal() {
         </div>
       </div>
 
+      {demoActive && (
+        <div style={{ background: "#422006", color: "#fde68a", padding: 12, borderRadius: 8, marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>Demo session active</span>
+          <button onClick={exitDemo} style={{ background: "transparent", border: "1px solid #fbbf24", color: "#fbbf24", padding: "6px 10px", borderRadius: 6, cursor: "pointer" }}>Exit demo</button>
+        </div>
+      )}
+
       {error && (
         <div style={{ background: "#3a1010", color: "#fecaca", padding: 12, borderRadius: 8, marginBottom: 16 }}>{error}</div>
       )}
@@ -176,11 +198,15 @@ export default function LenderPortal() {
                     <span style={{ opacity: 0.7 }}>{fmtAmount(loan)}</span>
                     <span style={{ opacity: 0.5 }}>{daysSince(a.updated_at || a.created_at)}</span>
                   </div>
-                  {a.pgi_application_id && (
+                  {a.carrier_last_event ? (
+                    <div style={{ marginTop: 6, fontSize: 11, color: "#93c5fd" }}>
+                      Carrier: {String(a.carrier_last_event).replace(/_/g, " ")} {a.carrier_last_event_at ? `· ${hoursSince(a.carrier_last_event_at)}` : ""}
+                    </div>
+                  ) : a.pgi_application_id ? (
                     <div style={{ marginTop: 6, fontSize: 11, color: "#34d399", display: "flex", alignItems: "center", gap: 4 }}>
                       <span>✓</span><span>Received by carrier</span>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               );
             })}
@@ -197,4 +223,13 @@ export default function LenderPortal() {
       `}</style>
     </div>
   );
+}
+
+
+function hoursSince(iso?: string | null): string {
+  if (!iso) return "";
+  const t = new Date(iso).getTime();
+  if (!Number.isFinite(t)) return "";
+  const h = Math.max(0, Math.floor((Date.now()-t)/(1000*60*60)));
+  return h < 1 ? "now" : `${h}h`;
 }
