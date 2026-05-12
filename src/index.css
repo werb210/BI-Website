@@ -315,3 +315,10 @@ input[type="month"]::-webkit-datetime-edit,
 input[type="date"]::-webkit-datetime-edit {
   color: #e5e7eb;
 }
+
+/* ===== BI_WEBSITE_BLOCK_v125_LENDER_FIXES_AND_PUBLIC_POLISH_v1 ===================================================== */
+:root { color-scheme: dark; }
+input[type="month"]::-webkit-calendar-picker-indicator,input[type="date"]::-webkit-calendar-picker-indicator,input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(1) brightness(2) !important; opacity: 1 !important; cursor: pointer !important; }
+.bi-submit-card[data-v111-submit-fix] { position: static !important; transform: none !important; bottom: auto !important; left: auto !important; right: auto !important; width: auto !important; margin: 16px 0 !important; z-index: auto !important; }
+.bi-footer-toolbar { display: flex !important; justify-content: center !important; gap: 32px !important; grid-template-columns: none !important; }
+.bi-toolbar-btn { min-width: 80px; }

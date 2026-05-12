@@ -33,6 +33,7 @@ import Application from "./pages/Application";
 import Thanks from "./pages/Thanks";
 import Quote from "./pages/Quote";
 import LenderPortal from "./pages/LenderPortal";
+import LenderApplicationDemo from "./pages/LenderApplicationDemo"; // BI_WEBSITE_BLOCK_v125_LENDER_FIXES_AND_PUBLIC_POLISH_v1
 import ReferrerPortal from "./pages/ReferrerPortal";
 import LenderApplicationNew from "./pages/LenderApplicationNew";
 import LenderLogin from "./pages/LenderLogin"; // BI_WEBSITE_BLOCK_v120_MULTI_LENDER_PUBLIC_AND_LENDER_DOCS_AND_LOGIN_v1
@@ -82,6 +83,7 @@ export default function App() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             {/* BI_WEBSITE_BLOCK_v120_MULTI_LENDER_PUBLIC_AND_LENDER_DOCS_AND_LOGIN_v1 — explicit lender routes BEFORE catchall and BEFORE /lender/* */}
+            <Route path="/lender/demo" element={<LenderApplicationDemo />} /> {/* BI_WEBSITE_BLOCK_v125_LENDER_FIXES_AND_PUBLIC_POLISH_v1 */}
             <Route path="/lender/login" element={<LenderLogin />} />
             <Route path="/lender/portal" element={<LenderPortal />} />
             <Route path="/lender/applications/new" element={<LenderApplicationNew />} />
