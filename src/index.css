@@ -322,3 +322,77 @@ input[type="month"]::-webkit-calendar-picker-indicator,input[type="date"]::-webk
 .bi-submit-card[data-v111-submit-fix] { position: static !important; transform: none !important; bottom: auto !important; left: auto !important; right: auto !important; width: auto !important; margin: 16px 0 !important; z-index: auto !important; }
 .bi-footer-toolbar { display: flex !important; justify-content: center !important; gap: 32px !important; grid-template-columns: none !important; }
 .bi-toolbar-btn { min-width: 80px; }
+
+
+/* ===== BI_WEBSITE_BLOCK_v129_MOBILE_DIAGRAM_AND_AFFORDANCES_v1 ===================================================
+ * Mobile usability follow-ups:
+ *   - Visible checkbox even when unchecked (was rendering as a black
+ *     box on the dark consent surface).
+ *   - Bottom padding on .bi-main so content isn't hidden under the
+ *     mobile-only fixed "Apply Now" floating button.
+ *   - .bi-month-affordance helper — positioned hint overlaid on an
+ *     empty <input type="month"> so iOS users see what's tappable.
+ * ============================================================ */
+
+/* Make consent checkboxes visible against the dark surface. */
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+}
+input[type="checkbox"]:checked {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 1px;
+  width: 6px;
+  height: 12px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+input[type="checkbox"]:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+  .bi-main {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+}
+
+.bi-month-affordance {
+  position: relative;
+  display: block;
+}
+.bi-month-affordance::before {
+  content: "Tap to select month and year";
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  color: rgba(229, 231, 235, 0.55);
+  pointer-events: none;
+  font-size: 14px;
+  z-index: 1;
+}
+.bi-month-affordance[data-has-value="true"]::before {
+  display: none;
+}
+.bi-month-affordance input[type="month"] {
+  position: relative;
+  z-index: 2;
+  background: transparent;
+}
