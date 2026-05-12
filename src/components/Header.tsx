@@ -1,3 +1,4 @@
+// BI_WEBSITE_BLOCK_v128_MOBILE_FIRST_AND_LOGO_AND_LEGAL_v1
 // BI_WEBSITE_BLOCK_v82_BF_PARITY_HEADER_v1
 // Visual reskin to BF-Website's Header pattern (dark navy /95 with
 // backdrop-blur, container layout, big logo + wordmark, slim ghost
@@ -8,7 +9,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 // BI_WEBSITE_BLOCK_v92 — translucent logo in the header (Todd Q1).
-import logoUrl from "../../assets/logos/boreal_logo.svg";
 import { getAuthUser, clearAuth, type AuthUser } from "../lib/auth";
 
 function MenuIcon({ open }: { open: boolean }) {
@@ -67,13 +67,7 @@ export default function Header() {
     <header className="site-header w-full border-b border-white/10 bg-[#0B1320]/95 backdrop-blur">
       <div className="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-4 px-6 py-3">
         <Link to="/" className="flex items-center gap-3 sm:gap-4" onClick={() => setOpen(false)}>
-          <img
-            src={logoUrl}
-            alt="Boreal Risk"
-            className="h-12 w-auto object-contain md:h-16"
-            loading="lazy"
-            decoding="async"
-          />
+          <svg viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Boreal Risk" className="h-10 w-auto md:h-12"><defs><linearGradient id="brm-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#60a5fa" /><stop offset="100%" stopColor="#1e3a8a" /></linearGradient></defs><path d="M10 85 L40 25 L70 85 Z" fill="url(#brm-grad)" opacity="0.55" /><path d="M30 85 L60 20 L90 85 Z" fill="url(#brm-grad)" opacity="0.8" /><path d="M50 85 L85 30 L110 85 Z" fill="url(#brm-grad)" /><path d="M38 38 L40 25 L42 38 L40 35 Z" fill="#ffffff" opacity="0.8" /><path d="M58 35 L60 20 L62 35 L60 31 Z" fill="#ffffff" opacity="0.8" /><path d="M83 43 L85 30 L87 43 L85 39 Z" fill="#ffffff" opacity="0.8" /><line x1="6" y1="85" x2="114" y2="85" stroke="#1e40af" strokeWidth="1.5" /></svg>
           <span className="text-base font-semibold tracking-wide text-white sm:text-xl">
             Boreal Risk
           </span>
