@@ -100,9 +100,9 @@ export default function Header() {
               <Link to="/applications/new" className="text-white/80 hover:text-white">
                 Apply
               </Link>
-              {/* BI_WEBSITE_BLOCK_v96_LAUNCH_UX_v2 — Referral Login restored (deferred ≠ removed). */}
+              {/* BI_WEBSITE_BLOCK_v96_LAUNCH_UX_v2 — Referrer Login restored (deferred ≠ removed). */}
               <Link to="/referrer/login" className="text-white/80 hover:text-white">
-                Referral Login
+                Referrer Login
               </Link>
               <Link to="/lender/login" className="text-white/80 hover:text-white">
                 Lender Login
@@ -187,9 +187,9 @@ export default function Header() {
                   <Link to="/applications/new" className="text-white/80" onClick={() => setOpen(false)}>
                     Apply
                   </Link>
-                  {/* BI_WEBSITE_BLOCK_v96_LAUNCH_UX_v2 — Referral Login restored. */}
+                  {/* BI_WEBSITE_BLOCK_v96_LAUNCH_UX_v2 — Referrer Login restored. */}
                   <Link to="/referrer/login" className="text-white/80" onClick={() => setOpen(false)}>
-                    Referral Login
+                    Referrer Login
                   </Link>
                   <Link to="/lender/login" className="text-white/80" onClick={() => setOpen(false)}>
                     Lender Login

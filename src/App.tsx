@@ -2,6 +2,7 @@
 // BI_WEBSITE_BLOCK_v82_APP_FOOTER_WIRING_v1
 // Adds the new Footer below <main> and wraps the whole tree in a
 // flex column so the footer hugs the viewport bottom on short pages.
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -44,6 +45,14 @@ import LenderApplicationDetail from "./pages/LenderApplicationDetail";
 import LenderApplicationTimeline from "./pages/LenderApplicationTimeline"; // BI_WEBSITE_BLOCK_v126_DEMO_SANDBOX_AND_CARRIER_FEEDBACK_v1
 
 export default function App() {
+  // BI_WEBSITE_BLOCK_v135_REFERRER_PORTAL_v1 — capture ?ref=<code> on any entry URL.
+  useEffect(() => {
+    try {
+      const u = new URL(window.location.href);
+      const code = u.searchParams.get("ref");
+      if (code && /^[a-z0-9]{4,16}$/i.test(code)) localStorage.setItem("bi.referral_code", code);
+    } catch { /* noop */ }
+  }, []);
   return (
     <BrowserRouter>
       {/* BI_WEBSITE_BLOCK_v168_CARRIER_RESKIN_v1 — aurora app shell */}
