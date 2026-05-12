@@ -1,16 +1,10 @@
-// BI_WEBSITE_BLOCK_v123_LENDER_FORM_AND_PORTAL_v1
-// Lender New Application — 3-column layout (APPLICANT+BUSINESS / LOAN+FINANCIALS / DOCUMENTS).
-// All fields required by PGI Partner API are captured up front.
-//   form_data required (per docs.pgicover.com/api/applications.html):
-//     country, naics_code, formation_date, loan_amount, pgi_limit,
-//     annual_revenue, ebitda, total_debt, monthly_debt_service,
-//     collateral_value, enterprise_value,
-//     bankruptcy_history, insolvency_history, judgment_history
-//   top-level required: guarantor_name, guarantor_email, business_name (we map company_name -> business_name on submit)
-//
-// LENDER NOTES section removed.
-// Inline documents picker (7 slots) in column 3. Submit fires: create app -> upload all docs -> portal.
-// No signature, no T&C, no consents — server back-stamps lender_attestation.
+// BI_WEBSITE_BLOCK_v124_LENDER_APP_PARITY_v1
+// Lender New Application — full parity with the public application's underwriting signal.
+// 3-column layout:
+//   Col 1: APPLICANT (incl. DOB, address) + BUSINESS (incl. entity_type, business_number, address, website)
+//   Col 2: LOAN (incl. policy_start_date, funding date, csbfp, cap, PG status) + FINANCIALS
+//   Col 3: RISK (10 fields, parity with public app) + DOCUMENTS (7 slots)
+// No signature, no T&C, no consents UI — server back-stamps lender_attestation.
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -18,34 +12,69 @@ const API_BASE = ((import.meta as any).env?.VITE_API_URL
   || (import.meta as any).env?.VITE_BI_API_URL
   || "https://bi-server-cse0apamgkheb9d5.canadacentral-01.azurewebsites.net").replace(/\/$/, "");
 
+type YN = "" | "yes" | "no";
+
 type F = {
-  // Applicant
-  company_name: string; guarantor_name: string; guarantor_phone: string; guarantor_email: string;
+  // Applicant / Guarantor
+  company_name: string;
+  guarantor_name: string;
+  guarantor_phone: string;
+  guarantor_email: string;
+  guarantor_dob: string;
+  guarantor_address: string;
   // Business
-  naics: string; business_start_date: string; country: "CA" | "US";
+  entity_type: "" | "Corporation" | "Partnership" | "Sole Proprietorship" | "LLC" | "Other";
+  business_number: string;
+  business_address: string;
+  business_website: string;
+  naics: string;
+  business_start_date: string;
+  country: "CA" | "US";
   // Loan
-  loan_amount: string; pgi_limit: string;
+  loan_amount: string;
+  pgi_limit: string;
   use_of_proceeds: "expansion" | "refinance" | "equipment" | "acquisition" | "working_capital" | "real_estate";
-  estimated_close_date: string;
+  loan_funding_date: string;
+  policy_start_date: string;
   monthly_debt_service: string;
   collateral_value: string;
   enterprise_value: string;
+  csbfp_backed: YN;
+  loan_has_guaranteed_cap: YN;
+  personally_guaranteeing: YN;
+  has_other_guarantors: YN;
   // Financials
   annual_revenue: string;
   ebitda: string;
   total_debt: string;
-  bankruptcy_history: "" | "yes" | "no";
-  insolvency_history: "" | "yes" | "no";
-  judgment_history: "" | "yes" | "no";
+  // Risk
+  bankruptcy_history: YN;
+  insolvency_history: YN;
+  judgment_history: YN;
+  payables_threatening: YN;
+  upcoming_adverse_events: YN;
+  personal_investigations: YN;
+  business_investigations: YN;
+  property_insurance_in_force: YN;
+  personal_judgments: YN;
+  business_judgments: YN;
 };
 
 const blank: F = {
   company_name: "", guarantor_name: "", guarantor_phone: "", guarantor_email: "",
+  guarantor_dob: "", guarantor_address: "",
+  entity_type: "", business_number: "", business_address: "", business_website: "",
   naics: "", business_start_date: "", country: "CA",
-  loan_amount: "", pgi_limit: "", use_of_proceeds: "expansion", estimated_close_date: "",
+  loan_amount: "", pgi_limit: "", use_of_proceeds: "expansion",
+  loan_funding_date: "", policy_start_date: "",
   monthly_debt_service: "", collateral_value: "", enterprise_value: "",
+  csbfp_backed: "", loan_has_guaranteed_cap: "",
+  personally_guaranteeing: "", has_other_guarantors: "",
   annual_revenue: "", ebitda: "", total_debt: "",
   bankruptcy_history: "", insolvency_history: "", judgment_history: "",
+  payables_threatening: "", upcoming_adverse_events: "",
+  personal_investigations: "", business_investigations: "",
+  property_insurance_in_force: "", personal_judgments: "", business_judgments: "",
 };
 
 const num = (s: string): number | null => {
@@ -53,14 +82,23 @@ const num = (s: string): number | null => {
   const v = Number(String(s).replace(/[,$\s]/g, ""));
   return Number.isFinite(v) ? v : null;
 };
+const yn = (v: YN): boolean | null => v === "yes" ? true : v === "no" ? false : null;
 
+// All required keys (everything except business_website).
 const REQUIRED: (keyof F)[] = [
   "company_name", "guarantor_name", "guarantor_phone", "guarantor_email",
+  "guarantor_dob", "guarantor_address",
+  "entity_type", "business_number", "business_address",
   "naics", "business_start_date",
-  "loan_amount", "pgi_limit", "estimated_close_date",
+  "loan_amount", "pgi_limit", "loan_funding_date", "policy_start_date",
   "monthly_debt_service", "collateral_value", "enterprise_value",
+  "csbfp_backed", "loan_has_guaranteed_cap",
+  "personally_guaranteeing", "has_other_guarantors",
   "annual_revenue", "ebitda", "total_debt",
   "bankruptcy_history", "insolvency_history", "judgment_history",
+  "payables_threatening", "upcoming_adverse_events",
+  "personal_investigations", "business_investigations",
+  "property_insurance_in_force", "personal_judgments", "business_judgments",
 ];
 
 type DocSlot = { key: string; label: string; required: boolean };
@@ -117,17 +155,30 @@ export default function LenderApplicationNew() {
           name: f.guarantor_name.trim(),
           phone: f.guarantor_phone.trim(),
           email: f.guarantor_email.trim() || null,
+          dob: f.guarantor_dob,
+          address: f.guarantor_address.trim(),
         },
         business: {
+          entity_type: f.entity_type,
+          business_number: f.business_number.trim(),
+          address: f.business_address.trim(),
+          website: f.business_website.trim() || null,
           naics: f.naics.trim(),
           start_date: f.business_start_date,
+          formation_date: f.business_start_date,
           country: f.country,
         },
         loan: {
           amount: num(f.loan_amount),
           pgi_limit: num(f.pgi_limit),
           use_of_proceeds: f.use_of_proceeds,
-          estimated_close_date: f.estimated_close_date,
+          loan_funding_date: f.loan_funding_date,
+          estimated_close_date: f.loan_funding_date,
+          policy_start_date: f.policy_start_date,
+          csbfp_backed: yn(f.csbfp_backed),
+          loan_has_guaranteed_cap: yn(f.loan_has_guaranteed_cap),
+          personally_guaranteeing: yn(f.personally_guaranteeing),
+          has_other_guarantors: yn(f.has_other_guarantors),
         },
         financials: {
           // Server-known keys (backward compatible)
@@ -135,7 +186,7 @@ export default function LenderApplicationNew() {
           ebitda_last_year: num(f.ebitda),
           total_debt: num(f.total_debt),
           monthly_payments: num(f.monthly_debt_service),
-          // PGI-canonical keys (used for downstream carrier forwarding)
+          // PGI-canonical keys (for downstream carrier forwarding)
           annual_revenue: num(f.annual_revenue),
           ebitda: num(f.ebitda),
           monthly_debt_service: num(f.monthly_debt_service),
@@ -143,9 +194,16 @@ export default function LenderApplicationNew() {
           enterprise_value: num(f.enterprise_value),
         },
         risk: {
-          bankruptcy_history: f.bankruptcy_history === "yes",
-          insolvency_history: f.insolvency_history === "yes",
-          judgment_history: f.judgment_history === "yes",
+          bankruptcy_history: yn(f.bankruptcy_history),
+          insolvency_history: yn(f.insolvency_history),
+          judgment_history: yn(f.judgment_history),
+          payables_threatening: yn(f.payables_threatening),
+          upcoming_adverse_events: yn(f.upcoming_adverse_events),
+          personal_investigations: yn(f.personal_investigations),
+          business_investigations: yn(f.business_investigations),
+          property_insurance_in_force: yn(f.property_insurance_in_force),
+          personal_judgments: yn(f.personal_judgments),
+          business_judgments: yn(f.business_judgments),
         },
       };
       const r = await fetch(`${API_BASE}/api/v1/lender/applications`, {
@@ -198,7 +256,6 @@ export default function LenderApplicationNew() {
       {children}
     </label>
   );
-
   const In = (p: { value: string; onChange: (v: string) => void; type?: string; placeholder?: string; inputMode?: any }) => (
     <input
       type={p.type || "text"}
@@ -209,9 +266,8 @@ export default function LenderApplicationNew() {
       style={ISTYLE}
     />
   );
-
-  const YesNo = (p: { value: F["bankruptcy_history"]; onChange: (v: F["bankruptcy_history"]) => void }) => (
-    <select value={p.value} onChange={(e) => p.onChange(e.target.value as any)} style={ISTYLE}>
+  const YesNo = (p: { value: YN; onChange: (v: YN) => void }) => (
+    <select value={p.value} onChange={(e) => p.onChange(e.target.value as YN)} style={ISTYLE}>
       <option value="">—</option>
       <option value="no">No</option>
       <option value="yes">Yes</option>
@@ -229,8 +285,8 @@ export default function LenderApplicationNew() {
           style={{ background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1", padding: "8px 16px", borderRadius: 8 }}>Cancel</button>
       </div>
       <p style={{ opacity: 0.7, marginBottom: 24 }}>
-        Enter the deal details and upload required documents. No CORE score, no signature,
-        no T&amp;C — lender-submitted applications go straight to underwriting.
+        Enter the deal details and upload required documents. No CORE score, no signature, no T&amp;C —
+        lender-submitted applications go straight to underwriting.
       </p>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16 }} className="lender-form-grid">
@@ -248,10 +304,25 @@ export default function LenderApplicationNew() {
             <Field label="Guarantor name *"><In value={f.guarantor_name} onChange={(v) => set("guarantor_name", v)} /></Field>
             <Field label="Guarantor phone *"><In value={f.guarantor_phone} onChange={(v) => set("guarantor_phone", v)} placeholder="+15551234567" /></Field>
             <Field label="Guarantor email *"><In value={f.guarantor_email} onChange={(v) => set("guarantor_email", v)} type="email" /></Field>
+            <Field label="Guarantor date of birth *"><In value={f.guarantor_dob} onChange={(v) => set("guarantor_dob", v)} type="date" /></Field>
+            <Field label="Guarantor address *"><In value={f.guarantor_address} onChange={(v) => set("guarantor_address", v)} placeholder="Street, City, Province, Postal" /></Field>
           </div>
 
           <div style={SECTION}>
             <h2 style={SECTION_TITLE}>Business</h2>
+            <Field label="Entity type *">
+              <select value={f.entity_type} onChange={(e) => set("entity_type", e.target.value as any)} style={ISTYLE}>
+                <option value="">—</option>
+                <option value="Corporation">Corporation</option>
+                <option value="Partnership">Partnership</option>
+                <option value="Sole Proprietorship">Sole Proprietorship</option>
+                <option value="LLC">LLC</option>
+                <option value="Other">Other</option>
+              </select>
+            </Field>
+            <Field label="Business number *"><In value={f.business_number} onChange={(v) => set("business_number", v)} placeholder="CRA business number" /></Field>
+            <Field label="Business address *"><In value={f.business_address} onChange={(v) => set("business_address", v)} /></Field>
+            <Field label="Website (optional)"><In value={f.business_website} onChange={(v) => set("business_website", v)} placeholder="https://" /></Field>
             <Field label="NAICS code *"><In value={f.naics} onChange={(v) => set("naics", v)} placeholder="6-digit code" /></Field>
             <Field label="Business start date *"><In value={f.business_start_date} onChange={(v) => set("business_start_date", v)} type="date" /></Field>
             <Field label="Country">
@@ -269,10 +340,7 @@ export default function LenderApplicationNew() {
             <h2 style={SECTION_TITLE}>Loan</h2>
             <Field label="Loan amount ($) *"><In value={f.loan_amount} onChange={(v) => set("loan_amount", v)} inputMode="decimal" /></Field>
             <Field label="Requested PGI limit ($) *"><In value={f.pgi_limit} onChange={(v) => set("pgi_limit", v)} inputMode="decimal" /></Field>
-            <Field label="Monthly debt service ($) *"><In value={f.monthly_debt_service} onChange={(v) => set("monthly_debt_service", v)} inputMode="decimal" /></Field>
-            <Field label="Collateral value ($) *"><In value={f.collateral_value} onChange={(v) => set("collateral_value", v)} inputMode="decimal" /></Field>
-            <Field label="Enterprise value ($) *"><In value={f.enterprise_value} onChange={(v) => set("enterprise_value", v)} inputMode="decimal" /></Field>
-            <Field label="Use of proceeds">
+            <Field label="Use of proceeds *">
               <select value={f.use_of_proceeds} onChange={(e) => set("use_of_proceeds", e.target.value as any)} style={ISTYLE}>
                 <option value="expansion">Expansion</option>
                 <option value="refinance">Refinance</option>
@@ -282,7 +350,15 @@ export default function LenderApplicationNew() {
                 <option value="real_estate">Real estate</option>
               </select>
             </Field>
-            <Field label="Estimated close date *"><In value={f.estimated_close_date} onChange={(v) => set("estimated_close_date", v)} type="date" /></Field>
+            <Field label="Loan funding date *"><In value={f.loan_funding_date} onChange={(v) => set("loan_funding_date", v)} type="date" /></Field>
+            <Field label="Policy start date *"><In value={f.policy_start_date} onChange={(v) => set("policy_start_date", v)} type="date" /></Field>
+            <Field label="Monthly debt service ($) *"><In value={f.monthly_debt_service} onChange={(v) => set("monthly_debt_service", v)} inputMode="decimal" /></Field>
+            <Field label="Collateral value ($) *"><In value={f.collateral_value} onChange={(v) => set("collateral_value", v)} inputMode="decimal" /></Field>
+            <Field label="Enterprise value ($) *"><In value={f.enterprise_value} onChange={(v) => set("enterprise_value", v)} inputMode="decimal" /></Field>
+            <Field label="CSBFP-backed? *"><YesNo value={f.csbfp_backed} onChange={(v) => set("csbfp_backed", v)} /></Field>
+            <Field label="Loan has a guaranteed cap? *"><YesNo value={f.loan_has_guaranteed_cap} onChange={(v) => set("loan_has_guaranteed_cap", v)} /></Field>
+            <Field label="Personally guaranteeing this loan? *"><YesNo value={f.personally_guaranteeing} onChange={(v) => set("personally_guaranteeing", v)} /></Field>
+            <Field label="Other guarantors on this loan? *"><YesNo value={f.has_other_guarantors} onChange={(v) => set("has_other_guarantors", v)} /></Field>
           </div>
 
           <div style={SECTION}>
@@ -290,14 +366,25 @@ export default function LenderApplicationNew() {
             <Field label="Annual revenue ($) *"><In value={f.annual_revenue} onChange={(v) => set("annual_revenue", v)} inputMode="decimal" /></Field>
             <Field label="EBITDA ($) *"><In value={f.ebitda} onChange={(v) => set("ebitda", v)} inputMode="decimal" /></Field>
             <Field label="Total business debt ($) *"><In value={f.total_debt} onChange={(v) => set("total_debt", v)} inputMode="decimal" /></Field>
-            <Field label="Bankruptcy history? *"><YesNo value={f.bankruptcy_history} onChange={(v) => set("bankruptcy_history", v)} /></Field>
-            <Field label="Insolvency history? *"><YesNo value={f.insolvency_history} onChange={(v) => set("insolvency_history", v)} /></Field>
-            <Field label="Judgment history? *"><YesNo value={f.judgment_history} onChange={(v) => set("judgment_history", v)} /></Field>
           </div>
         </div>
 
-        {/* COLUMN 3: REQUIRED DOCUMENTS */}
+        {/* COLUMN 3: RISK + DOCUMENTS */}
         <div>
+          <div style={SECTION}>
+            <h2 style={SECTION_TITLE}>Risk</h2>
+            <Field label="Bankruptcy history? *"><YesNo value={f.bankruptcy_history} onChange={(v) => set("bankruptcy_history", v)} /></Field>
+            <Field label="Insolvency history? *"><YesNo value={f.insolvency_history} onChange={(v) => set("insolvency_history", v)} /></Field>
+            <Field label="Judgment history? *"><YesNo value={f.judgment_history} onChange={(v) => set("judgment_history", v)} /></Field>
+            <Field label="Any payables threatening collection? *"><YesNo value={f.payables_threatening} onChange={(v) => set("payables_threatening", v)} /></Field>
+            <Field label="Any upcoming adverse events? *"><YesNo value={f.upcoming_adverse_events} onChange={(v) => set("upcoming_adverse_events", v)} /></Field>
+            <Field label="Personal investigations? *"><YesNo value={f.personal_investigations} onChange={(v) => set("personal_investigations", v)} /></Field>
+            <Field label="Business investigations? *"><YesNo value={f.business_investigations} onChange={(v) => set("business_investigations", v)} /></Field>
+            <Field label="Property insurance in force? *"><YesNo value={f.property_insurance_in_force} onChange={(v) => set("property_insurance_in_force", v)} /></Field>
+            <Field label="Personal judgments outstanding? *"><YesNo value={f.personal_judgments} onChange={(v) => set("personal_judgments", v)} /></Field>
+            <Field label="Business judgments outstanding? *"><YesNo value={f.business_judgments} onChange={(v) => set("business_judgments", v)} /></Field>
+          </div>
+
           <div style={SECTION}>
             <h2 style={SECTION_TITLE}>Required documents</h2>
             <p style={{ fontSize: 12, opacity: 0.6, margin: "0 0 12px" }}>
