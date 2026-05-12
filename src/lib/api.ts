@@ -76,3 +76,10 @@ export const api = {
 };
 
 export const API = api;
+
+// BI_WEBSITE_BLOCK_v122_LENDER_LOGIN_HOTFIX_AND_HOME_CLEANUP_v1
+const LENDER_TOKEN_KEY = "bi.lender_token";
+export function getLenderToken(): string | null {try { return localStorage.getItem(LENDER_TOKEN_KEY); } catch { return null; }}
+export function setLenderToken(tok: string) {try { localStorage.setItem(LENDER_TOKEN_KEY, tok); } catch {}}
+export function clearLenderToken() {try { localStorage.removeItem(LENDER_TOKEN_KEY); localStorage.removeItem("bi.lender_phone"); localStorage.removeItem("bi.lender_id"); } catch {}}
+export const lenderApi = { otpStart: (phone: string) => fetch(BASE + "/lender/otp/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone }) }).then(async (r) => { const j = await r.json().catch(() => ({})); if (!r.ok) throw Object.assign(new Error(j?.error ?? `HTTP ${r.status}`), { status: r.status, data: j }); return j; }), otpVerify: (phone: string, code: string) => fetch(BASE + "/lender/otp/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone, code }) }).then(async (r) => { const j = await r.json().catch(() => ({})); if (!r.ok) throw Object.assign(new Error(j?.error ?? `HTTP ${r.status}`), { status: r.status, data: j }); return j; }) };

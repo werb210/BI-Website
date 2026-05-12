@@ -1,3 +1,4 @@
+// BI_WEBSITE_BLOCK_v122_LENDER_LOGIN_HOTFIX_AND_HOME_CLEANUP_v1 — hard-redirect loop fixed (useNavigate replaces window.location.replace).
 // BI_WEBSITE_BLOCK_v115_LENDER_DASHBOARD_v1
 // Lender portal: pipeline view of the signed-in lender's applications.
 import React, { useEffect, useMemo, useState } from "react";
@@ -63,7 +64,7 @@ export default function LenderPortal() {
   }, []);
 
   useEffect(() => {
-    if (!token) { window.location.replace("/lender/login"); return; } /* v119-hardnav */
+    if (!token) { navigate("/lender/login", { replace: true }); return; } /* v119-hardnav */
     let alive = true;
     (async () => {
       try {
@@ -89,7 +90,7 @@ export default function LenderPortal() {
 
   function signOut() {
     try { localStorage.removeItem("bi.lender_token"); localStorage.removeItem("bi.lender_phone"); localStorage.removeItem("bi.lender_key"); } catch {}
-    window.location.replace("/lender/login"); /* v119-hardnav */
+    navigate("/lender/login", { replace: true }); /* v119-hardnav */
   }
 
   const grouped = useMemo(() => {
