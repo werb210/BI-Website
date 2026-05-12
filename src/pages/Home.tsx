@@ -1,3 +1,4 @@
+// BI_WEBSITE_BLOCK_v122_LENDER_LOGIN_HOTFIX_AND_HOME_CLEANUP_v1
 // BI_WEBSITE_BLOCK_v121_BRAND_RATE_AND_LEASE_v1
 // BI_WEBSITE_BLOCK_v101_HOME_MARKETING_v1
 import { useEffect, useState } from "react";
@@ -23,7 +24,7 @@ function Icon({ d, className = "h-6 w-6" }: { d: string; className?: string }) {
 type Row = { public_id: string };
 const STEPS = [{n:"1",i:ICN.bolt,t:"Quote in 60 seconds",d:"Tell us about your loan and business. We show a coverage range and target premium immediately — no broker call required."},{n:"2",i:ICN.doc,t:"Underwriting decision",d:"Submit a few documents (CRA notice, bank statements, financials). Markel's underwriters respond within 5 business days."},{n:"3",i:ICN.shield,t:"Coverage live at signature",d:"Sign the policy, pay the first premium. Your personal guarantee is insured up to your declared limit. Annual renewals."}];
 const COVERAGE = ["Covers the personal guarantee on your business loan — not the loan itself.","Pays the lender if your guarantee is called after the business is unable to repay.","Available for Canadian businesses with $50K+ EBITDA and 12+ months of revenue history."];
-const LOANS = [{i:ICN.bank,t:"Commercial lending",d:"Term loans, operating lines, CSBFP and BDC facilities, asset-based lending, mezzanine debt, factoring. Banks, credit unions, alternative lenders."},{i:ICN.shield,t:"Commercial real estate",d:"Purchase mortgages, refinances, construction loans, development financing, land acquisition, bridge loans. Owner-occupied and investment properties."},{i:ICN.tool,t:"Equipment & vehicles",d:"Equipment loans and leases, fleet financing, vehicle finance, aircraft and marine, specialty asset finance."},{i:ICN.doc,t:"Acquisitions & succession",d:"Business acquisitions, vendor-takeback notes, management buyouts, franchise purchases, partnership buyouts."},{i:ICN.card,t:"Trade & supplier credit",d:"Supplier lines, floor-plan financing, fuel and fleet accounts, wholesale inventory finance, merchant cash advances."},{i:ICN.warn,t:"Bonds & guarantees",d:"Performance and surety bonds, customs, license and permit bonds, equipment financing leases."}];
+const LOANS = [{i:ICN.bank,t:"Commercial lending",d:"Term loans, operating lines, CSBFP and BDC facilities, asset-based lending, mezzanine debt, factoring. Banks, credit unions, alternative lenders."},{i:ICN.shield,t:"Commercial real estate",d:"Purchase mortgages, refinances, construction loans, development financing, land acquisition, bridge loans. Owner-occupied and investment properties."},{i:ICN.tool,t:"Equipment & vehicles",d:"Equipment loans and leases, fleet financing, vehicle finance, aircraft and marine, specialty asset finance."},{i:ICN.doc,t:"Acquisitions & succession",d:"Business acquisitions, vendor-takeback notes, management buyouts, franchise purchases, partnership buyouts."}];
 // v117-coverage-categories
 // v111-deals-expanded
 const WHY = [{i:ICN.leaf,t:"Canadian-built",d:"Designed for Canadian SMEs, underwritten by Markel — A-rated by AM Best, S&P, Fitch."},{i:ICN.bolt,t:"Fast decisions",d:"Quote in 60 seconds. Underwriting in 5 business days. No broker required."},{i:ICN.eye,t:"Transparent pricing",d:"See your premium before you submit. No hidden fees. Known annual renewal."}];
@@ -48,7 +49,7 @@ export default function Home() {
         <div className="mt-8 flex justify-center"><MarkelBadge /></div>
       </section>
       <section className="mx-auto max-w-5xl px-5 py-8 border-t border-subtle">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+        <div className="flex flex-col sm:flex-row sm:justify-center gap-12 text-center">
           <div><div className="text-2xl font-bold text-white">A-rated</div><div className="mt-1 text-sm text-bf-textMuted">Underwriter rated by AM Best, S&amp;P, Fitch</div></div>
           <div><div className="text-2xl font-bold text-white">All 13</div><div className="mt-1 text-sm text-bf-textMuted">Provinces and territories covered</div></div>
           {/* v111-trust-strip: Backed-by column removed */}
