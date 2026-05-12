@@ -47,6 +47,18 @@ export default function NewApplication() {
     try {
       const { token } = await api.applicantOtpVerify(p, c);
       setApplicantToken(token);
+      // BI_WEBSITE_BLOCK_v130_DEFER_DOCS_FLOW_v1 — if a previously-started application is
+      // still waiting on documents, jump straight to its upload page
+      // instead of restarting the score flow.
+      try {
+        const r = await api.getMyPendingApplication();
+        if (r?.pending?.public_id) {
+          nav(`/applications/${r.pending.public_id}/documents`);
+          return;
+        }
+      } catch {
+        // Non-fatal — fall through to the normal new-score path.
+      }
       nav("/applications/new/score");
     } catch (e: any) {
       verifiedRef.current = false;

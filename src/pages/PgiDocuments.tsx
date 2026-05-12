@@ -94,6 +94,7 @@ export default function PgiDocuments() {
           ))}
         </ul>
 
+        {/* BI_WEBSITE_BLOCK_v130_DEFER_DOCS_FLOW_v1 — defer path lets applicants save without docs */}
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <button type="button" disabled={busy} onClick={uploadAll}
                   className="rounded-md bg-bf-cta px-6 py-3 font-semibold text-white hover:bg-bf-ctaHover disabled:opacity-50">
@@ -101,7 +102,24 @@ export default function PgiDocuments() {
           </button>
           <button type="button" onClick={finish}
                   className="rounded-md border border-white/20 px-6 py-3 font-semibold hover:bg-white/5">
-            Continue to Thanks
+            Submit application
+          </button>
+        </div>
+        <div className="mt-4 rounded-2xl border border-white/10 bg-bf-surface p-4 text-sm">
+          <div className="font-semibold text-white">Don't have your documents yet?</div>
+          <p className="mt-1 text-bf-textMuted">
+            Save your application and come back later. We'll text a reminder each
+            weekday for two weeks until you finish.
+          </p>
+          <button type="button" disabled={busy} onClick={async () => {
+            try {
+              await api.deferDocs(publicId!);
+              nav(`/applications/${publicId}/saved`);
+            } catch (ex: any) {
+              setErr(ex.message ?? "Could not save for later");
+            }
+          }} className="mt-3 rounded-md border border-white/20 px-5 py-2 font-medium hover:bg-white/5 disabled:opacity-50">
+            Save & finish later
           </button>
         </div>
       </div>
