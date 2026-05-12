@@ -26,12 +26,20 @@ export default function Saved() {
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             {publicId && (
-              <Link
-                to={`/applications/${publicId}/documents`}
-                className="rounded-md bg-bf-cta px-6 py-3 text-center font-semibold text-white hover:bg-bf-ctaHover"
-              >
-                Upload now anyway
-              </Link>
+              <> {/* BI_WEBSITE_BLOCK_v134_APPLICANT_STATUS_PAGE_v1 — paired Links inside conditional require a Fragment */}
+                <Link
+                  to={`/applications/${publicId}/status`}
+                  className="rounded-md border border-white/20 px-6 py-3 text-center font-semibold hover:bg-white/5"
+                >
+                  Check application status
+                </Link>
+                <Link
+                  to={`/applications/${publicId}/documents`}
+                  className="rounded-md bg-bf-cta px-6 py-3 text-center font-semibold text-white hover:bg-bf-ctaHover"
+                >
+                  Upload now anyway
+                </Link>
+              </>
             )}
             <Link
               to="/"
