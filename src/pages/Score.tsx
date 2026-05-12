@@ -132,7 +132,7 @@ export default function Score() {
       {/* BI_WEBSITE_BLOCK_v100_SCORE_LAYOUT_AND_BRAND_v2 — date paired with country. */}
       <div className="md:col-span-1">
         <Field label="What month-year did this business start generating revenue?">
-          <input type="month" value={v.formation_date.slice(0, 7)} onChange={(e) => set("formation_date", e.target.value + "-01")} />
+          {/* BI_WEBSITE_BLOCK_v129_MOBILE_DIAGRAM_AND_AFFORDANCES_v1 — visible affordance for empty Month-Year. */}<div className="bi-month-affordance" data-has-value={v.formation_date ? "true" : "false"}><input type="month" value={v.formation_date.slice(0, 7)} onChange={(e) => set("formation_date", e.target.value + "-01")} /></div>
           <small>Enter month and year, e.g. January 2015</small>
         </Field>
       </div>
