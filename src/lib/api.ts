@@ -46,6 +46,12 @@ export const api = {
     jsonFetch(`/applications/${publicId}`, { method: "PATCH", body: JSON.stringify(body) }),
   submit: (publicId: string) =>
     jsonFetch(`/applications/${publicId}/submit`, { method: "POST" }),
+  // BI_WEBSITE_BLOCK_v130_DEFER_DOCS_FLOW_v1
+  deferDocs: (publicId: string) =>
+    jsonFetch(`/applicants/applications/${publicId}/defer-docs`, { method: "POST" }),
+  getMyPendingApplication: () =>
+    jsonFetch(`/applicants/me/pending-application`),
+
   scrape: async (publicId: string, file: File) => {
     const fd = new FormData();
     fd.append("file", file);

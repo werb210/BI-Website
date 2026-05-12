@@ -31,6 +31,7 @@ import Score from "./pages/Score";
 import ScoreResult from "./pages/ScoreResult";
 import Application from "./pages/Application";
 import Thanks from "./pages/Thanks";
+import Saved from "./pages/Saved"; // BI_WEBSITE_BLOCK_v130_DEFER_DOCS_FLOW_v1
 import Quote from "./pages/Quote";
 import LenderPortal from "./pages/LenderPortal";
 import LenderApplicationDemo from "./pages/LenderApplicationDemo"; // BI_WEBSITE_BLOCK_v125_LENDER_FIXES_AND_PUBLIC_POLISH_v1
@@ -63,6 +64,7 @@ export default function App() {
             {/* BI_WEBSITE_BLOCK_v91_API_BASE_AND_DOCS_STAGE_v1 — must precede /thanks */}
             <Route path="/applications/:publicId/documents" element={<PgiDocuments />} />
             <Route path="/applications/:publicId/thanks" element={<Thanks />} />
+            <Route path="/applications/:publicId/saved" element={<Saved />} /> {/* BI_WEBSITE_BLOCK_v130_DEFER_DOCS_FLOW_v1 */}
             {/* BI_WEBSITE_BLOCK_v90_LENDER_API_DOCS_v1 — must precede /lender/* splat */}
             <Route path="/lender/api" element={<LenderApiDocs />} />
             <Route path="/lender/*" element={<LenderPortal />} />
