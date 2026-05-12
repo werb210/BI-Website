@@ -1,7 +1,8 @@
-// BI_WEBSITE_BLOCK_v122_LENDER_LOGIN_HOTFIX_AND_HOME_CLEANUP_v1
-// 2-stage OTP login: phone -> 6-digit code -> /lender/portal.
-import { useEffect, useState } from "react";
+// BI_WEBSITE_BLOCK_v123_LENDER_FORM_AND_PORTAL_v1
+// 2-stage OTP login (phone -> code). Both stages auto-forward without a button click.
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { isPhoneReady, isCodeReady } from "../lib/otpAutoForward";
 
 const API_BASE = ((import.meta as any).env?.VITE_API_URL
   || (import.meta as any).env?.VITE_BI_API_URL
@@ -16,25 +17,13 @@ export default function LenderLogin() {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-
-  // WebOTP on Android Chrome — auto-fills the SMS code.
-  useEffect(() => {
-    if (stage !== "code") return;
-    if (typeof window === "undefined" || !("OTPCredential" in window)) return;
-    const ctrl = new AbortController();
-    // @ts-expect-error WebOTP not in standard lib.dom
-    navigator.credentials.get({ otp: { transport: ["sms"] }, signal: ctrl.signal })
-      .then((cred: any) => { if (cred?.code && /^\d{6}$/.test(cred.code)) setCode(cred.code); })
-      .catch(() => { /* dismissed */ });
-    return () => ctrl.abort();
-  }, [stage]);
-
-  useEffect(() => {
-    if (stage === "code" && code.length === 6 && !busy) void verify();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [code, stage]);
+  const codeInputRef = useRef<HTMLInputElement | null>(null);
+  const startedRef = useRef(false);
+  const verifiedRef = useRef(false);
 
   async function start() {
+    if (startedRef.current || busy) return;
+    startedRef.current = true;
     setErr(null); setBusy(true);
     try {
       const r = await fetch(`${API_BASE}/api/v1/lender/otp/start`, {
@@ -44,20 +33,26 @@ export default function LenderLogin() {
       });
       if (r.status === 404) {
         setErr("This phone number is not registered as a lender. Contact your Boreal Risk Management rep.");
+        startedRef.current = false;
         return;
       }
       if (!r.ok) {
         const j = await r.json().catch(() => ({}));
         setErr(j?.error || `Could not send code (${r.status}).`);
+        startedRef.current = false;
         return;
       }
       setStage("code");
+      setTimeout(() => codeInputRef.current?.focus(), 0);
     } catch (e: any) {
+      startedRef.current = false;
       setErr(e?.message || "Network error");
     } finally { setBusy(false); }
   }
 
   async function verify() {
+    if (verifiedRef.current || busy) return;
+    verifiedRef.current = true;
     setErr(null); setBusy(true);
     try {
       const r = await fetch(`${API_BASE}/api/v1/lender/otp/verify`, {
@@ -67,6 +62,8 @@ export default function LenderLogin() {
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok || !data?.token) {
+        verifiedRef.current = false;
+        setCode("");
         setErr(data?.error || "Invalid code.");
         return;
       }
@@ -77,9 +74,38 @@ export default function LenderLogin() {
       } catch {}
       navigate("/lender/portal", { replace: true });
     } catch (e: any) {
+      verifiedRef.current = false;
       setErr(e?.message || "Network error");
     } finally { setBusy(false); }
   }
+
+  // Auto-forward phone -> start OTP
+  useEffect(() => {
+    if (stage === "phone" && isPhoneReady(phone)) {
+      void start();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phone, stage]);
+
+  // Auto-forward code -> verify
+  useEffect(() => {
+    if (stage === "code" && isCodeReady(code)) {
+      void verify();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [code, stage]);
+
+  // WebOTP API — programmatic SMS read on Android Chrome
+  useEffect(() => {
+    if (stage !== "code") return;
+    if (typeof window === "undefined" || !("OTPCredential" in window)) return;
+    const ctrl = new AbortController();
+    // @ts-expect-error WebOTP not in standard lib.dom
+    navigator.credentials.get({ otp: { transport: ["sms"] }, signal: ctrl.signal })
+      .then((cred: any) => { if (cred?.code && /^\d{6}$/.test(cred.code)) setCode(cred.code); })
+      .catch(() => { /* dismissed */ });
+    return () => ctrl.abort();
+  }, [stage]);
 
   return (
     <div style={{ maxWidth: 420, margin: "48px auto", padding: "24px" }}>
@@ -97,6 +123,7 @@ export default function LenderLogin() {
             <input
               type="tel"
               autoComplete="tel"
+              autoFocus
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+15551234567"
@@ -105,14 +132,14 @@ export default function LenderLogin() {
           </label>
           <button
             type="button"
-            disabled={busy || !phone.trim()}
+            disabled={busy || !isPhoneReady(phone)}
             onClick={start}
             style={{
               marginTop: 16, width: "100%", padding: "12px 24px", borderRadius: 8,
-              background: busy || !phone.trim() ? "#1f2937" : "#3b82f6",
-              color: busy || !phone.trim() ? "#6b7280" : "white",
+              background: busy || !isPhoneReady(phone) ? "#1f2937" : "#3b82f6",
+              color: busy || !isPhoneReady(phone) ? "#6b7280" : "white",
               border: "none", fontWeight: 600,
-              cursor: busy || !phone.trim() ? "not-allowed" : "pointer",
+              cursor: busy || !isPhoneReady(phone) ? "not-allowed" : "pointer",
             }}
           >
             {busy ? "Sending\u2026" : "Send code"}
@@ -126,16 +153,18 @@ export default function LenderLogin() {
             Code sent to <strong>{phone}</strong>.{" "}
             <button
               type="button"
-              onClick={() => { setStage("phone"); setCode(""); }}
+              onClick={() => { setStage("phone"); setCode(""); startedRef.current = false; verifiedRef.current = false; }}
               style={{ background: "none", border: "none", color: "#60a5fa", padding: 0, cursor: "pointer", textDecoration: "underline" }}
             >Change number</button>
           </div>
           <label style={{ display: "block" }}>
             <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 6 }}>6-digit code</div>
             <input
+              ref={codeInputRef}
               type="text"
               inputMode="numeric"
               autoComplete="one-time-code"
+              autoFocus
               maxLength={6}
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
@@ -145,14 +174,14 @@ export default function LenderLogin() {
           </label>
           <button
             type="button"
-            disabled={busy || code.length !== 6}
+            disabled={busy || !isCodeReady(code)}
             onClick={verify}
             style={{
               marginTop: 16, width: "100%", padding: "12px 24px", borderRadius: 8,
-              background: busy || code.length !== 6 ? "#1f2937" : "#3b82f6",
-              color: busy || code.length !== 6 ? "#6b7280" : "white",
+              background: busy || !isCodeReady(code) ? "#1f2937" : "#3b82f6",
+              color: busy || !isCodeReady(code) ? "#6b7280" : "white",
               border: "none", fontWeight: 600,
-              cursor: busy || code.length !== 6 ? "not-allowed" : "pointer",
+              cursor: busy || !isCodeReady(code) ? "not-allowed" : "pointer",
             }}
           >
             {busy ? "Verifying\u2026" : "Verify"}

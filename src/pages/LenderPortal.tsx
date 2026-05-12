@@ -1,6 +1,6 @@
-// BI_WEBSITE_BLOCK_v122_LENDER_LOGIN_HOTFIX_AND_HOME_CLEANUP_v1 — hard-redirect loop fixed (useNavigate replaces window.location.replace).
 // BI_WEBSITE_BLOCK_v115_LENDER_DASHBOARD_v1
-// Lender portal: pipeline view of the signed-in lender's applications.
+// BI_WEBSITE_BLOCK_v123_LENDER_FORM_AND_PORTAL_v1 — kanban always rendered (even with zero apps).
+// Uses React Router useNavigate instead of window.location.replace (no reload loop).
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -18,11 +18,11 @@ type App = {
 
 type Stage = { key: string; label: string; statuses: string[] };
 const STAGES: Stage[] = [
-  { key: "submitted", label: "Submitted", statuses: ["new_application", "submitted"] },
+  { key: "submitted",    label: "Submitted",    statuses: ["new_application", "submitted"] },
   { key: "underwriting", label: "Underwriting", statuses: ["underwriting", "in_review"] },
-  { key: "conditional", label: "Conditional", statuses: ["conditional_approval", "conditional"] },
-  { key: "bound", label: "Bound", statuses: ["bound", "approved", "issued"] },
-  { key: "declined", label: "Declined", statuses: ["declined", "withdrawn", "cancelled"] },
+  { key: "conditional",  label: "Conditional",  statuses: ["conditional_approval", "conditional"] },
+  { key: "bound",        label: "Bound",        statuses: ["bound", "approved", "issued"] },
+  { key: "declined",     label: "Declined",     statuses: ["declined", "withdrawn", "cancelled"] },
 ];
 
 function stageOf(status?: string | null): string {
@@ -51,6 +51,7 @@ function daysSince(iso?: string | null): string {
 }
 
 const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL
+  || (import.meta as any).env?.VITE_API_URL
   || "https://bi-server-cse0apamgkheb9d5.canadacentral-01.azurewebsites.net";
 
 export default function LenderPortal() {
@@ -64,7 +65,7 @@ export default function LenderPortal() {
   }, []);
 
   useEffect(() => {
-    if (!token) { navigate("/lender/login", { replace: true }); return; } /* v119-hardnav */
+    if (!token) { navigate("/lender/login", { replace: true }); return; }
     let alive = true;
     (async () => {
       try {
@@ -89,8 +90,12 @@ export default function LenderPortal() {
   }, [token, navigate]);
 
   function signOut() {
-    try { localStorage.removeItem("bi.lender_token"); localStorage.removeItem("bi.lender_phone"); localStorage.removeItem("bi.lender_key"); } catch {}
-    navigate("/lender/login", { replace: true }); /* v119-hardnav */
+    try {
+      localStorage.removeItem("bi.lender_token");
+      localStorage.removeItem("bi.lender_phone");
+      localStorage.removeItem("bi.lender_id");
+    } catch {}
+    navigate("/lender/login", { replace: true });
   }
 
   const grouped = useMemo(() => {
@@ -108,15 +113,23 @@ export default function LenderPortal() {
         <div>
           <div style={{ fontSize: 12, letterSpacing: 1, opacity: 0.7 }}>LENDER</div>
           <h1 style={{ fontSize: 28, margin: "4px 0 4px" }}>{me?.company_name || me?.name || "Lender portal"}</h1>
-          <div style={{ opacity: 0.7 }}>{totalCount === 0 ? "No applications yet." : `${totalCount} application${totalCount === 1 ? "" : "s"} in pipeline.`}</div>
+          <div style={{ opacity: 0.7 }}>
+            {apps === null ? "Loading pipeline…" :
+              totalCount === 0 ? "No applications yet — your pipeline appears below as soon as you submit one." :
+              `${totalCount} application${totalCount === 1 ? "" : "s"} in pipeline.`}
+          </div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={() => window.location.assign("/lender/applications/new") /* v119-hardnav */}
-            style={{ background: "#3b82f6", color: "white", border: "none", padding: "10px 18px", borderRadius: 8, cursor: "pointer", fontWeight: 600 }}>
+          <button
+            onClick={() => navigate("/lender/applications/new")}
+            style={{ background: "#3b82f6", color: "white", border: "none", padding: "10px 18px", borderRadius: 8, cursor: "pointer", fontWeight: 600 }}
+          >
             + New Application
           </button>
-          <button onClick={signOut}
-            style={{ background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1", padding: "10px 18px", borderRadius: 8, cursor: "pointer" }}>
+          <button
+            onClick={signOut}
+            style={{ background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1", padding: "10px 18px", borderRadius: 8, cursor: "pointer" }}
+          >
             Sign out
           </button>
         </div>
@@ -126,46 +139,37 @@ export default function LenderPortal() {
         <div style={{ background: "#3a1010", color: "#fecaca", padding: 12, borderRadius: 8, marginBottom: 16 }}>{error}</div>
       )}
 
-      {apps === null ? (
-        <div style={{ opacity: 0.6, padding: 48, textAlign: "center" }}>Loading pipeline…</div>
-      ) : totalCount === 0 ? (
-        <div style={{ background: "#0f1729", border: "1px solid #1c2538", borderRadius: 12, padding: 48, textAlign: "center" }}>
-          <p style={{ margin: "0 0 16px", opacity: 0.7 }}>No applications yet.</p>
-          <button onClick={() => window.location.assign("/lender/applications/new") /* v119-hardnav */}
-            style={{ background: "#3b82f6", color: "white", border: "none", padding: "12px 24px", borderRadius: 8, cursor: "pointer", fontWeight: 600 }}>
-            Submit your first application
-          </button>
-        </div>
-      ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(240px, 1fr))", gap: 12, overflowX: "auto" }}
-             className="lender-pipeline-grid">
-          {STAGES.map((s) => (
-            <div key={s.key} style={{ background: "#0f1729", border: "1px solid #1c2538", borderRadius: 12, padding: 12, minWidth: 240 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12, paddingBottom: 8, borderBottom: "1px solid #1c2538" }}>
-                <div style={{ fontSize: 12, letterSpacing: 1, opacity: 0.7, textTransform: "uppercase" }}>{s.label}</div>
-                <div style={{ fontSize: 12, opacity: 0.5 }}>{grouped[s.key].length}</div>
-              </div>
-              {grouped[s.key].length === 0 ? (
-                <div style={{ opacity: 0.3, fontSize: 13, padding: "16px 8px", textAlign: "center" }}>—</div>
-              ) : grouped[s.key].map((a) => {
-                const loan = a.core_inputs?.loan_amount ?? a.loan_amount;
-                return (
-                  <div key={a.id}
-                    onClick={() => window.location.assign(`/lender/applications/${a.application_code || a.id}`) /* v119-hardnav */}
-                    style={{ background: "#0a1120", border: "1px solid #2c3a52", borderRadius: 8, padding: 12, marginBottom: 8, cursor: "pointer" }}>
-                    <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{a.company_name || a.application_code || "—"}</div>
-                    {a.guarantor_name && <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 4 }}>{a.guarantor_name}</div>}
-                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, fontSize: 12 }}>
-                      <span style={{ opacity: 0.7 }}>{fmtAmount(loan)}</span>
-                      <span style={{ opacity: 0.5 }}>{daysSince(a.updated_at || a.created_at)}</span>
-                    </div>
-                  </div>
-                );
-              })}
+      {/* Pipeline is ALWAYS rendered. Empty columns are visible placeholders. */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(240px, 1fr))", gap: 12, overflowX: "auto" }}
+           className="lender-pipeline-grid">
+        {STAGES.map((s) => (
+          <div key={s.key} style={{ background: "#0f1729", border: "1px solid #1c2538", borderRadius: 12, padding: 12, minWidth: 240 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12, paddingBottom: 8, borderBottom: "1px solid #1c2538" }}>
+              <div style={{ fontSize: 12, letterSpacing: 1, opacity: 0.7, textTransform: "uppercase" }}>{s.label}</div>
+              <div style={{ fontSize: 12, opacity: 0.5 }}>{grouped[s.key]?.length || 0}</div>
             </div>
-          ))}
-        </div>
-      )}
+            {(grouped[s.key]?.length || 0) === 0 ? (
+              <div style={{ opacity: 0.3, fontSize: 13, padding: "16px 8px", textAlign: "center" }}>—</div>
+            ) : grouped[s.key].map((a) => {
+              const loan = a.core_inputs?.loan_amount ?? a.loan_amount;
+              return (
+                <div
+                  key={a.id}
+                  onClick={() => navigate(`/lender/applications/${a.application_code || a.id}`)}
+                  style={{ background: "#0a1120", border: "1px solid #2c3a52", borderRadius: 8, padding: 12, marginBottom: 8, cursor: "pointer" }}
+                >
+                  <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{a.company_name || a.application_code || "—"}</div>
+                  {a.guarantor_name && <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 4 }}>{a.guarantor_name}</div>}
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, fontSize: 12 }}>
+                    <span style={{ opacity: 0.7 }}>{fmtAmount(loan)}</span>
+                    <span style={{ opacity: 0.5 }}>{daysSince(a.updated_at || a.created_at)}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
 
       <style>{`
         @media (max-width: 900px) {
