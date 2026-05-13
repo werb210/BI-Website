@@ -22,11 +22,11 @@ export default function Footer() {
             <li>
               <a
                 href="https://boreal.financial"
-                target="_blank"
                 rel="noopener noreferrer"
                 className="block hover:text-white"
+                data-testid="bi-footer-link-boreal-financial"
               >
-                Visit Boreal Financial
+                Boreal Financial
               </a>
             </li>
           </ul>
