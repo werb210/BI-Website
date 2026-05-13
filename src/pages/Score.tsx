@@ -75,7 +75,11 @@ export default function Score() {
   useEffect(() => {
     const loan = Number(v.loan_amount);
     if (loan > 0 && Number(v.pgi_limit) === 0) {
-      setV((prev) => ({ ...prev, pgi_limit: String(Math.round(loan * 0.5)) }));
+      // BI_WEBSITE_BLOCK_v172_UI_FIXES_v1 — default the slider to the
+      // policy max (80%). The previous 50% default required every user
+      // to drag the slider up, even though the underlying PGI policy is
+      // built around the 80% indemnity limit.
+      setV((prev) => ({ ...prev, pgi_limit: String(Math.round(loan * 0.80)) }));
     }
   }, [v.loan_amount, v.pgi_limit]);
 

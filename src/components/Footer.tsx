@@ -20,8 +20,11 @@ export default function Footer() {
             <li><Link to="/applications/new" className="block hover:text-white">Apply Now</Link></li>
             <li><Link to="?faq=1" className="block hover:text-white">FAQ</Link></li>
             <li>
+              {/* BI_WEBSITE_BLOCK_v172_UI_FIXES_v1 — bare `boreal.financial`
+                  currently returns NET::ERR_CERT_COMMON_NAME_INVALID; the
+                  `www` subdomain has a valid certificate. */}
               <a
-                href="https://boreal.financial"
+                href="https://www.boreal.financial"
                 rel="noopener noreferrer"
                 className="block hover:text-white"
                 data-testid="bi-footer-link-boreal-financial"
