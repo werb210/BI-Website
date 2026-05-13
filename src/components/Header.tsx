@@ -109,11 +109,11 @@ export default function Header() {
               </Link>
               <a
                 href="https://boreal.financial"
-                target="_blank"
                 rel="noopener noreferrer"
                 className="ml-2 text-sm font-semibold text-white"
+                data-testid="bi-link-boreal-financial"
               >
-                Visit Boreal Financial
+                Boreal Financial
               </a>
               <Link
                 to="/applications/new"
@@ -203,12 +203,12 @@ export default function Header() {
                   </Link>
                   <a
                     href="https://boreal.financial"
-                    target="_blank"
                     rel="noopener noreferrer"
                     className="mt-2 inline-flex justify-center rounded-full border border-white px-5 py-3 font-medium text-white"
                     onClick={() => setOpen(false)}
+                    data-testid="bi-mobile-link-boreal-financial"
                   >
-                    Visit Boreal Financial
+                    Boreal Financial
                   </a>
                 </>
               )}
