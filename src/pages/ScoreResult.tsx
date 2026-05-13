@@ -41,9 +41,38 @@ export default function ScoreResult() {
         </div>
         <div className="core-status">Your application qualifies!</div>
         <div className="core-validity">Quote valid for 30 days</div>
-        <div className="bi-actions">
-          <button onClick={() => nav("/")}>Return</button>
-          <button className="primary" onClick={() => nav(`/applications/${publicId}/form`)}>Apply for Coverage</button>
+        {/* BI_WEBSITE_BLOCK_v172_UI_FIXES_v1 — primary action centered,
+            secondary "Return" stacked below as a quieter text link. */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 12,
+            marginTop: 16,
+          }}
+        >
+          <button
+            className="primary"
+            onClick={() => nav(`/applications/${publicId}/form`)}
+            style={{ minWidth: 220 }}
+          >
+            Apply for Coverage
+          </button>
+          <button
+            type="button"
+            onClick={() => nav("/")}
+            style={{
+              background: "transparent",
+              border: 0,
+              color: "#94a3b8",
+              fontSize: 13,
+              cursor: "pointer",
+              padding: "4px 8px",
+            }}
+          >
+            Return
+          </button>
         </div>
       </div>
     );
