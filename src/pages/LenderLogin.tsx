@@ -117,33 +117,49 @@ export default function LenderLogin() {
       {err && <div style={{ background: "#3a1010", color: "#fecaca", padding: 12, borderRadius: 8, marginBottom: 16 }}>{err}</div>}
 
       {stage === "phone" && (
-        <div>
-          <label style={{ display: "block" }}>
-            <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 6 }}>Mobile phone</div>
-            <input
-              type="tel"
-              autoComplete="tel"
-              autoFocus
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="+15551234567"
-              style={{ background: "#0a1120", border: "1px solid #2c3a52", color: "#e5e7eb", padding: "10px 12px", borderRadius: 8, width: "100%", fontSize: 14 }}
-            />
+        // BI_WEBSITE_BLOCK_v171_OTP_CONSISTENCY_v1 — white OTP card, BF-Client parity
+        <div
+          style={{
+            background: "#fff",
+            border: "1px solid #e2e8f0",
+            borderRadius: 12,
+            padding: 24,
+            boxShadow: "0 4px 12px rgba(15,23,42,0.06)",
+          }}
+        >
+          <label style={{ display: "block", fontSize: 14, color: "#334155", marginBottom: 6 }}>
+            Mobile phone number
           </label>
+          <input
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            autoFocus
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="(555) 000-0000"
+            style={{
+              width: "100%", padding: "12px 14px", fontSize: 16,
+              border: "1px solid #cbd5e1", borderRadius: 8, marginBottom: 12,
+              boxSizing: "border-box", color: "#0f172a", background: "#fff",
+            }}
+          />
           <button
             type="button"
             disabled={busy || !isPhoneReady(phone)}
             onClick={start}
             style={{
-              marginTop: 16, width: "100%", padding: "12px 24px", borderRadius: 8,
-              background: busy || !isPhoneReady(phone) ? "#1f2937" : "#3b82f6",
-              color: busy || !isPhoneReady(phone) ? "#6b7280" : "white",
-              border: "none", fontWeight: 600,
+              width: "100%", padding: "14px 20px", fontSize: 17, fontWeight: 700,
+              background: "#f59e0b", color: "#fff", border: 0, borderRadius: 8,
               cursor: busy || !isPhoneReady(phone) ? "not-allowed" : "pointer",
+              opacity: busy || !isPhoneReady(phone) ? 0.6 : 1,
             }}
           >
-            {busy ? "Sending\u2026" : "Send code"}
+            {busy ? "Sending…" : "Send code →"}
           </button>
+          <p style={{ fontSize: 12, color: "#64748b", marginTop: 10, marginBottom: 0, textAlign: "center" }}>
+            We{"'"}ll text you a one-time code to verify.
+          </p>
         </div>
       )}
 
