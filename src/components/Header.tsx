@@ -107,13 +107,16 @@ export default function Header() {
               <Link to="/lender/login" className="text-white/80 hover:text-white">
                 Lender Login
               </Link>
+              {/* BI_WEBSITE_BLOCK_v173_HEADER_URL_AND_MONTH_INPUT_v1
+                  — bare boreal.financial fails cert; use www subdomain. */}
               <a
-                href="https://boreal.financial"
+                href="https://www.boreal.financial"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="ml-2 text-sm font-semibold text-white"
                 data-testid="bi-link-boreal-financial"
               >
-                Boreal Financial
+                Visit Boreal Financial
               </a>
               <Link
                 to="/applications/new"
@@ -201,14 +204,16 @@ export default function Header() {
                   >
                     Apply Now
                   </Link>
+                  {/* BI_WEBSITE_BLOCK_v173_HEADER_URL_AND_MONTH_INPUT_v1 */}
                   <a
-                    href="https://boreal.financial"
+                    href="https://www.boreal.financial"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="mt-2 inline-flex justify-center rounded-full border border-white px-5 py-3 font-medium text-white"
                     onClick={() => setOpen(false)}
                     data-testid="bi-mobile-link-boreal-financial"
                   >
-                    Boreal Financial
+                    Visit Boreal Financial
                   </a>
                 </>
               )}

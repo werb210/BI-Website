@@ -413,14 +413,17 @@ input[type="checkbox"]:focus-visible {
   }
 }
 
+/* BI_WEBSITE_BLOCK_v173_HEADER_URL_AND_MONTH_INPUT_v1
+   The horizontal strikethrough through "Select month and year" was the
+   native <input type="month"> rendering its datetime-edit text (the
+   "yyyy-mm" mask) BEHIND the transparent overlay. Hiding the native
+   datetime-edit color while empty kills the strikethrough; restoring
+   it when data-has-value="true" lets the real value show. */
 .bi-month-affordance {
   position: relative;
   display: block;
 }
 .bi-month-affordance::before {
-  /* BI_WEBSITE_BLOCK_v172_UI_FIXES_v1 — bump from 0.55 to 0.78 opacity
-     and shorten the prompt; the longer "Tap to" phrasing read as iOS-only
-     on a desktop surface and overlapped visually with the picker icon. */
   content: "Select month and year";
   position: absolute;
   top: 50%;
@@ -438,4 +441,21 @@ input[type="checkbox"]:focus-visible {
   position: relative;
   z-index: 2;
   background: transparent;
+}
+/* Hide the native datetime-edit text while the field is empty so
+   neither the "yyyy-mm" placeholder mask nor any strikethrough
+   artifacts show beneath the ::before pseudo-element. */
+.bi-month-affordance input[type="month"]::-webkit-datetime-edit {
+  color: transparent !important;
+}
+.bi-month-affordance[data-has-value="true"] input[type="month"]::-webkit-datetime-edit {
+  color: #e5e7eb !important;
+}
+/* Belt-and-suspenders: clear any inherited text-decoration on both
+   the input and the pseudo-element so no underline/strikethrough
+   paints over the placeholder. */
+.bi-month-affordance,
+.bi-month-affordance::before,
+.bi-month-affordance input[type="month"] {
+  text-decoration: none !important;
 }
