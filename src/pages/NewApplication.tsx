@@ -73,14 +73,6 @@ export default function NewApplication() {
     }
   }
 
-  // Auto-forward phone when ready
-  useEffect(() => {
-    if (stage === "phone" && isPhoneReady(phone)) {
-      void startOtp(phone);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phone, stage]);
-
   // Auto-forward code when 6 digits entered
   useEffect(() => {
     if (stage === "code" && isCodeReady(code)) {
@@ -112,31 +104,68 @@ export default function NewApplication() {
 
   return (
     <div className="bi-card" style={{ maxWidth: 480, margin: "0 auto" }}>
-      <h1 style={{ textAlign: "center" }}>Start Your Application</h1>
-      <p style={{ textAlign: "center", opacity: 0.85 }}>
-        Verify your phone to begin. We&apos;ll send a one-time code by SMS.
+      {/* BI_WEBSITE_BLOCK_v171_OTP_CONSISTENCY_v1 — chrome above the card */}
+      <h1 style={{ textAlign: "center", marginBottom: 8 }}>Start Your Application</h1>
+      <p style={{ textAlign: "center", opacity: 0.85, marginTop: 0, marginBottom: 20 }}>
+        Verify your phone to begin. We{"'"}ll send a one-time code by SMS.
       </p>
 
       {stage === "phone" ? (
         <>
-          <label className="bi-field">
-            <span className="bi-field-label">Mobile phone</span>
+          {/* BI_WEBSITE_BLOCK_v171 — white OTP card, BF-Client parity */}
+          <div
+            style={{
+              background: "#fff",
+              border: "1px solid #e2e8f0",
+              borderRadius: 12,
+              padding: 24,
+              boxShadow: "0 4px 12px rgba(15,23,42,0.06)",
+            }}
+          >
+            <label
+              style={{
+                display: "block", fontSize: 14, color: "#334155", marginBottom: 6,
+              }}
+            >
+              Mobile phone number
+            </label>
             <input
               type="tel"
               inputMode="tel"
               autoComplete="tel"
               autoFocus
-              placeholder="(587) 555-1234"
+              placeholder="(555) 000-0000"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               disabled={busy}
+              style={{
+                width: "100%", padding: "12px 14px", fontSize: 16,
+                border: "1px solid #cbd5e1", borderRadius: 8, marginBottom: 12,
+                boxSizing: "border-box", color: "#0f172a", background: "#fff",
+              }}
             />
-            <small className="bi-field-hint">
-              {busy ? "Sending code…" : "We&apos;ll text you a code as soon as you finish typing."}
-            </small>
-          </label>
-          {err ? <div className="form-error">{err}</div> : null}
-          <small style={{ display: "block", textAlign: "center", marginTop: 12, opacity: 0.7 }}>
+            {err ? (
+              <div role="alert" style={{ color: "#b91c1c", fontSize: 13, marginBottom: 8 }}>
+                {err}
+              </div>
+            ) : null}
+            <button
+              type="button"
+              disabled={busy || !phone.trim()}
+              onClick={() => void startOtp(phone)}
+              style={{
+                width: "100%", padding: "14px 20px", fontSize: 17, fontWeight: 700,
+                background: "#f59e0b", color: "#fff", border: 0, borderRadius: 8,
+                cursor: busy ? "wait" : "pointer", opacity: busy || !phone.trim() ? 0.6 : 1,
+              }}
+            >
+              {busy ? "Sending…" : "Start Your Application →"}
+            </button>
+            <p style={{ fontSize: 12, color: "#64748b", marginTop: 10, marginBottom: 0, textAlign: "center" }}>
+              We{"'"}ll text you a one-time code to verify.
+            </p>
+          </div>
+          <small style={{ display: "block", textAlign: "center", marginTop: 16, opacity: 0.7 }}>
             By continuing, you agree to our{" "}
             <a href="/terms" target="_blank" rel="noreferrer">Terms of Service</a> and{" "}
             <a href="/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>.
