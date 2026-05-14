@@ -25,6 +25,12 @@ const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL
 type App = {
   public_id?: string;
   application_code?: string | null;
+  // BI_WEBSITE_BLOCK_v175_STATUS_NEEDS_DOCS_STATUS_FALLBACK_v1
+  // Public flow writes the status TEXT column (in_progress, document_review,
+  // submitted, etc.); stage (ENUM) is only written by the carrier-forward
+  // orchestrator and by webhook handlers. Reading status with stage fallback
+  // is the contract used by DecisionBanner (line 74) and needsDocs (line 217).
+  status?: string | null;
   stage: string;
   business_name?: string | null;
   company_name?: string | null;
@@ -215,9 +221,7 @@ export default function Status() {
   }, [publicId]);
 
   // BI_WEBSITE_BLOCK_v175_STATUS_NEEDS_DOCS_STATUS_FALLBACK_v1
-  // Public flow writes status (TEXT); stage (ENUM) stays null until
-  // staff forwards to carrier. Same fallback as DecisionBanner at line 74.
-  const stage = String((app as { status?: string } | null)?.status || app?.stage || "");
+  const stage = String(app?.status || app?.stage || "");
   const needsDocs = stage === "in_progress" || stage === "document_review" || stage === "new_application";
   const docTypesUploaded = new Set(docs.map((d) => d.doc_type).filter(Boolean) as string[]);
 
