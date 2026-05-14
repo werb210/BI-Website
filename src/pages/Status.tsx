@@ -214,7 +214,10 @@ export default function Status() {
     })();
   }, [publicId]);
 
-  const stage = String(app?.stage || "");
+  // BI_WEBSITE_BLOCK_v175_STATUS_NEEDS_DOCS_STATUS_FALLBACK_v1
+  // Public flow writes status (TEXT); stage (ENUM) stays null until
+  // staff forwards to carrier. Same fallback as DecisionBanner at line 74.
+  const stage = String((app as { status?: string } | null)?.status || app?.stage || "");
   const needsDocs = stage === "in_progress" || stage === "document_review" || stage === "new_application";
   const docTypesUploaded = new Set(docs.map((d) => d.doc_type).filter(Boolean) as string[]);
 
