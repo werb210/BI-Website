@@ -24,7 +24,14 @@ const SAMPLES: Record<string, { label: string; submit: string; list: string }> =
     "total_debt": 600000,
     "monthly_debt_service": 7800,
     "collateral_value": 1200000,
-    "enterprise_value": 20000000
+    "enterprise_value": 20000000,
+    "guarantor_name": "Sarah Chen",
+    "guarantor_email": "sarah.chen@maple.example",
+    "business_name": "Maple Leaf Industries Inc.",
+    "lender_name": "Acme Bank",
+    "bankruptcy_history": false,
+    "insolvency_history": false,
+    "judgment_history": false
   }'`,
     list: `curl ${BI_SERVER}/api/v1/lender/applications \\
   -H "Authorization: Bearer bk_xxxxxxxx.yyyyyyyyyyyyyyyy"`,
@@ -51,6 +58,13 @@ const SAMPLES: Record<string, { label: string; submit: string; list: string }> =
       monthly_debt_service: 7800,
       collateral_value: 1200000,
       enterprise_value: 20000000,
+      guarantor_name: "Sarah Chen",
+      guarantor_email: "sarah.chen@maple.example",
+      business_name: "Maple Leaf Industries Inc.",
+      lender_name: "Acme Bank",
+      bankruptcy_history: false,
+      insolvency_history: false,
+      judgment_history: false,
     }),
   }
 );
@@ -79,6 +93,13 @@ r = requests.post(
         "monthly_debt_service": 7800,
         "collateral_value": 1200000,
         "enterprise_value": 20000000,
+        "guarantor_name": "Sarah Chen",
+        "guarantor_email": "sarah.chen@maple.example",
+        "business_name": "Maple Leaf Industries Inc.",
+        "lender_name": "Acme Bank",
+        "bankruptcy_history": False,
+        "insolvency_history": False,
+        "judgment_history": False,
     },
 )
 result = r.json()`,
@@ -149,19 +170,26 @@ export default function LenderApiDocs() {
           <Endpoint
             method="POST"
             path="/api/v1/lender/applications"
-            desc="Submit a new PGI application + run the CORE score in one call. Returns the application id, public id, and score decision (approve/decline)."
+            desc="Submit a new PGI application + run the CORE score in one call. Returns bare JSON with application IDs, status, score, and PGI forwarding state."
             body={[
-              ["country",              "string  CA only (US coming)"],
-              ["naics_code",           "string  6-digit NAICS-2022"],
-              ["formation_date",       "string  YYYY-MM-DD"],
-              ["loan_amount",          "number  CAD, max $1,000,000"],
-              ["pgi_limit",            "number  CAD, ≤ 80% of loan_amount"],
-              ["annual_revenue",       "number  CAD"],
-              ["ebitda",               "number  CAD, min $50,000"],
-              ["total_debt",           "number  CAD"],
-              ["monthly_debt_service", "number  CAD"],
-              ["collateral_value",     "number  CAD"],
-              ["enterprise_value",     "number  CAD"],
+              ["country",              "string  required. CA only (US coming)"],
+              ["naics_code",           "string  required. 6-digit NAICS-2022"],
+              ["formation_date",       "string  required. YYYY-MM-DD"],
+              ["loan_amount",          "number  required. CAD, max $1,000,000"],
+              ["pgi_limit",            "number  required. CAD, ≤ 80% of loan_amount"],
+              ["annual_revenue",       "number  required. CAD"],
+              ["ebitda",               "number  required. CAD, min $50,000"],
+              ["total_debt",           "number  required. CAD"],
+              ["monthly_debt_service", "number  required. CAD"],
+              ["collateral_value",     "number  required. CAD"],
+              ["enterprise_value",     "number  required. CAD"],
+              ["guarantor_name",       "string  recommended. Full legal name. Carrier rejects empty."],
+              ["guarantor_email",      "string  recommended. RFC 5322 email."],
+              ["business_name",        "string  recommended. Legal entity name. Carrier rejects empty."],
+              ["lender_name",          "string  optional. Defaults to your registered company_name."],
+              ["bankruptcy_history",   "boolean optional. Default false."],
+              ["insolvency_history",   "boolean optional. Default false."],
+              ["judgment_history",     "boolean optional. Default false."],
             ]}
           />
           <Endpoint
@@ -169,20 +197,43 @@ export default function LenderApiDocs() {
             path="/api/v1/lender/applications"
             desc="List applications submitted under this key. Scoped to your lender."
           />
+          {/* BI_WEBSITE_BLOCK_v176_LENDER_API_DOCS_ACCURACY_v1 — missing endpoints */}
+          <Endpoint
+            method="GET"
+            path="/api/v1/lender/applications/mine"
+            desc="List your applications with paging and stage info. Same scope as above; richer response shape (status, carrier_received_at, last carrier event)."
+          />
+          <Endpoint
+            method="GET"
+            path="/api/v1/lender/applications/:code/timeline"
+            desc="Activity events for one application. Use the application_code returned by POST. Owner-scoped — 404 if the code isn't under your key. Returns {application_code, events:[{event_type, summary, meta, created_at}]}."
+          />
         </Section>
 
+        {/* BI_WEBSITE_BLOCK_v176_LENDER_API_DOCS_ACCURACY_v1 — real shape */}
         <Section title="Response shape (POST)">
           <div className="rounded-lg border border-card bg-bf-surface p-4">
+            <p className="mb-3 text-sm text-bf-textMuted">
+              Bare JSON, no envelope. HTTP 201 on success. On decline (HTTP 422)
+              the body is <code>{"{ error: \"score_declined\", reason, score_id }"}</code>.
+            </p>
             <pre className="overflow-x-auto text-sm">{`{
-  "ok": true,
-  "data": {
-    "id": "uuid",
-    "public_id": "PGI-A1B2C3D4",
-    "score_decision": "approve",
-    "score_value": 87,
-    "next_step_url": "https://witty-moss-0886d220f.7.azurestaticapps.net/applications/PGI-A1B2C3D4/score-result"
-  }
+  "public_id": "PGI-A1B2C3D4",
+  "application_id": "uuid",
+  "status": "submitted",
+  "score_id": "score-uuid",
+  "score": 87,
+  "pgi_application_id": "carrier-app-id-or-null",
+  "pgi_status": "received",
+  "pgi_error": null
 }`}</pre>
+            <p className="mt-3 text-sm text-bf-textMuted">
+              <code>status</code> is <code>"submitted"</code> when the auto-forward
+              to the carrier (PGI) succeeded, <code>"ready_for_submission"</code>
+              if the carrier call failed (inspect <code>pgi_error</code>). Poll
+              <code> GET /api/v1/lender/applications/:code/timeline</code> for
+              carrier events thereafter.
+            </p>
           </div>
         </Section>
 
@@ -193,10 +244,13 @@ export default function LenderApiDocs() {
                 <tr><th className="py-2 text-left">Status</th><th className="py-2 text-left">Code</th><th className="py-2 text-left">Meaning</th></tr>
               </thead>
               <tbody>
+                {/* BI_WEBSITE_BLOCK_v176_LENDER_API_DOCS_ACCURACY_v1 */}
                 <tr><td className="py-2">400</td><td className="py-2"><code>missing_fields</code></td><td className="py-2">Required score fields absent. <code>fields</code> array enumerates which.</td></tr>
                 <tr><td className="py-2">400</td><td className="py-2"><code>country_unsupported</code></td><td className="py-2">Currently only Canada is supported.</td></tr>
                 <tr><td className="py-2">400</td><td className="py-2"><code>ebitda_below_min</code></td><td className="py-2">EBITDA must be at least $50,000 CAD.</td></tr>
                 <tr><td className="py-2">401</td><td className="py-2"><code>missing_api_key</code> / <code>invalid_api_key</code></td><td className="py-2">Bearer header missing, malformed, or revoked.</td></tr>
+                <tr><td className="py-2">422</td><td className="py-2"><code>score_declined</code></td><td className="py-2">CORE Score declined. Body includes <code>reason</code> and <code>score_id</code>; no application row is created.</td></tr>
+                <tr><td className="py-2">429</td><td className="py-2"><code>rate_limited</code></td><td className="py-2">More than 60 requests/min per key. Retry after <code>Retry-After</code> header (seconds).</td></tr>
               </tbody>
             </table>
           </div>
