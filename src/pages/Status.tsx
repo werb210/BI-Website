@@ -64,7 +64,14 @@ function fmtDate(iso: string | null | undefined): string | null {
 }
 
 function DecisionBanner({ app }: { app: App }) {
-  const stage = String(app.stage || "");
+  // BI_WEBSITE_BLOCK_v174_APPLICANT_AUTH_AND_STATUS_PAGE_v1
+  // The BI-Server public flow writes `status` (TEXT) and never touches
+  // `stage` (ENUM) until staff forwards to carrier. Prefer status so
+  // banner branches like "in_progress" / "document_review" / "submitted"
+  // — already present below — actually match. Fall back to stage for
+  // post-carrier states (under_review / approved / policy_issued / quoted /
+  // bound / declined / claim) which the orchestrator does write.
+  const stage = String(app.status || app.stage || "");
   const premium = fmtMoney(app.annual_premium ?? null);
 
   if (stage === "policy_issued") {
