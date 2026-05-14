@@ -47,10 +47,25 @@ export const api = {
   submit: (publicId: string) =>
     jsonFetch(`/applications/${publicId}/submit`, { method: "POST" }),
   // BI_WEBSITE_BLOCK_v130_DEFER_DOCS_FLOW_v1
-  deferDocs: (publicId: string) =>
-    jsonFetch(`/applicants/applications/${publicId}/defer-docs`, { method: "POST" }),
-  getMyPendingApplication: () =>
-    jsonFetch(`/applicants/me/pending-application`),
+  // BI_WEBSITE_BLOCK_v174_APPLICANT_AUTH_AND_STATUS_PAGE_v1 — defer-docs
+  // requires Bearer applicant JWT (server: authApplicant middleware).
+  deferDocs: (publicId: string) => {
+    const tok = getApplicantToken();
+    return jsonFetch(`/applicants/applications/${publicId}/defer-docs`, {
+      method: "POST",
+      headers: tok ? { Authorization: `Bearer ${tok}` } : {},
+    });
+  },
+  // BI_WEBSITE_BLOCK_v174_APPLICANT_AUTH_AND_STATUS_PAGE_v1
+  // /applicants/me/pending-application requires Bearer applicant JWT
+  // (server: authApplicant middleware). The token was just set by
+  // applicantOtpVerify; read it from localStorage and include it.
+  getMyPendingApplication: () => {
+    const tok = getApplicantToken();
+    return jsonFetch(`/applicants/me/pending-application`, {
+      headers: tok ? { Authorization: `Bearer ${tok}` } : {},
+    });
+  },
 
   scrape: async (publicId: string, file: File) => {
     const fd = new FormData();
