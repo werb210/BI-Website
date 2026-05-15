@@ -41,13 +41,36 @@ export default function ReferrerPortal() {
   useEffect(() => {
     if (!token) return;
     (async () => {
+      // BI_WEBSITE_BLOCK_v179_INTAKE_AND_DOC_POLISH_v1 — split the auth-
+      // bootstrap into two stages. The previous single try/catch wrapped
+      // BOTH the /referrer/me fetch and the /referrer/referrals fetch,
+      // so any failure on the referrals call killed the localStorage
+      // token (which then 401'd every PUT /referrer/me with
+      // missing_token). The /referrer/referrals endpoint was 404 in
+      // production until BI-Server v244 added the alias; we still want
+      // the auth bootstrap to be resilient to a missing referrals
+      // endpoint going forward (or any transient 5xx on it).
+      let me: any = null;
       try {
-        const me = await jsonFetch("/referrer/me", { method: "GET" }, token);
-        setProfile(me?.profile ?? {});
+        me = await jsonFetch("/referrer/me", { method: "GET" }, token);
+      } catch {
+        // Only /referrer/me failures invalidate the session.
+        localStorage.removeItem("bi.ref_token");
+        setToken("");
+        return;
+      }
+      setProfile(me?.profile ?? {});
+      // Referrals are best-effort. A 404 / 5xx here is non-fatal:
+      // the dashboard renders with an empty list and the user can
+      // still complete the intake form.
+      try {
         const list = await jsonFetch("/referrer/referrals", { method: "GET" }, token);
         setItems(Array.isArray(list?.items) ? list.items : Array.isArray(list) ? list : []);
-        setStage("dashboard");
-      } catch { localStorage.removeItem("bi.ref_token"); setToken(""); }
+      } catch {
+        setItems([]);
+      }
+      const hasProfile = !!me?.profile?.legal_name || !!me?.profile?.first_name;
+      setStage(hasProfile ? "dashboard" : "intake");
     })();
   }, [token]);
 
@@ -56,6 +79,17 @@ export default function ReferrerPortal() {
     if (stage === "verify" && code.length === 6) void verifyOtp();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code, stage]);
+
+  // BI_WEBSITE_BLOCK_v179_INTAKE_AND_DOC_POLISH_v1 — auto-fire sendOtp
+  // when the phone field reaches 10 digits (NANP) so the user doesn't
+  // have to hit the "Send code" button. Strip non-digits before counting
+  // so masked/formatted inputs still trigger.
+  useEffect(() => {
+    if (stage !== "otp") return;
+    const digits = String(phone || "").replace(/\D/g, "");
+    if (digits.length === 10 || digits.length === 11) void sendOtp();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phone, stage]);
 
   // WebOTP API — programmatic SMS read on Android Chrome.
   useEffect(() => {
@@ -180,26 +214,59 @@ export default function ReferrerPortal() {
   );
 
   if (stage === "intake") return (
-    <div className="bi-card" style={{ maxWidth: 720 }}>
+    <div className="bi-card" style={{ maxWidth: 960 }}>
       <h1>First-time Intake</h1>
       {/* BI_WEBSITE_BLOCK_v178_FULL_WAVE_v1 — copy + remove license + 2-col layout */}
+      {/* BI_WEBSITE_BLOCK_v179_INTAKE_AND_DOC_POLISH_v1 — split Legal Name
+          into First/Last, Province as a Canadian-provinces dropdown,
+          bottom row places Address/City/Province/Postal/Continue on one
+          line so the form ends with a single visual action. */}
       <p>Tell us a bit about yourself.</p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {[
-          ["legal_name","Legal name"],["business_name","Business name"],
-          ["email","Email"],["phone","Phone"],
+          ["first_name","First name"],["last_name","Last name"],
+          ["business_name","Business name"],["email","Email"],
+          ["phone","Phone"],
           ["etransfer_email","E-Transfer Email (For referral fees)"],
-          ["province","Province"],
-          ["city","City"],["postal_code","Postal code"],
-          ["address","Address"],
         ].map(([k,label])=>(
           <label key={k} className="bi-field"><span>{label}</span>
             <input value={profile[k] ?? ""} onChange={(e)=>setProfile(p=>({...p,[k]:e.target.value}))} />
           </label>
         ))}
       </div>
-      {err && <div className="form-error">{err}</div>}
-      <button className="primary" onClick={saveProfile} disabled={busy || !profile.legal_name}>{busy ? "Saving…" : "Continue"}</button>
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 mt-3 items-end">
+        <label className="bi-field md:col-span-4"><span>Address</span>
+          <input value={profile.address ?? ""} onChange={(e)=>setProfile(p=>({...p, address: e.target.value}))} />
+        </label>
+        <label className="bi-field md:col-span-2"><span>City</span>
+          <input value={profile.city ?? ""} onChange={(e)=>setProfile(p=>({...p, city: e.target.value}))} />
+        </label>
+        <label className="bi-field md:col-span-2"><span>Province</span>
+          <select value={profile.province ?? ""} onChange={(e)=>setProfile(p=>({...p, province: e.target.value}))}>
+            <option value="">Select…</option>
+            <option value="AB">Alberta</option>
+            <option value="BC">British Columbia</option>
+            <option value="MB">Manitoba</option>
+            <option value="NB">New Brunswick</option>
+            <option value="NL">Newfoundland and Labrador</option>
+            <option value="NS">Nova Scotia</option>
+            <option value="NT">Northwest Territories</option>
+            <option value="NU">Nunavut</option>
+            <option value="ON">Ontario</option>
+            <option value="PE">Prince Edward Island</option>
+            <option value="QC">Quebec</option>
+            <option value="SK">Saskatchewan</option>
+            <option value="YT">Yukon</option>
+          </select>
+        </label>
+        <label className="bi-field md:col-span-2"><span>Postal code</span>
+          <input value={profile.postal_code ?? ""} onChange={(e)=>setProfile(p=>({...p, postal_code: e.target.value}))} />
+        </label>
+        <div className="md:col-span-2">
+          <button className="primary" style={{ width: "100%" }} onClick={saveProfile} disabled={busy || (!profile.first_name && !profile.legal_name)}>{busy ? "Saving…" : "Continue"}</button>
+        </div>
+      </div>
+      {err && <div className="form-error mt-3">{err}</div>}
     </div>
   );
 
