@@ -445,10 +445,17 @@ input[type="checkbox"]:focus-visible {
 /* Hide the native datetime-edit text while the field is empty so
    neither the "yyyy-mm" placeholder mask nor any strikethrough
    artifacts show beneath the ::before pseudo-element. */
+/* BI_WEBSITE_BLOCK_v178_FULL_WAVE_v1 — opacity:0 is more reliable than
+   color:transparent. Chrome and Safari were still rendering the native
+   datetime-edit's placeholder mask with a strikethrough decoration
+   even with color:transparent applied; opacity:0 guarantees nothing
+   in the shadow tree paints. */
 .bi-month-affordance input[type="month"]::-webkit-datetime-edit {
+  opacity: 0 !important;
   color: transparent !important;
 }
 .bi-month-affordance[data-has-value="true"] input[type="month"]::-webkit-datetime-edit {
+  opacity: 1 !important;
   color: #e5e7eb !important;
 }
 /* Belt-and-suspenders: clear any inherited text-decoration on both

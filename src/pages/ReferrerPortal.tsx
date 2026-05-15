@@ -180,20 +180,24 @@ export default function ReferrerPortal() {
   );
 
   if (stage === "intake") return (
-    <div className="bi-card">
+    <div className="bi-card" style={{ maxWidth: 720 }}>
       <h1>First-time Intake</h1>
-      <p>Tell us a bit about you so we can route commissions correctly.</p>
-      {[
-        ["legal_name","Legal name"],["business_name","Business name"],
-        ["email","Email"],["phone","Phone"],
-        ["etransfer_email","E-transfer email (for commissions)"],
-        ["license","License #"],["province","Province"],
-        ["city","City"],["postal_code","Postal code"],["address","Address"],
-      ].map(([k,label])=>(
-        <label key={k} className="bi-field"><span>{label}</span>
-          <input value={profile[k] ?? ""} onChange={(e)=>setProfile(p=>({...p,[k]:e.target.value}))} />
-        </label>
-      ))}
+      {/* BI_WEBSITE_BLOCK_v178_FULL_WAVE_v1 — copy + remove license + 2-col layout */}
+      <p>Tell us a bit about yourself.</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {[
+          ["legal_name","Legal name"],["business_name","Business name"],
+          ["email","Email"],["phone","Phone"],
+          ["etransfer_email","E-Transfer Email (For referral fees)"],
+          ["province","Province"],
+          ["city","City"],["postal_code","Postal code"],
+          ["address","Address"],
+        ].map(([k,label])=>(
+          <label key={k} className="bi-field"><span>{label}</span>
+            <input value={profile[k] ?? ""} onChange={(e)=>setProfile(p=>({...p,[k]:e.target.value}))} />
+          </label>
+        ))}
+      </div>
       {err && <div className="form-error">{err}</div>}
       <button className="primary" onClick={saveProfile} disabled={busy || !profile.legal_name}>{busy ? "Saving…" : "Continue"}</button>
     </div>
