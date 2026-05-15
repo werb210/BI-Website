@@ -32,7 +32,31 @@ const SECTIONS: Array<{ title: string; fields: FieldDef[] }> = [
     { key: "pgi_limit", label: "PGI coverage limit (≤80% of loan)", type: "currency", required: true },
     { key: "lender_name", label: "Lender name", type: "text", required: true },
     { key: "loan_funding_date", label: "Loan funding date", type: "date", required: true },
-    { key: "loan_purpose", label: "Loan purpose", type: "text", required: true },
+    // BI_WEBSITE_BLOCK_v177_LOAN_PURPOSE_SELECT_v1
+    // Pre-fix loan_purpose was a free-text input. Combined with the v330
+    // BI-Server CHECK constraint that allowlisted only 7 strings
+    // (working_capital, equipment, expansion, acquisition, real_estate,
+    // refinance, other), this meant ANY user-typed value outside those
+    // seven 500'd the PATCH /applications/:publicId server-side. v330
+    // dropped the constraint so any string now works, but a free-text UX
+    // is still wrong: users have to guess what "loan purpose" means and
+    // staff get inconsistent downstream data ("growth", "Growth", "biz
+    // growth", "Growth capital" all distinct rows in CRM dashboards).
+    // Convert to <select> matching the original allowlist plus a friendly
+    // free-text "Other" fallback path via the form schema. The seven
+    // canonical values are kept lowercase + underscored to remain stable
+    // for any later downstream branching, and labels are display-cased
+    // for users.
+    { key: "loan_purpose", label: "Loan purpose", type: "select", required: true,
+      options: [
+        { value: "working_capital", label: "Working capital" },
+        { value: "equipment",       label: "Equipment purchase" },
+        { value: "expansion",       label: "Business expansion / growth" },
+        { value: "acquisition",     label: "Acquisition" },
+        { value: "real_estate",     label: "Real estate" },
+        { value: "refinance",       label: "Refinance" },
+        { value: "other",           label: "Other" },
+      ] },
     { key: "policy_start_date", label: "Policy start date", type: "date", required: true },
     { key: "csbfp_backed", label: "Is the loan CSBFP-backed?", type: "boolean" },
     { key: "loan_has_guaranteed_cap", label: "Loan has a guaranteed cap?", type: "boolean" },
