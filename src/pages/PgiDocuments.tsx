@@ -1,6 +1,7 @@
 // BI_WEBSITE_BLOCK_v91_API_BASE_AND_DOCS_STAGE_v1
 // BI_WEBSITE_BLOCK_v178_FULL_WAVE_v1
 // BI_WEBSITE_BLOCK_v179_INTAKE_AND_DOC_POLISH_v1
+// BI_WEBSITE_BLOCK_v180_DEMO_TOKEN_AND_AUTO_UPLOAD_v1
 // Public document-upload step for the PGI carrier flow. Per operator
 // spec: reduced to 4 doc types (3-year FS, Interim, AR, AP). founder_cv
 // and financial_forecast were dropped from the required UI — PGI's API
@@ -8,26 +9,19 @@
 // is no longer gated on document presence: an applicant can submit
 // with zero docs and the BI-Server pipeline parks the row at
 // stage=new_application ("Submitted (no docs)") + SMS-reminders the
-// applicant daily Mon-Fri for two weeks. The "Don't have your
-// documents yet?" CTA appears ABOVE the upload list so applicants who
-// arrive without their books see the defer path before scrolling
-// through the upload fields.
+// applicant Mon-Fri until they finish. The "Don't have your documents
+// yet?" CTA appears ABOVE the upload list so applicants who arrive
+// without their books see the defer path before scrolling through the
+// upload fields.
 //
-// v179 changes:
-//   1. Multi-file support on the 3-year FS slot AND the Interim slot.
-//      Applicants commonly have one PDF per year for the annual FS
-//      (3 files) and a separate P&L + Balance Sheet for the interim
-//      (2 files). Previously the single-file <input> dropped all but
-//      the first file silently. Now both slots accept any number of
-//      files; AR/AP aging stay single-file as those are inherently
-//      one report each.
-//   2. "Save/finish-later" button removed. The
-//      remaining "Submit without documents" path already does
-//      exactly that (lands in submitted_no_docs stage, triggers
-//      reminders), so the second button was a no-op duplicate. The
-//      application autosaves field-by-field as the applicant fills
-//      it out; there's nothing to "save" at the doc step that isn't
-//      already persisted.
+// v180 changes:
+//   1. Auto-upload on file pick. The previous flow required a second
+//      "Upload selected" click — gone now; pick() fires uploadFiles()
+//      immediately. Operator's read on the user's intent: if they
+//      picked a file, they want it uploaded.
+//   2. "Upload selected" button removed (no longer a thing).
+//   3. Reminder copy trimmed: "We'll text you a reminder." (was
+//      "...each weekday for two weeks until you finish.").
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../lib/api";
@@ -64,6 +58,32 @@ export default function PgiDocuments() {
     const all = Array.from(e.target.files ?? []);
     if (all.length === 0) return;
     setFiles((prev) => ({ ...prev, [key]: multi ? all : all[0] }));
+    // BI_WEBSITE_BLOCK_v180_DEMO_TOKEN_AND_AUTO_UPLOAD_v1 — auto-upload
+    // the just-picked file(s). The previous flow required a second
+    // explicit "Upload selected" click; operator's call is that the
+    // user's intent is obvious — they picked the file, they want it
+    // uploaded. We use a one-shot upload limited to this slot's files
+    // so unrelated slots aren't accidentally re-uploaded.
+    const justPicked = (multi ? all : [all[0]]).filter(Boolean) as File[];
+    if (justPicked.length === 0) return;
+    void uploadFiles(REQUIRED_DOCS.find((d) => d.key === key)!.pgiType, justPicked);
+  }
+
+  // Per-slot uploader. Extracted from the previous uploadAll() so we
+  // can fire it from pick() without bulk-processing every slot.
+  async function uploadFiles(pgiType: string, list: File[]) {
+    setErr(null); setBusy(true);
+    try {
+      await api.uploadDocs(publicId!, list.map((file) => ({ docType: pgiType, file })));
+      const r = await api.listDocs(publicId!);
+      const m: Record<string, boolean> = {};
+      for (const d of r.documents ?? []) m[d.doc_type] = true;
+      setUploaded(m);
+    } catch (ex: any) {
+      setErr(ex.message ?? "Upload failed");
+    } finally {
+      setBusy(false);
+    }
   }
 
   function selectedLabel(slot: SlotFiles): string {
@@ -73,34 +93,6 @@ export default function PgiDocuments() {
       return `Selected: ${slot.length} files (${slot.map((f) => f.name).join(", ")})`;
     }
     return `Selected: ${slot.name}`;
-  }
-
-  async function uploadAll() {
-    setErr(null); setBusy(true);
-    try {
-      // Flatten the slot map into a per-file send list. Each file goes
-      // up with the slot's pgiType — the BI staff doc-review step will
-      // re-classify if PGI's extraction sees the file is actually a
-      // balance sheet vs P&L vs aging report.
-      const toSend: Array<{ docType: string; file: File }> = [];
-      for (const d of REQUIRED_DOCS) {
-        const slot = files[d.key];
-        if (!slot) continue;
-        const arr = Array.isArray(slot) ? slot : [slot];
-        for (const file of arr) toSend.push({ docType: d.pgiType, file });
-      }
-      if (toSend.length === 0) { setErr("Pick at least one file to upload."); setBusy(false); return; }
-      await api.uploadDocs(publicId!, toSend);
-      const r = await api.listDocs(publicId!);
-      const m: Record<string, boolean> = {};
-      for (const d of r.documents ?? []) m[d.doc_type] = true;
-      setUploaded(m);
-      setFiles({});
-    } catch (ex: any) {
-      setErr(ex.message ?? "Upload failed");
-    } finally {
-      setBusy(false);
-    }
   }
 
   function finish() {
@@ -121,13 +113,13 @@ export default function PgiDocuments() {
         </header>
 
         {/* BI_WEBSITE_BLOCK_v178_FULL_WAVE_v1 — defer CTA moved ABOVE the upload list */}
-        {/* BI_WEBSITE_BLOCK_v179_INTAKE_AND_DOC_POLISH_v1 — "Save/finish-later"
-            button removed; "Submit without documents" already does that. */}
+        {/* BI_WEBSITE_BLOCK_v179_INTAKE_AND_DOC_POLISH_v1 — "Save & finish later" removed */}
+        {/* BI_WEBSITE_BLOCK_v180_DEMO_TOKEN_AND_AUTO_UPLOAD_v1 — reminder copy trimmed */}
         <div className="mb-6 rounded-2xl border border-white/10 bg-bf-surface p-4 text-sm">
           <div className="font-semibold text-white">Don't have your documents yet?</div>
           <p className="mt-1 text-bf-textMuted">
             That's fine — submit your application now and upload later. We'll
-            text you a reminder each weekday for two weeks until you finish.
+            text you a reminder.
           </p>
           <div className="mt-3">
             <button type="button" onClick={finish}
@@ -145,7 +137,7 @@ export default function PgiDocuments() {
               <div>
                 <div className="font-semibold">{d.label}</div>
                 <div className="text-xs text-bf-textMuted">
-                  {uploaded[d.key] ? "✓ Uploaded" : selectedLabel(files[d.key])}
+                  {uploaded[d.key] ? "✓ Uploaded" : busy ? "Uploading…" : selectedLabel(files[d.key])}
                 </div>
               </div>
               <div>
@@ -160,11 +152,11 @@ export default function PgiDocuments() {
           ))}
         </ul>
 
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <button type="button" disabled={busy} onClick={uploadAll}
-                  className="rounded-md bg-bf-cta px-6 py-3 font-semibold text-white hover:bg-bf-ctaHover disabled:opacity-50">
-            {busy ? "Uploading…" : "Upload selected"}
-          </button>
+        {/* BI_WEBSITE_BLOCK_v180_DEMO_TOKEN_AND_AUTO_UPLOAD_v1 — "Upload
+            selected" button removed; pick() auto-uploads on file
+            selection. Only the Submit-without-docs path remains as an
+            explicit action. */}
+        <div className="mt-6">
           <button type="button" onClick={finish}
                   className="rounded-md border border-white/20 px-6 py-3 font-semibold hover:bg-white/5">
             Submit application

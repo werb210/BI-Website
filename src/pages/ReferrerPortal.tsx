@@ -139,7 +139,28 @@ export default function ReferrerPortal() {
   async function saveReferral(next: boolean) {
     setErr(null); setBusy(true);
     try {
-      const created = await jsonFetch("/referrer/referrals", { method: "POST", body: JSON.stringify(draft) }, token);
+      // BI_WEBSITE_BLOCK_v180_DEMO_TOKEN_AND_AUTO_UPLOAD_v1 — map form
+      // keys (name/mobile) to the server's expected keys (full_name/
+      // phone). Previously the POST went up as {name, company, email,
+      // mobile, notes} and the server rejected with
+      // missing_fields=[full_name, email, phone]. Local validation
+      // requires either email OR phone so the referrer can use
+      // whichever they actually have. Server still requires email; a
+      // companion v245 BI-Server edit relaxes that to "email or
+      // phone".
+      const fullName = String(draft.name || "").trim();
+      const email = String(draft.email || "").trim();
+      const phone = String(draft.mobile || "").trim();
+      if (!fullName) { setErr("Contact name is required."); setBusy(false); return; }
+      if (!email && !phone) { setErr("Provide an email or mobile number."); setBusy(false); return; }
+      const payload = {
+        full_name: fullName,
+        company_name: draft.company || null,
+        email,
+        phone,
+        notes: draft.notes || null,
+      };
+      const created = await jsonFetch("/referrer/referrals", { method: "POST", body: JSON.stringify(payload) }, token);
       setItems((p) => [created, ...p]);
       if (next) setDraft({ name: "", company: "", email: "", mobile: "", notes: "" });
       else { setPopup(false); setDraft({ name: "", company: "", email: "", mobile: "", notes: "" }); }

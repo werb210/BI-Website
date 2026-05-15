@@ -37,29 +37,46 @@ const DEMO_FILENAMES: Record<string, string> = {
 
 export default function LenderApplicationDemo() {
   const navigate = useNavigate();
-  const token = useMemo(() => getLenderToken(), []);
+  // BI_WEBSITE_BLOCK_v180_DEMO_TOKEN_AND_AUTO_UPLOAD_v1 — the previous
+  // useMemo(() => getLenderToken(), []) captured whatever was in
+  // localStorage at mount time, which is the REAL lender JWT. The
+  // demo-session useEffect below then overwrites localStorage with the
+  // demo JWT, but the captured `token` variable still holds the real
+  // one. onSubmit was therefore POSTing with the real token, so the
+  // demo application got inserted under the real lender's id and
+  // is_demo=FALSE — disappearing from the demo pipeline filter and
+  // appearing in the real pipeline as soon as the user exited demo.
+  // Fix: split into two pieces of state. realTokenOnMount is captured
+  // once so we can fall back to it if the demo handshake fails;
+  // demoToken is the JWT minted by /lender/demo/session and is what
+  // every subsequent API call uses.
+  const realTokenOnMount = useMemo(() => getLenderToken(), []);
+  const [demoToken, setDemoToken] = useState<string>("");
+  const [demoReady, setDemoReady] = useState(false);
 
   useEffect(() => {
     let alive = true;
     (async () => {
-      if (!token) return;
+      if (!realTokenOnMount) return;
       try {
         const real = localStorage.getItem("bi.lender_token") || "";
         if (real) localStorage.setItem("bi.real_token_backup", real);
         const r = await fetch(`${API_BASE}/api/v1/lender/demo/session`, {
           method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${realTokenOnMount}` },
         });
         const data = await r.json().catch(() => ({}));
-        const demoToken = data?.token || data?.access_token;
-        if (alive && demoToken) {
-          localStorage.setItem("bi.lender_token", demoToken);
+        const dt = data?.token || data?.access_token;
+        if (alive && dt) {
+          localStorage.setItem("bi.lender_token", dt);
           localStorage.setItem("bi.is_demo_session", "1");
+          setDemoToken(dt);
+          setDemoReady(true);
         }
       } catch {}
     })();
     return () => { alive = false; };
-  }, [token]);
+  }, [realTokenOnMount]);
 
   // State seeded from demo defaults — refresh = reset to demo state.
   const [f, setF] = useState<LenderFormState>(demoLenderForm);
@@ -71,8 +88,11 @@ export default function LenderApplicationDemo() {
     setF((p) => ({ ...p, [k]: v }));
   }
 
-  // No missing fields, no missing docs — demo state is complete by definition.
-  const canSubmit = !busy && !!token;
+  // BI_WEBSITE_BLOCK_v180_DEMO_TOKEN_AND_AUTO_UPLOAD_v1 — gate on demoReady
+  // so the user can't submit before /lender/demo/session has minted the
+  // demo JWT. Without this gate, a fast clicker would POST with the real
+  // token and create a real-pipeline row in front of the bug-fix.
+  const canSubmit = !busy && demoReady && !!demoToken;
 
   async function onSubmit() {
     if (!canSubmit) return;
@@ -81,7 +101,7 @@ export default function LenderApplicationDemo() {
       setProgress("Creating application…");
       const r = await fetch(`${API_BASE}/api/v1/lender/applications`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${demoToken}` },
         body: JSON.stringify(buildLenderSubmitBody(f)),
       });
       const data = await r.json().catch(() => ({}));
@@ -237,7 +257,7 @@ export default function LenderApplicationDemo() {
         </div>
       </div>
 
-      {!token && <div style={{ background: "#3a1010", color: "#fecaca", padding: 12, borderRadius: 8, marginTop: 16 }}>Not signed in as a lender. <a href="/lender/login" style={{ color: "#60a5fa" }}>Sign in</a> first.</div>}
+      {!realTokenOnMount && <div style={{ background: "#3a1010", color: "#fecaca", padding: 12, borderRadius: 8, marginTop: 16 }}>Not signed in as a lender. <a href="/lender/login" style={{ color: "#60a5fa" }}>Sign in</a> first.</div>}
       {error && <div style={{ background: "#3a1010", color: "#fecaca", padding: 12, borderRadius: 8, marginTop: 16 }}>{error}</div>}
       {progress && <div style={{ background: "#0f1729", border: "1px solid #1c2538", color: "#cbd5e1", padding: 12, borderRadius: 8, marginTop: 16 }}>{progress}</div>}
 
