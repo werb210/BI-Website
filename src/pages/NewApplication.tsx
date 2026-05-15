@@ -81,6 +81,19 @@ export default function NewApplication() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code, stage]);
 
+  // BI_WEBSITE_BLOCK_v179_INTAKE_AND_DOC_POLISH_v1 — auto-fire startOtp
+  // when the applicant types a full phone number, matching the
+  // BF-Client behavior. Without this the applicant has to click
+  // "Start Your Application" even though their next click is going to
+  // hit the OTP code field anyway. startedRef inside startOtp guards
+  // against a re-trigger if the effect fires twice (React strict mode).
+  useEffect(() => {
+    if (stage !== "phone") return;
+    const digits = String(phone || "").replace(/\D/g, "");
+    if (digits.length === 10 || digits.length === 11) void startOtp(phone);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phone, stage]);
+
   // BI_WEBSITE_BLOCK_v108_WEBOTP_AND_OTP_NAME_v1 — programmatic SMS read on Android Chrome.
   useEffect(() => {
     if (stage !== "code") return;
