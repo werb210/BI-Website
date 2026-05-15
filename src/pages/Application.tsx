@@ -23,7 +23,14 @@ const SECTIONS: Array<{ title: string; fields: FieldDef[] }> = [
     { key: "business_website", label: "Website (optional)", type: "text" },
     { key: "entity_type", label: "Entity type", type: "select", required: true,
       options: ["Corporation","Partnership","Sole Proprietorship","LLC","Other"].map(v=>({value:v,label:v})) },
-    { key: "business_number", label: "Business number", type: "text", required: true },
+    // BI_WEBSITE_BLOCK_v178_FULL_WAVE_v1 — BN now optional, with help
+    // text linking to CRA's public BN lookup tool. PGI's underwriters do
+    // not require the BN at intake (the loan documentation will surface
+    // it later). Canada Open Government has no public BN registry CSV
+    // we could cache for auto-lookup, and the CRA's lookup tool is the
+    // canonical free way for an applicant to find theirs.
+    { key: "business_number", label: "Business number", type: "text", required: false,
+      help: "Optional. Format: 9 digits + 2-letter program + 4 digits (e.g. 123456789RT0001). Don't know yours? Look it up at the CRA: https://apps.cra-arc.gc.ca/ebci/bnsi/bnsearch/en/" },
     { key: "naics_code", label: "NAICS code (6 digits)", type: "naics", required: true },
     { key: "formation_date", label: "Date of formation", type: "date", required: true },
   ]},
@@ -59,7 +66,12 @@ const SECTIONS: Array<{ title: string; fields: FieldDef[] }> = [
       ] },
     { key: "policy_start_date", label: "Policy start date", type: "date", required: true },
     { key: "csbfp_backed", label: "Is the loan CSBFP-backed?", type: "boolean" },
-    { key: "loan_has_guaranteed_cap", label: "Loan has a guaranteed cap?", type: "boolean" },
+    // BI_WEBSITE_BLOCK_v178_FULL_WAVE_v1 — added a tooltip / hint so
+    // applicants who don't recognize the term "guaranteed cap" don't
+    // skip it. Phrasing is plain-English and avoids prescribing what
+    // their answer should be.
+    { key: "loan_has_guaranteed_cap", label: "Loan has a guaranteed cap?", type: "boolean",
+      help: "A guaranteed cap limits your personal guarantee to a fixed dollar amount instead of the full loan balance, even if the loan grows or has interest accrue." },
     { key: "personally_guaranteeing", label: "Personally guaranteeing this loan?", type: "boolean" },
     { key: "has_other_guarantors", label: "Are there other guarantors?", type: "boolean" },
   ]},

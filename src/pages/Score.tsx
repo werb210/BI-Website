@@ -84,7 +84,27 @@ export default function Score() {
   }, [v.loan_amount, v.pgi_limit]);
 
   function set<K extends keyof typeof v>(k: K, val: string) {
-    setV({ ...v, [k]: val });
+    // BI_WEBSITE_BLOCK_v178_FULL_WAVE_v1 — belt-and-suspenders on top of
+    // the v172 useEffect. The effect was unreliable in production: users
+    // typed a loan amount and the slider stayed at $0 even though the
+    // effect's dependencies should have re-fired (likely React batched
+    // the loan_amount setState in a way that defeated the second
+    // setState in the effect). Setting pgi_limit synchronously inside
+    // the same setV call removes the race window entirely.
+    if (k === "loan_amount") {
+      const loanNum = Number(val) || 0;
+      const currentPgi = Number(v.pgi_limit) || 0;
+      // Only auto-set when the user hasn't already touched the slider.
+      // Detect "untouched" as pgi_limit==0 OR pgi_limit exactly equal to
+      // 80% of the previous loan_amount (which means the previous auto-
+      // set is still in place and we should track the new loan amount).
+      const prevLoanNum = Number(v.loan_amount) || 0;
+      const wasAutoSet = currentPgi === 0 || currentPgi === Math.round(prevLoanNum * 0.80);
+      const nextPgi = (loanNum > 0 && wasAutoSet) ? String(Math.round(loanNum * 0.80)) : v.pgi_limit;
+      setV({ ...v, [k]: val, pgi_limit: nextPgi });
+    } else {
+      setV({ ...v, [k]: val });
+    }
   }
 
   async function submit() {

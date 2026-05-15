@@ -1,17 +1,32 @@
 // BI_WEBSITE_BLOCK_v91_API_BASE_AND_DOCS_STAGE_v1
-// Public document-upload step for the PGI carrier flow. 6 doc types per
-// carrier requirement. Submit goes after this stage, not before.
+// BI_WEBSITE_BLOCK_v178_FULL_WAVE_v1
+// Public document-upload step for the PGI carrier flow. Per operator
+// spec: reduced to 4 doc types (3-year FS, Interim, AR, AP). founder_cv
+// and financial_forecast were dropped from the required UI -- PGI's API
+// still accepts them but they're no longer collected at intake. Submit
+// is no longer gated on document presence: an applicant can submit
+// with zero docs and the BI-Server pipeline parks the row at
+// stage=new_application ("Submitted (no docs)") + SMS-reminders the
+// applicant daily Mon-Fri for two weeks. The "Don't have your
+// documents yet?" CTA now appears ABOVE the upload list so applicants
+// who arrive without their books see the defer path before scrolling
+// through the upload fields.
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../lib/api";
 
-const REQUIRED_DOCS: Array<{ key: string; label: string; required: boolean }> = [
-  { key: "profit_loss",        label: "Profit & Loss (last 12 months)",       required: true },
-  { key: "balance_sheet",      label: "Balance Sheet (most recent)",          required: true },
-  { key: "ar_aging",           label: "Accounts Receivable Aging",            required: true },
-  { key: "ap_aging",           label: "Accounts Payable Aging",               required: true },
-  { key: "founder_cv",         label: "Founder CV / Resume",                  required: true },
-  { key: "financial_forecast", label: "Financial Forecast (12-24 months)",    required: false },
+// Each slot is a single file upload. The 3-year FS slot accepts a
+// bundle PDF; PGI's extraction pipeline handles multi-period documents
+// and tags the extracted rows by date. Slot 2 ("Interim") similarly
+// accepts a single file for the current period; if the applicant has
+// the interim P&L and balance sheet as separate documents, they can
+// combine them into one PDF or just upload the more important one
+// (the BI staff doc-review step will request the missing piece).
+const REQUIRED_DOCS: Array<{ key: string; label: string; pgiType: string }> = [
+  { key: "annual_fs_3yr",  label: "Annual Financial Statements (last 3 years)",        pgiType: "profit_loss" },
+  { key: "interim_fs",     label: "Interim Financial Statements (current period P&L + Balance Sheet)", pgiType: "profit_loss" },
+  { key: "ar_aging",       label: "Accounts Receivable Aging",                         pgiType: "ar_aging" },
+  { key: "ap_aging",       label: "Accounts Payable Aging",                            pgiType: "ap_aging" },
 ];
 
 export default function PgiDocuments() {
@@ -40,7 +55,7 @@ export default function PgiDocuments() {
     setErr(null); setBusy(true);
     try {
       const toSend = REQUIRED_DOCS
-        .map((d) => ({ docType: d.key, file: files[d.key] }))
+        .map((d) => ({ docType: d.pgiType, file: files[d.key] }))
         .filter((x): x is { docType: string; file: File } => Boolean(x.file));
       if (toSend.length === 0) { setErr("Pick at least one file to upload."); setBusy(false); return; }
       await api.uploadDocs(publicId!, toSend);
@@ -57,11 +72,10 @@ export default function PgiDocuments() {
   }
 
   function finish() {
-    const missing = REQUIRED_DOCS.filter((d) => d.required && !uploaded[d.key]);
-    if (missing.length) {
-      setErr(`Missing required documents: ${missing.map((m) => m.label).join(", ")}`);
-      return;
-    }
+    // BI_WEBSITE_BLOCK_v178_FULL_WAVE_v1 -- submit no longer requires
+    // any docs. The server places zero-doc apps in the
+    // submitted_no_docs stage and starts SMS reminders. Staff can also
+    // review the app even before docs land.
     nav(`/applications/${publicId}/thanks`);
   }
 
@@ -74,15 +88,38 @@ export default function PgiDocuments() {
           <p className="mt-2 text-bf-textMuted">Upload the documents the carrier needs to issue your quote.</p>
         </header>
 
+        {/* BI_WEBSITE_BLOCK_v178_FULL_WAVE_v1 -- defer CTA moved ABOVE the upload list */}
+        <div className="mb-6 rounded-2xl border border-white/10 bg-bf-surface p-4 text-sm">
+          <div className="font-semibold text-white">Don't have your documents yet?</div>
+          <p className="mt-1 text-bf-textMuted">
+            That's fine — submit your application now and upload later. We'll
+            text you a reminder each weekday for two weeks until you finish.
+          </p>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+            <button type="button" disabled={busy} onClick={async () => {
+              try {
+                await api.deferDocs(publicId!);
+                nav(`/applications/${publicId}/saved`);
+              } catch (ex: any) {
+                setErr(ex.message ?? "Could not save for later");
+              }
+            }} className="rounded-md border border-white/20 px-5 py-2 font-medium hover:bg-white/5 disabled:opacity-50">
+              Save & finish later (text me reminders)
+            </button>
+            <button type="button" onClick={finish}
+                    className="rounded-md border border-white/20 px-5 py-2 font-medium hover:bg-white/5">
+              Submit without documents
+            </button>
+          </div>
+        </div>
+
         {err && <div className="mb-4 rounded border border-red-500/40 bg-red-500/10 p-3 text-sm">{err}</div>}
 
         <ul className="space-y-3">
           {REQUIRED_DOCS.map((d) => (
             <li key={d.key} className="flex flex-col gap-2 rounded-lg border border-card bg-bf-surface p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <div className="font-semibold">
-                  {d.label}{d.required && <span className="ml-1 text-red-400">*</span>}
-                </div>
+                <div className="font-semibold">{d.label}</div>
                 <div className="text-xs text-bf-textMuted">
                   {uploaded[d.key] ? "✓ Uploaded" : files[d.key] ? `Selected: ${files[d.key]?.name}` : "Not yet uploaded"}
                 </div>
@@ -94,7 +131,6 @@ export default function PgiDocuments() {
           ))}
         </ul>
 
-        {/* BI_WEBSITE_BLOCK_v130_DEFER_DOCS_FLOW_v1 — defer path lets applicants save without docs */}
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <button type="button" disabled={busy} onClick={uploadAll}
                   className="rounded-md bg-bf-cta px-6 py-3 font-semibold text-white hover:bg-bf-ctaHover disabled:opacity-50">
@@ -103,23 +139,6 @@ export default function PgiDocuments() {
           <button type="button" onClick={finish}
                   className="rounded-md border border-white/20 px-6 py-3 font-semibold hover:bg-white/5">
             Submit application
-          </button>
-        </div>
-        <div className="mt-4 rounded-2xl border border-white/10 bg-bf-surface p-4 text-sm">
-          <div className="font-semibold text-white">Don't have your documents yet?</div>
-          <p className="mt-1 text-bf-textMuted">
-            Save your application and come back later. We'll text a reminder each
-            weekday for two weeks until you finish.
-          </p>
-          <button type="button" disabled={busy} onClick={async () => {
-            try {
-              await api.deferDocs(publicId!);
-              nav(`/applications/${publicId}/saved`);
-            } catch (ex: any) {
-              setErr(ex.message ?? "Could not save for later");
-            }
-          }} className="mt-3 rounded-md border border-white/20 px-5 py-2 font-medium hover:bg-white/5 disabled:opacity-50">
-            Save & finish later
           </button>
         </div>
       </div>
