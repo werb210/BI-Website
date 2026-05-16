@@ -47,7 +47,12 @@ export default function Footer() {
         <div>
           <h4 className="mb-4 text-white">Contact</h4>
           <ul className="space-y-2 text-sm">
-            <li><a href="tel:+1-000-000-0000" className="hover:text-white">1-XXX-XXX-XXXX</a></li>
+            {/* BI_WEBSITE_BLOCK_BI_ROUND6_FOOTER_CLEANUP_v1 --
+                placeholder phone row removed until a real number
+                is provisioned. The dead "tel:+1-000-000-0000" was
+                shipping to every visitor and any tap dialed an
+                invalid number. Add back as a new <li> when the
+                operator publishes the real line. */}
             <li><a href="mailto:hello@boreal.financial" className="hover:text-white">hello@boreal.financial</a></li>
             <li className="opacity-70">Mon–Fri 8am–6pm MT</li>
           </ul>
