@@ -1,6 +1,7 @@
 // BI_WEBSITE_BLOCK_v127_BRAND_TRIM_AND_API_LABEL_v1
 // BI_WEBSITE_BLOCK_v90_LENDER_API_DOCS_v1
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // BI_WEBSITE_BLOCK_v94_LAUNCH_HARDENING_v1
 // API URL is environment-driven so we can swap to a custom domain (e.g.
@@ -165,10 +166,50 @@ uploaded = r.json()
 
 export default function LenderApiDocs() {
   const [tab, setTab] = useState<keyof typeof SAMPLES>("curl");
+  // BI_WEBSITE_BLOCK_66_LENDER_IN_PORTAL_DOCS_v1
+  const navigate = useNavigate();
+  const [signedIn, setSignedIn] = useState(false);
+  const [keyPrefix, setKeyPrefix] = useState<string | null>(null);
+  const [keyFetchDone, setKeyFetchDone] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    const token = (() => { try { return localStorage.getItem("bi.lender_token") || ""; } catch { return ""; } })();
+    if (!token) { setKeyFetchDone(true); return; }
+    setSignedIn(true);
+    fetch(`${BI_SERVER}/api/v1/lender/api-keys`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(async (r) => (r.ok ? r.json() : { items: [] }))
+      .then((j) => {
+        if (cancelled) return;
+        const first = Array.isArray(j?.items) && j.items.length > 0 ? j.items[0] : null;
+        setKeyPrefix(first?.key_prefix || null);
+      })
+      .catch(() => { /* no-op */ })
+      .finally(() => { if (!cancelled) setKeyFetchDone(true); });
+    return () => { cancelled = true; };
+  }, []);
   const sample = SAMPLES[tab];
   return (
     <main className="min-h-screen bg-bf-bg px-6 py-12 text-white">
       <div className="mx-auto max-w-4xl">
+        {/* BI_WEBSITE_BLOCK_66_LENDER_IN_PORTAL_DOCS_v1 */}
+        {signedIn && keyFetchDone && (
+          <div style={{ marginBottom: 24, background: "#0f172a", border: "1px solid #2c3a52", borderRadius: 8, padding: 14, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+            <div style={{ color: "#cbd5e1", fontSize: 14 }}>
+              {keyPrefix ? (
+                <>
+                  <strong style={{ color: "#fff" }}>Signed in.</strong> Test key prefix:&nbsp;
+                  <code style={{ background: "#1e293b", padding: "2px 8px", borderRadius: 4, color: "#fbbf24" }}>{keyPrefix}</code>
+                  <span style={{ marginLeft: 8, opacity: 0.7 }}>Paste the full key (shown once when you generated it) in the code samples below.</span>
+                </>
+              ) : (
+                <><strong style={{ color: "#fff" }}>Signed in.</strong> No test API key issued yet. <a href="/lender/sandbox" onClick={(e) => { e.preventDefault(); navigate("/lender/sandbox"); }} style={{ color: "#60a5fa", textDecoration: "underline" }}>Generate one in the sandbox.</a></>
+              )}
+            </div>
+            <button onClick={() => navigate("/lender/portal")} style={{ background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1", padding: "6px 12px", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>
+              Back to portal
+            </button>
+          </div>
+        )}
         <header className="mb-10">
           <div className="text-xs uppercase tracking-widest text-bf-textMuted">BI Lender API · v1</div>
           <h1 className="mt-2 text-4xl font-bold">Boreal Risk Lender API</h1>
