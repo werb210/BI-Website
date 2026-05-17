@@ -217,6 +217,24 @@ export default function LenderApiDocs() {
             Submit Personal Guarantee Insurance (PGI) applications programmatically.
             JSON over HTTPS. Bearer-key auth. CORE Score returned synchronously.
           </p>
+          {/* BI_WEBSITE_BLOCK_70_LENDER_OPENAPI_DOWNLOAD_v1 */}
+          <div style={{ marginTop: 16, display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <a
+              href={`${BI_SERVER}/api/v1/lender/openapi.json`}
+              download="boreal-lender-openapi.json"
+              style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#1e293b", border: "1px solid #2c3a52", color: "#fff", padding: "8px 14px", borderRadius: 6, fontSize: 13, textDecoration: "none", fontWeight: 600 }}
+            >
+              ⬇ Download OpenAPI spec
+            </a>
+            <a
+              href={`${BI_SERVER}/api/v1/lender/openapi.json`}
+              target="_blank"
+              rel="noopener"
+              style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1", padding: "8px 14px", borderRadius: 6, fontSize: 13, textDecoration: "none" }}
+            >
+              View JSON
+            </a>
+          </div>
         </header>
 
         <Section title="Quickstart">
