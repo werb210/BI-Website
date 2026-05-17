@@ -13,6 +13,9 @@ type Stage = "phone" | "code";
 export default function LenderLogin() {
   const navigate = useNavigate();
   const [stage, setStage] = useState<Stage>("phone");
+  // BI_WEBSITE_BLOCK_65_LENDER_EMAIL_OTP_v1
+  const [method, setMethod] = useState<"sms" | "email">("sms");
+  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
@@ -29,10 +32,10 @@ export default function LenderLogin() {
       const r = await fetch(`${API_BASE}/api/v1/lender/otp/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: phone.trim() }),
+        body: JSON.stringify(method === "email" ? { email: email.trim().toLowerCase(), channel: "email" } : { phone: phone.trim() }),
       });
       if (r.status === 404) {
-        setErr("This phone number is not registered as a lender. Contact your Boreal Risk Management rep.");
+        setErr(method === "email" ? "This email is not registered as a lender. Contact your Boreal Risk Management rep." : "This phone number is not registered as a lender. Contact your Boreal Risk Management rep.");
         startedRef.current = false;
         return;
       }
@@ -58,7 +61,7 @@ export default function LenderLogin() {
       const r = await fetch(`${API_BASE}/api/v1/lender/otp/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: phone.trim(), code: code.trim() }),
+        body: JSON.stringify(method === "email" ? { email: email.trim().toLowerCase(), code: code.trim(), channel: "email" } : { phone: phone.trim(), code: code.trim() }),
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok || !data?.token) {
@@ -81,7 +84,7 @@ export default function LenderLogin() {
 
   // Auto-forward phone -> start OTP
   useEffect(() => {
-    if (stage === "phone" && isPhoneReady(phone)) {
+    if (stage === "phone" && method === "sms" && isPhoneReady(phone)) {
       void start();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -127,6 +130,62 @@ export default function LenderLogin() {
             boxShadow: "0 4px 12px rgba(15,23,42,0.06)",
           }}
         >
+          {/* BI_WEBSITE_BLOCK_65_LENDER_EMAIL_OTP_v1 */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+            <button
+              type="button"
+              onClick={() => setMethod("sms")}
+              style={{ flex: 1, padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 8, background: method === "sms" ? "#0f172a" : "#fff", color: method === "sms" ? "#fff" : "#0f172a", cursor: "pointer", fontWeight: 600 }}
+            >
+              SMS
+            </button>
+            <button
+              type="button"
+              onClick={() => setMethod("email")}
+              style={{ flex: 1, padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 8, background: method === "email" ? "#0f172a" : "#fff", color: method === "email" ? "#fff" : "#0f172a", cursor: "pointer", fontWeight: 600 }}
+            >
+              Email
+            </button>
+          </div>
+
+          {method === "email" ? (
+            <>
+              <label style={{ display: "block", fontSize: 14, color: "#334155", marginBottom: 6 }}>
+                Email address
+              </label>
+              <input
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                autoFocus
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@lender.com"
+                style={{
+                  width: "100%", padding: "12px 14px", fontSize: 16,
+                  border: "1px solid #cbd5e1", borderRadius: 8, marginBottom: 12,
+                  boxSizing: "border-box", color: "#0f172a", background: "#fff",
+                }}
+              />
+              <button
+                type="button"
+                disabled={busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())}
+                onClick={start}
+                style={{
+                  width: "100%", padding: "14px 20px", fontSize: 17, fontWeight: 700,
+                  background: "#f59e0b", color: "#fff", border: 0, borderRadius: 8,
+                  cursor: busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ? "not-allowed" : "pointer",
+                  opacity: busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ? 0.6 : 1,
+                }}
+              >
+                {busy ? "Sending..." : "Send code"}
+              </button>
+              <p style={{ fontSize: 12, color: "#64748b", marginTop: 10, marginBottom: 0, textAlign: "center" }}>
+                We will email you a one-time code to verify.
+              </p>
+            </>
+          ) : (
+            <>
           <label style={{ display: "block", fontSize: 14, color: "#334155", marginBottom: 6 }}>
             Mobile phone number
           </label>
@@ -160,13 +219,15 @@ export default function LenderLogin() {
           <p style={{ fontSize: 12, color: "#64748b", marginTop: 10, marginBottom: 0, textAlign: "center" }}>
             We{"'"}ll text you a one-time code to verify.
           </p>
+            </>
+          )}
         </div>
       )}
 
       {stage === "code" && (
         <div>
           <div style={{ fontSize: 13, opacity: 0.7, marginBottom: 12 }}>
-            Code sent to <strong>{phone}</strong>.{" "}
+            Code sent to <strong>{method === "email" ? email : phone}</strong>.{" "}
             <button
               type="button"
               onClick={() => { setStage("phone"); setCode(""); startedRef.current = false; verifiedRef.current = false; }}
