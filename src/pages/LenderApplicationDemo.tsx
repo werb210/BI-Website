@@ -70,6 +70,7 @@ export default function LenderApplicationDemo() {
         if (alive && dt) {
           localStorage.setItem("bi.lender_token", dt);
           localStorage.setItem("bi.is_demo_session", "1");
+          localStorage.setItem("bi.demo_session_started_at", new Date().toISOString());
           setDemoToken(dt);
           setDemoReady(true);
         }
