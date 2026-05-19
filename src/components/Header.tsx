@@ -68,7 +68,7 @@ export default function Header() {
       <div className="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-4 px-6 py-3">
         {/* BI_WEBSITE_BLOCK_v314_UNIFIED_HEADER_v1 */}
         <Link to="/" className="flex items-center gap-3 sm:gap-4" onClick={() => setOpen(false)}>
-          <img src="/images/header.png" alt="Boreal Risk" className="h-10 w-auto md:h-12" />
+          <img src="/header.png" alt="Boreal Risk" className="h-10 w-auto md:h-12" />
         </Link>
 
         <nav className="hidden items-center gap-4 text-sm text-white md:flex">
