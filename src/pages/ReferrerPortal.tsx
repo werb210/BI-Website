@@ -1,18 +1,6 @@
 // BI_WEBSITE_BLOCK_v3_FULL_FIELD_RENDER_v1
 import { useEffect, useState } from "react";
 
-// v131: one-shot migration. If a legacy bi.ref_token still lives in
-// localStorage from before the sessionStorage switch, clear it so the
-// auto-resume path no longer fires from stale data.
-try {
-  if (typeof window !== "undefined" && window.localStorage) {
-    if (window.localStorage.getItem("bi.ref_token")) {
-      window.localStorage.removeItem("bi.ref_token");
-    }
-  }
-} catch {
-  // non-fatal; SSR or privacy modes may throw
-}
 
 const STAGES = ["new","in_progress","ready_for_submission","submitted","under_review","information_required","approved","declined","policy_issued"] as const;
 const STAGE_LABELS: Record<string, string> = {
@@ -47,7 +35,7 @@ export default function ReferrerPortal() {
   // a fresh OTP on every new browser session — fixes the "no OTP on
   // /referrer/login" complaint. Within-tab navigation still keeps
   // the user signed in.
-  const [token, setToken] = useState<string>(sessionStorage.getItem("bi.ref_token") || "");
+  const [token, setToken] = useState<string>(localStorage.getItem("bi.ref_token") || "");
   const [profile, setProfile] = useState<Record<string,string>>({});
   const [popup, setPopup] = useState(false);
   const [draft, setDraft] = useState({ name: "", company: "", email: "", mobile: "", notes: "" });
@@ -72,7 +60,7 @@ export default function ReferrerPortal() {
         me = await jsonFetch("/referrer/me", { method: "GET" }, token);
       } catch {
         // Only /referrer/me failures invalidate the session.
-        sessionStorage.removeItem("bi.ref_token"); // v131
+        localStorage.removeItem("bi.ref_token");
         setToken("");
         return;
       }
@@ -135,7 +123,7 @@ export default function ReferrerPortal() {
     try {
       /* BI_WEBSITE_BLOCK_v93 */ const r = await jsonFetch("/referrer/otp/verify", { method: "POST", body: JSON.stringify({ phone, code }) });
       const t = r?.token; if (!t) throw new Error("No token returned");
-      sessionStorage.setItem("bi.ref_token", t); setToken(t); // v131
+      localStorage.setItem("bi.ref_token", t); setToken(t);
       const me = await jsonFetch("/referrer/me", { method: "GET" }, t);
       const hasProfile = !!me?.profile?.legal_name;
       setStage(hasProfile ? "dashboard" : "intake");
@@ -312,7 +300,7 @@ export default function ReferrerPortal() {
     <div className="bi-card">
       <div className="flex justify-between items-center">
         <h1>Referrer Dashboard</h1>
-        <button className="secondary" onClick={()=>{ sessionStorage.removeItem("bi.ref_token"); setToken(""); setStage("otp"); }}>Sign out</button>
+        <button className="secondary" onClick={()=>{ localStorage.removeItem("bi.ref_token"); setToken(""); setStage("otp"); }}>Sign out</button>
       </div>
       <button className="primary mt-3" onClick={()=>setPopup(true)}>+ Add Referral</button>
 
