@@ -12,7 +12,7 @@ export default function Footer() {
           <div>
             <div style={{ fontWeight: 600, color: "white", marginBottom: 12 }}>Boreal Risk Management</div>
             <p style={{ fontSize: 14, lineHeight: 1.5, color: "rgba(255,255,255,0.65)" }}>
-              Personal guarantee insurance for Canadian businesses.
+              Personal Guarantee Insurance for Canadian Business Owners.
             </p>
           </div>
           <div>
@@ -46,14 +46,21 @@ export default function Footer() {
           </div>
         </div>
 
-        <p style={{ fontSize: 12, lineHeight: 1.6, color: "rgba(255,255,255,0.5)", marginTop: 24, marginBottom: 16 }}>
-          Boreal Risk Management is a referral platform operated by Boreal Financial. We are not a licensed
-          insurance broker, agent, or adviser. We introduce Canadian businesses to licensed brokers who
-          arrange Personal Guarantee Insurance underwritten by Markel Canada Limited (A-rated by AM Best,
-          S&amp;P, and Fitch). Coverage is subject to underwriting approval, policy terms, and exclusions
-          issued by the licensed broker and insurer. Premium estimates shown here are illustrative and
-          non-binding; final terms are set when a licensed broker binds a policy. Questions about this
-          referral service: {SUPPORT_EMAIL}.
+        {/* v130 compliance: tightened partner-role disclaimer (audit item 10) and added scope-of-PGI line (audit item 11). */}
+        <p style={{ fontSize: 12, lineHeight: 1.6, color: "rgba(255,255,255,0.5)", marginTop: 24, marginBottom: 8 }}>
+          Boreal Risk Management is a referral and risk advisory partner. Insurance is arranged only
+          through appropriately licensed insurance entities. We are not a licensed insurance broker,
+          agent, or adviser. We introduce Canadian business owners to licensed brokers who arrange
+          Personal Guarantee Insurance underwritten by Markel Canada Limited (A-rated by AM Best,
+          S&amp;P, and Fitch). Coverage is subject to underwriting, eligibility, policy terms,
+          conditions, exclusions, and applicable provincial insurance regulation. Premium estimates
+          shown here are illustrative and non-binding; final terms are set when a licensed broker
+          binds a policy. Questions about this referral service: {SUPPORT_EMAIL}.
+        </p>
+        <p style={{ fontSize: 12, lineHeight: 1.6, color: "rgba(255,255,255,0.5)", marginBottom: 16 }}>
+          Personal Guarantee Insurance does not prevent business failure, default, insolvency,
+          bankruptcy, or lender enforcement. It is designed to respond only to covered claims under
+          the policy.
         </p>
 
         <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid #1c2538", paddingTop: 16, fontSize: 13, color: "rgba(255,255,255,0.55)" }}>
