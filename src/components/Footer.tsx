@@ -62,6 +62,24 @@ export default function Footer() {
           bankruptcy, or lender enforcement. It is designed to respond only to covered claims under
           the policy.
         </p>
+        {/* v131 compliance: Quebec exclusion, compensation disclosure, no-cost disclosure, complaints routing. */}
+        <p style={{ fontSize: 12, lineHeight: 1.6, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>
+          <strong style={{ color: "rgba(255,255,255,0.7)" }}>Geographic availability:</strong> This
+          referral service is available in 9 provinces and 3 territories. <strong>Not available to
+          Quebec residents.</strong>
+        </p>
+        <p style={{ fontSize: 12, lineHeight: 1.6, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>
+          <strong style={{ color: "rgba(255,255,255,0.7)" }}>Cost and compensation:</strong> There
+          is no cost to the policyholder to use Boreal Risk Management&rsquo;s referral services.
+          Boreal Risk Management may receive referral compensation from the licensed broker or
+          carrier upon successful policy placement.
+        </p>
+        <p style={{ fontSize: 12, lineHeight: 1.6, color: "rgba(255,255,255,0.5)", marginBottom: 16 }}>
+          <strong style={{ color: "rgba(255,255,255,0.7)" }}>Policy questions:</strong> Questions
+          about an existing policy, coverage, or a claim should be directed to the licensed broker
+          named on your policy documents or to Markel Canada Limited. Questions about this referral
+          service: <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: "rgba(255,255,255,0.65)" }}>{SUPPORT_EMAIL}</a>.
+        </p>
 
         <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid #1c2538", paddingTop: 16, fontSize: 13, color: "rgba(255,255,255,0.55)" }}>
           <div style={{ display: "flex", gap: 16 }}>

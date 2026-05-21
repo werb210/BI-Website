@@ -53,11 +53,18 @@ export default function Home() {
           <Link to="/how-it-works" className="rounded-full border border-white/30 px-7 py-3 font-medium text-white">Learn how PGI works</Link>
         </div>
         <div className="mt-8 flex justify-center"><MarkelBadge /></div>
+        {/* v131 compliance: referral-source disclosure on hero. */}
+        <p className="mt-4 text-xs text-bf-textMuted max-w-2xl mx-auto">
+          Boreal Risk Management is a referral and risk advisory partner — not a licensed
+          insurance broker, agent, or adviser. We introduce eligible Canadian business owners to
+          licensed brokers who arrange Personal Guarantee Insurance underwritten by Markel Canada
+          Limited. Not available to Quebec residents.
+        </p>
       </section>
       <section className="mx-auto max-w-5xl px-5 py-8 border-t border-subtle">
         <div className="flex flex-col sm:flex-row sm:justify-center gap-12 text-center">
           <div><div className="text-2xl font-bold text-white">A-rated</div><div className="mt-1 text-sm text-bf-textMuted">Underwriter rated by AM Best, S&amp;P, Fitch</div></div>
-          <div><div className="text-2xl font-bold text-white">All 13</div><div className="mt-1 text-sm text-bf-textMuted">Provinces and territories covered</div></div>
+          <div><div className="text-2xl font-bold text-white">9 + 3</div><div className="mt-1 text-sm text-bf-textMuted">Provinces &amp; territories (not available in Quebec)</div></div>
           {/* v111-trust-strip: Backed-by column removed */}
         </div>
       </section>
@@ -94,7 +101,7 @@ export default function Home() {
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{LOANS.map((l) => (<div key={l.t} className="rounded-2xl border border-card bg-bf-surface p-5"><div className="text-bf-cta mb-3"><Icon d={l.i}/></div><h3 className="text-base font-semibold text-white">{l.t}</h3><p className="mt-2 text-sm text-bf-textMuted">{l.d}</p></div>))}</div>
       </section>
       <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
-        <h2 className="text-3xl font-bold text-white text-center">PGI vs the alternatives</h2>
+        <h2 className="text-3xl font-bold text-white text-center">Why we partner with PGI</h2>
         <p className="mt-3 text-center text-sm text-bf-textMuted">Most guarantors don’t realize there’s a third option.</p>
         <div className="mt-10 overflow-x-auto rounded-2xl border border-card bg-bf-surface"><table className="w-full text-sm min-w-[560px]"><thead><tr><th className="text-left py-4 px-4 font-medium text-bf-textMuted w-[26%]"></th><th className="py-4 px-3 font-medium text-white text-center">Doing nothing</th><th className="py-4 px-3 font-medium text-white text-center">Credit insurance</th><th className="py-4 px-3 font-medium text-bf-cta text-center">PGI</th></tr></thead><tbody><tr className="border-t border-card"><td className="py-4 px-4 text-white font-medium">Who’s protected</td><td className="py-4 px-3 text-bf-textMuted text-center">Nobody</td><td className="py-4 px-3 text-bf-textMuted text-center">The lender</td><td className="py-4 px-3 text-white text-center font-medium">You &amp; your family</td></tr><tr className="border-t border-card"><td className="py-4 px-4 text-white font-medium">Who pays the lender if you default</td><td className="py-4 px-3 text-bf-textMuted text-center">You — from personal assets</td><td className="py-4 px-3 text-bf-textMuted text-center">Insurer pays lender</td><td className="py-4 px-3 text-white text-center font-medium">Insurer pays lender</td></tr><tr className="border-t border-card"><td className="py-4 px-4 text-white font-medium">Your house, RRSP, savings</td><td className="py-4 px-3 text-bf-textMuted text-center">At risk</td><td className="py-4 px-3 text-bf-textMuted text-center">At risk</td><td className="py-4 px-3 text-white text-center font-medium">Protected</td></tr><tr className="border-t border-card"><td className="py-4 px-4 text-white font-medium">Annual cost</td><td className="py-4 px-3 text-bf-textMuted text-center">$0</td><td className="py-4 px-3 text-bf-textMuted text-center">1.5–3.0% of loan</td><td className="py-4 px-3 text-white text-center font-medium">2.75% of loan</td></tr></tbody></table></div>
       </section>

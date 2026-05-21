@@ -8,7 +8,7 @@ const ITEMS = [
   {q:"What does it cost?",a:"Premiums depend on loan size, business financials, and coverage limit. A $500K loan with $400K coverage is typically in the low thousands per year."},
   {q:"Can I add coverage to a loan I already have?",a:"Yes. Existing personal guarantees are eligible as long as the loan is in good standing."},
   {q:"What if the business is sold or refinanced?",a:"Coverage ends when the underlying loan is repaid or the personal guarantee is released. Premiums stop accordingly."},
-  {q:"Is this available across Canada?",a:"Yes — all 10 provinces and 3 territories. US coverage is in development."},
+  {q:"Is this available across Canada?",a:"Available in 9 provinces and 3 territories. Not available to Quebec residents. US coverage is in development."},
   {q:"Will this affect my credit?",a:"No. Applying for PGI does not pull credit. Only Markel underwriting reviews your financial documents — no credit bureau involvement."},
   {q:"How fast does the lender accept this policy?",a:"Most Canadian lenders accept Markel coverage immediately. We provide a certificate of insurance you can forward to your loan officer the same day."},
   {q:"What happens if my business closes?",a:"If the underlying loan is paid off through dissolution, the policy ends with the loan. If the lender calls the guarantee, the policy pays — that is exactly what it is for."},

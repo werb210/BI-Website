@@ -352,6 +352,14 @@ export default function Application() {
     {/* BI_WEBSITE_BLOCK_v110 — primary Submit moved out of toolbar to right after Consents per UX request. */}
     <div className="bi-card bi-submit-card" data-v111-submit-fix="1">
       {err && <div className="form-error">{err}</div>}
+      {/* v131-consent: referral data-sharing authorization */}
+      <p className="text-xs text-bf-textMuted my-3 max-w-2xl">
+        By submitting, you authorize Boreal Risk Management to share the information you have
+        provided with a licensed insurance broker and with Markel Canada Limited for the purpose
+        of evaluating eligibility for Personal Guarantee Insurance. Boreal Risk Management is a
+        referral service and is not a licensed insurance broker, agent, or adviser. There is no
+        cost to use this referral service. This service is not available to Quebec residents.
+      </p>
       <button type="button" className="bi-submit-primary" disabled={busy} onClick={submit}>
         {busy ? "Submitting\u2026" : "Submit application"}
       </button>
