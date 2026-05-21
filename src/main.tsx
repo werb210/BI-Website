@@ -15,6 +15,43 @@ try {
   fetch(__apiBase + "/health", { method: "GET", mode: "cors" }).catch(() => {});
 } catch { /* noop */ }
 
+// BI_WEBSITE_BLOCK_v132_PORTAL_RE_OTP_EVERY_VISIT_v1
+// Strict re-OTP: every page load wipes any persisted portal auth
+// tokens BEFORE React mounts so the LenderPortal / ReferrerPortal
+// session-bootstrap effects find no token and redirect to /lender/login
+// or /referrer/login. Within-SPA navigation after a successful OTP
+// still works because the post-OTP setItem writes the token AFTER
+// this block has already run.
+function clearPortalAuthTokens() {
+  const KEYS = [
+    "bi.lender_token",
+    "bi.ref_token",
+    "bi.lender_phone",
+    "bi.lender_id",
+    "bi.real_token_backup",
+    "bi.is_demo_session",
+    "bi.demo_session_started_at",
+  ];
+  try {
+    for (const k of KEYS) {
+      try { window.localStorage.removeItem(k); } catch { /* private mode */ }
+      try { window.sessionStorage.removeItem(k); } catch { /* private mode */ }
+    }
+  } catch {
+    /* SSR or storage disabled */
+  }
+}
+if (typeof window !== "undefined") {
+  clearPortalAuthTokens();
+  // bfcache restore: browsers can restore a page from cache without
+  // re-running module code. The pageshow event with event.persisted
+  // === true tells us a bfcache restore happened — treat as a new
+  // visit and clear again.
+  window.addEventListener("pageshow", (event: PageTransitionEvent) => {
+    if (event.persisted) clearPortalAuthTokens();
+  });
+}
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />
