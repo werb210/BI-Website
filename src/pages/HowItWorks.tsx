@@ -1,7 +1,20 @@
 // BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — palette parity
+// v131: explicit back-to-home link. Navbar logo is also a Link to /
+// but the affordance isn't obvious on a child page.
+import { Link } from "react-router-dom";
+
 export default function HowItWorks() {
   return (
     <main className="min-h-screen bg-bf-bg px-6 py-12 text-white">
+      <div className="mx-auto max-w-4xl">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-sm text-bf-textMuted hover:text-white mb-6"
+        >
+          <span aria-hidden="true">←</span>
+          <span>Back to home</span>
+        </Link>
+      </div>
       <div className="mx-auto max-w-4xl rounded-xl border border-white/10 bg-bf-surface p-8">
         <h1 className="mb-6 text-3xl font-bold">How PGI Works in Canada</h1>
 
