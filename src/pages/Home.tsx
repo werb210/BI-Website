@@ -23,12 +23,14 @@ function Icon({ d, className = "h-6 w-6" }: { d: string; className?: string }) {
   return (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}><path d={d} /></svg>);
 }
 type Row = { public_id: string };
-const STEPS = [{n:"1",i:ICN.bolt,t:"Quote in 60 seconds",d:"Tell us about your loan and business. We show a coverage range and target premium immediately — no broker call required."},{n:"2",i:ICN.doc,t:"Underwriting decision",d:"Submit a few documents (CRA notice, bank statements, financials). Markel's underwriters respond within 5 business days."},{n:"3",i:ICN.shield,t:"Coverage live at signature",d:"Sign the policy, pay the first premium. Your personal guarantee is insured up to your declared limit. Annual renewals."}];
+// v130 compliance: step 1 reframed from "quote" to indication; step 2 tightened to require complete submission.
+const STEPS = [{n:"1",i:ICN.bolt,t:"Preliminary indication in minutes",d:"Tell us about your loan and business. We show an indicative coverage range and premium before you submit a full application."},{n:"2",i:ICN.doc,t:"Underwriting decision",d:"Submit the required documents (CRA notice, bank statements, financials). Most complete submissions are reviewed within 5 business days."},{n:"3",i:ICN.shield,t:"Coverage live at signature",d:"Sign the policy, pay the first premium. Your personal guarantee is insured up to your declared limit. Annual policy structure; renewal subject to policy terms."}];
 const COVERAGE = ["Covers the personal guarantee on your business loan — not the loan itself.","Pays the lender if your guarantee is called after the business is unable to repay.","Available for Canadian businesses with $50K+ EBITDA and 12+ months of revenue history."];
 const LOANS = [{i:ICN.bank,t:"Commercial lending",d:"Term loans, operating lines, CSBFP and BDC facilities, asset-based lending, mezzanine debt, factoring. Banks, credit unions, alternative lenders."},{i:ICN.shield,t:"Commercial real estate",d:"Purchase mortgages, refinances, construction loans, development financing, land acquisition, bridge loans. Owner-occupied and investment properties."},{i:ICN.tool,t:"Equipment & vehicles",d:"Equipment loans and leases, fleet financing, vehicle finance, aircraft and marine, specialty asset finance."},{i:ICN.doc,t:"Acquisitions & succession",d:"Business acquisitions, vendor-takeback notes, management buyouts, franchise purchases, partnership buyouts."}];
 // v117-coverage-categories
 // v111-deals-expanded
-const WHY = [{i:ICN.leaf,t:"Canadian-built",d:"Designed for Canadian SMEs, underwritten by Markel — A-rated by AM Best, S&P, Fitch."},{i:ICN.bolt,t:"Fast decisions",d:"Quote in 60 seconds. Underwriting in 5 business days. No broker required."},{i:ICN.eye,t:"Transparent pricing",d:"See your premium before you submit. No hidden fees. Known annual renewal."}];
+// v130 compliance: WHY cards replaced with carrier-audit-approved three-card set.
+const WHY = [{i:ICN.bank,t:"Built for business financing",d:"For eligible commercial loans where a business owner is asked to personally guarantee the debt."},{i:ICN.shield,t:"Designed to cap personal downside",d:"Coverage may respond to a covered claim under the policy, subject to underwriting and policy terms."},{i:ICN.doc,t:"Simple intake, disciplined underwriting",d:"Start with a quick indication. Final terms depend on documentation, eligibility, and underwriting review."}];
 
 export default function Home() {
   const nav = useNavigate();
@@ -42,10 +44,13 @@ export default function Home() {
     <main className="min-h-screen bg-bf-bg text-slate-200">
       <section className="mx-auto max-w-5xl px-5 py-16 text-center">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">Stop putting your house on the line for your business loan.</h1>
-        <p className="mt-4 text-base sm:text-lg text-bf-textMuted">Insure your personal guarantee. Protect your family. Quote in 60 seconds.</p>
+        {/* v130 compliance: subtitle replaced with carrier-audit paragraph.
+            Secondary CTA "Learn how PGI works" added (item 16) → existing /how-it-works route. */}
+        <p className="mt-4 text-base sm:text-lg text-bf-textMuted">Cap personal downside when you sign a guarantee for business financing. Boreal helps eligible business owners start the Personal Guarantee Insurance application process. Coverage is subject to underwriting, policy terms, conditions, exclusions, and provincial regulatory requirements.</p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Link to="/applications/new" className="rounded-full bg-bf-cta hover:bg-bf-ctaHover px-7 py-3 font-medium text-white">Apply Now</Link>
+          <Link to="/applications/new" className="rounded-full bg-bf-cta hover:bg-bf-ctaHover px-7 py-3 font-medium text-white">Start eligibility check</Link>
           <Link to="?quote=1" className="rounded-full border border-white/30 px-7 py-3 font-medium text-white">Get a Free Quote</Link>
+          <Link to="/how-it-works" className="rounded-full border border-white/30 px-7 py-3 font-medium text-white">Learn how PGI works</Link>
         </div>
         <div className="mt-8 flex justify-center"><MarkelBadge /></div>
       </section>
@@ -55,6 +60,12 @@ export default function Home() {
           <div><div className="text-2xl font-bold text-white">All 13</div><div className="mt-1 text-sm text-bf-textMuted">Provinces and territories covered</div></div>
           {/* v111-trust-strip: Backed-by column removed */}
         </div>
+      </section>
+      {/* v130 compliance: sub-hero block (audit item 13). */}
+      <section className="mx-auto max-w-5xl px-5 py-10 border-t border-subtle">
+        <p className="text-center text-base sm:text-lg text-bf-textMuted max-w-3xl mx-auto">
+          Business loans often require a personal guarantee. PGI is designed to help qualifying guarantors insure a defined portion of their personal guarantee exposure, so growth capital does not have to mean unlimited personal risk.
+        </p>
       </section>
       {rows.length > 0 && (
         <section className="mx-auto max-w-3xl px-5 pb-8">
@@ -91,12 +102,13 @@ export default function Home() {
         <h2 className="text-3xl font-bold text-white text-center">Why Boreal Risk Management</h2>
         <div className="mt-10 grid gap-6 md:grid-cols-3">{WHY.map((w) => (<div key={w.t}><div className="text-bf-cta mb-2"><Icon d={w.i}/></div><h3 className="text-lg font-semibold text-white">{w.t}</h3><p className="mt-2 text-sm text-bf-textMuted">{w.d}</p></div>))}</div>
       </section>
+      {/* v130 compliance: final CTA rewritten per audit item 15. */}
       <section className="mx-auto max-w-3xl px-5 py-16 text-center">
-        <h2 className="text-3xl font-bold text-white">Ready to insure your guarantee?</h2>
-        <p className="mt-3 text-bf-textMuted">Quote in 60 seconds. Decision in 5 business days.</p>
-        <Link to="/applications/new" className="mt-6 inline-block rounded-full bg-bf-cta hover:bg-bf-ctaHover px-8 py-3 font-medium text-white">Apply Now</Link>
+        <h2 className="text-3xl font-bold text-white">Ready to review your guarantee exposure?</h2>
+        <p className="mt-3 text-bf-textMuted">Start with a quick eligibility check. A full application and underwriting review will be required before coverage can be offered. Most complete submissions are reviewed within 5 business days.</p>
+        <Link to="/applications/new" className="mt-6 inline-block rounded-full bg-bf-cta hover:bg-bf-ctaHover px-8 py-3 font-medium text-white">Start eligibility check</Link>
       </section>
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-50 p-3 border-t border-card bg-bf-bg/95 backdrop-blur"><Link to="/applications/new" className="block w-full text-center rounded-full bg-bf-cta hover:bg-bf-ctaHover px-6 py-3 font-medium text-white">Apply Now</Link></div>
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-50 p-3 border-t border-card bg-bf-bg/95 backdrop-blur"><Link to="/applications/new" className="block w-full text-center rounded-full bg-bf-cta hover:bg-bf-ctaHover px-6 py-3 font-medium text-white">Start eligibility check</Link></div>
     </main>
   );
 }
