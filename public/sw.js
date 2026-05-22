@@ -1,4 +1,4 @@
-const VERSION = "v4-2026-05-10";
+const VERSION = "__BI_BUILD_VERSION__"; // v132: substituted at build by scripts/postbuild-sw.mjs
 const STATIC_CACHE = `bi-static-${VERSION}`;
 const RUNTIME_CACHE = `bi-runtime-${VERSION}`;
 const OFFLINE_URL = "/offline.html";
