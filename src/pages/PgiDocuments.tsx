@@ -117,6 +117,27 @@ export default function PgiDocuments() {
   function pick(key: string, multi: boolean, e: React.ChangeEvent<HTMLInputElement>) {
     const all = Array.from(e.target.files ?? []);
     if (all.length === 0) return;
+    // BI_WEBSITE_BLOCK_v327_DOC_CONSTRAINTS_v1
+    const ALLOWED_MIME = new Set([
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/msword",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "text/csv",
+      "text/markdown",
+    ]);
+    const MAX_BYTES = 5 * 1024 * 1024;
+    const firstInvalidType = all.find((file) => !ALLOWED_MIME.has(file.type));
+    if (firstInvalidType) {
+      alert(`File type '${firstInvalidType.type}' is not allowed. Accepted: PDF, DOCX, XLS, XLSX, CSV, Markdown. No images.`);
+      return;
+    }
+    const firstTooLarge = all.find((file) => file.size > MAX_BYTES);
+    if (firstTooLarge) {
+      alert(`File exceeds the 5 MB limit (${(firstTooLarge.size / 1024 / 1024).toFixed(1)} MB).`);
+      return;
+    }
     // BI_WEBSITE_BLOCK_v180_DEMO_TOKEN_AND_AUTO_UPLOAD_v1 — auto-upload
     // the just-picked file(s). The previous flow required a second
     // explicit "Upload selected" click; operator's call is that the
@@ -237,7 +258,7 @@ export default function PgiDocuments() {
                 <input
                   type="file"
                   multiple={d.multi === true}
-                  accept=".pdf,.png,.jpg,.jpeg,.csv,.xlsx,.xls,.doc,.docx"
+                  accept="application/pdf,.pdf,.docx,.xlsx,.xls,.csv,.md,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,text/markdown"
                   onChange={(e) => pick(d.key, d.multi === true, e)}
                 />
               </div>
