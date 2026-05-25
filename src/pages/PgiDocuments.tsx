@@ -29,35 +29,94 @@ import { api } from "../lib/api";
 // Slots flagged `multi: true` accept >1 file via <input multiple>. The
 // state for those slots is a File[]; single-file slots remain a File.
 const REQUIRED_DOCS: Array<{ key: string; label: string; pgiType: string; multi?: boolean }> = [
-  { key: "annual_fs_3yr",  label: "Annual Financial Statements (last 3 years)",        pgiType: "profit_loss",  multi: true },
-  { key: "interim_fs",     label: "Interim Financial Statements (current period P&L + Balance Sheet)", pgiType: "profit_loss", multi: true },
-  { key: "ar_aging",       label: "Accounts Receivable Aging",                         pgiType: "ar_aging" },
-  { key: "ap_aging",       label: "Accounts Payable Aging",                            pgiType: "ap_aging" },
+  { key: "profit_loss",            label: "Profit & Loss (last 12 months, monthly breakdown)",         pgiType: "profit_loss" },
+  { key: "balance_sheet",          label: "Balance Sheet (most recent month-end)",                     pgiType: "balance_sheet" },
+  { key: "annual_financials_3yr",  label: "3 Years Accountant-Prepared Annual Financials",             pgiType: "annual_financials_3yr", multi: true },
+  { key: "ar_aging",               label: "Accounts Receivable Aging Summary (most recent)",            pgiType: "ar_aging" },
+  { key: "ap_aging",               label: "Accounts Payable Aging Summary (most recent)",               pgiType: "ap_aging" },
 ];
 
-type SlotFiles = File | File[] | undefined;
+type DocState = {
+  status: "pending" | "uploaded" | "accepted" | "rejected";
+  rejection_reason?: string;
+  last_uploaded_at?: string;
+};
 
 export default function PgiDocuments() {
   const { publicId } = useParams<{ publicId: string }>();
   const nav = useNavigate();
-  const [files, setFiles] = useState<Record<string, SlotFiles>>({});
-  const [uploaded, setUploaded] = useState<Record<string, boolean>>({});
-  const [busy, setBusy] = useState(false);
+  const [docState, setDocState] = useState<Record<string, DocState>>({});
+  const [statusLoadFailed, setStatusLoadFailed] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  useEffect(() => {
+  function deriveDocState(documents: any[]): Record<string, DocState> {
+    const byType = new Map<string, any[]>();
+    for (const d of documents ?? []) {
+      const key = d.doc_type ?? d.pgiType;
+      if (!key) continue;
+      const group = byType.get(key) ?? [];
+      group.push(d);
+      byType.set(key, group);
+    }
+
+    const next: Record<string, DocState> = {};
+    for (const required of REQUIRED_DOCS) {
+      const rows = byType.get(required.pgiType) ?? byType.get(required.key) ?? [];
+      if (rows.length === 0) {
+        next[required.pgiType] = { status: "pending" };
+        continue;
+      }
+      rows.sort((a, b) => new Date(b.uploaded_at ?? b.last_uploaded_at ?? 0).getTime() - new Date(a.uploaded_at ?? a.last_uploaded_at ?? 0).getTime());
+      const latest = rows[0];
+      if (latest.review_status === "accepted") {
+        next[required.pgiType] = { status: "accepted", last_uploaded_at: latest.uploaded_at ?? latest.last_uploaded_at };
+      } else if (latest.review_status === "rejected") {
+        next[required.pgiType] = {
+          status: "rejected",
+          rejection_reason: latest.rejection_reason ?? undefined,
+          last_uploaded_at: latest.uploaded_at ?? latest.last_uploaded_at,
+        };
+      } else {
+        next[required.pgiType] = { status: "uploaded", last_uploaded_at: latest.uploaded_at ?? latest.last_uploaded_at };
+      }
+    }
+    return next;
+  }
+
+  async function refreshDocState() {
     if (!publicId) return;
-    api.listDocs(publicId).then((r: any) => {
-      const m: Record<string, boolean> = {};
-      for (const d of r.documents ?? []) m[d.doc_type] = true;
-      setUploaded(m);
-    }).catch(() => {});
+    try {
+      const r = await api.listDocs(publicId);
+      setDocState(deriveDocState(r.documents ?? []));
+      setStatusLoadFailed(false);
+    } catch {
+      const fallback: Record<string, DocState> = {};
+      for (const required of REQUIRED_DOCS) fallback[required.pgiType] = { status: "pending" };
+      setDocState(fallback);
+      setStatusLoadFailed(true);
+    }
+  }
+
+  useEffect(() => {
+    void refreshDocState();
+  }, [publicId]);
+
+  useEffect(() => {
+    function onFocusOrVisible() {
+      if (document.visibilityState !== "visible") return;
+      void refreshDocState();
+    }
+    window.addEventListener("focus", onFocusOrVisible);
+    document.addEventListener("visibilitychange", onFocusOrVisible);
+    return () => {
+      window.removeEventListener("focus", onFocusOrVisible);
+      document.removeEventListener("visibilitychange", onFocusOrVisible);
+    };
   }, [publicId]);
 
   function pick(key: string, multi: boolean, e: React.ChangeEvent<HTMLInputElement>) {
     const all = Array.from(e.target.files ?? []);
     if (all.length === 0) return;
-    setFiles((prev) => ({ ...prev, [key]: multi ? all : all[0] }));
     // BI_WEBSITE_BLOCK_v180_DEMO_TOKEN_AND_AUTO_UPLOAD_v1 — auto-upload
     // the just-picked file(s). The previous flow required a second
     // explicit "Upload selected" click; operator's call is that the
@@ -72,28 +131,25 @@ export default function PgiDocuments() {
   // Per-slot uploader. Extracted from the previous uploadAll() so we
   // can fire it from pick() without bulk-processing every slot.
   async function uploadFiles(pgiType: string, list: File[]) {
-    setErr(null); setBusy(true);
+    setErr(null);
     try {
       await api.uploadDocs(publicId!, list.map((file) => ({ docType: pgiType, file })));
-      const r = await api.listDocs(publicId!);
-      const m: Record<string, boolean> = {};
-      for (const d of r.documents ?? []) m[d.doc_type] = true;
-      setUploaded(m);
+      await refreshDocState();
     } catch (ex: any) {
       setErr(ex.message ?? "Upload failed");
     } finally {
-      setBusy(false);
     }
   }
 
-  function selectedLabel(slot: SlotFiles): string {
-    if (!slot) return "Not yet uploaded";
-    if (Array.isArray(slot)) {
-      if (slot.length === 1) return `Selected: ${slot[0].name}`;
-      return `Selected: ${slot.length} files (${slot.map((f) => f.name).join(", ")})`;
-    }
-    return `Selected: ${slot.name}`;
-  }
+  const summary = REQUIRED_DOCS.reduce((acc, d) => {
+    const status = docState[d.pgiType]?.status ?? "pending";
+    acc.total += 1;
+    if (status === "accepted") acc.accepted += 1;
+    if (status === "rejected") acc.rejected += 1;
+    if (status === "pending") acc.pending += 1;
+    if (status === "uploaded") acc.uploaded += 1;
+    return acc;
+  }, { total: 0, accepted: 0, rejected: 0, pending: 0, uploaded: 0 });
 
   function finish() {
     // BI_WEBSITE_BLOCK_v178_FULL_WAVE_v1 — submit no longer requires
@@ -130,14 +186,51 @@ export default function PgiDocuments() {
         </div>
 
         {err && <div className="mb-4 rounded border border-red-500/40 bg-red-500/10 p-3 text-sm">{err}</div>}
+        {statusLoadFailed && (
+          <div className="mb-4 rounded border border-gray-500/40 bg-gray-500/10 p-3 text-sm text-gray-300">
+            Couldn't load document status — showing required list.
+          </div>
+        )}
+
+        {summary.rejected > 0 ? (
+          <div className="mb-4 rounded border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-100">
+            ⚠ {summary.rejected} document(s) need your attention — please re-upload below.
+          </div>
+        ) : summary.accepted < summary.total ? (
+          <div className="mb-4 rounded border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-100">
+            {summary.accepted}/{summary.total} documents accepted. {summary.pending + summary.uploaded} outstanding.
+          </div>
+        ) : (
+          <div className="mb-4 rounded border border-green-500/40 bg-green-500/10 p-3 text-sm text-green-100">
+            ✓ All documents received and accepted.
+          </div>
+        )}
 
         <ul className="space-y-3">
           {REQUIRED_DOCS.map((d) => (
             <li key={d.key} className="flex flex-col gap-2 rounded-lg border border-card bg-bf-surface p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="font-semibold">{d.label}</div>
-                <div className="text-xs text-bf-textMuted">
-                  {uploaded[d.key] ? "✓ Uploaded" : busy ? "Uploading…" : selectedLabel(files[d.key])}
+                <div className="mt-1">
+                  {(() => {
+                    const current = docState[d.pgiType] ?? { status: "pending" as const };
+                    const statusConfig = {
+                      pending: { text: "Required", cls: "bg-gray-100 text-gray-700 ring-1 ring-gray-300" },
+                      uploaded: { text: "Uploaded — under review", cls: "bg-blue-50 text-blue-700 ring-1 ring-blue-200" },
+                      accepted: { text: "✓ Accepted", cls: "bg-green-50 text-green-700 ring-1 ring-green-200" },
+                      rejected: { text: "✗ Rejected — please re-upload", cls: "bg-red-50 text-red-700 ring-1 ring-red-200" },
+                    }[current.status];
+                    return (
+                      <>
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${statusConfig.cls}`}>
+                          {statusConfig.text}
+                        </span>
+                        {current.status === "rejected" && current.rejection_reason && (
+                          <div className="mt-1 text-xs italic text-bf-textMuted">{current.rejection_reason}</div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
               <div>
