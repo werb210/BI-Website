@@ -43,12 +43,15 @@ const LOAN_TYPES: Option[] = [
   { value: "Other Secured Loan", label: "Other Secured Loan" },
 ];
 
+// BI_WEBSITE_BLOCK_v329_LOAN_PURPOSE_PGI_PARITY_v1
+// Labels + order mirror PGI's Q20 dropdown at app.pgicover.com.
+// Stored values stay snake_case; only the display strings change.
 const LOAN_PURPOSES: Option[] = [
-  { value: "working_capital", label: "Working capital" },
-  { value: "equipment",       label: "Equipment purchase" },
-  { value: "expansion",       label: "Business expansion / growth" },
+  { value: "working_capital", label: "Working Capital" },
   { value: "acquisition",     label: "Acquisition" },
-  { value: "real_estate",     label: "Real estate" },
+  { value: "expansion",       label: "Expansion" },
+  { value: "equipment",       label: "Equipment Purchase" },
+  { value: "real_estate",     label: "Real Estate" },
   { value: "refinance",       label: "Refinance" },
   { value: "other",           label: "Other" },
 ];
