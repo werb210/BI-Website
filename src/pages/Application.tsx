@@ -43,6 +43,8 @@ const LOAN_PURPOSES = [
 
 const RELATIONSHIPS = ["Guarantor", "Co-borrower", "Spouse", "Business Partner", "Other"];
 
+// BI_WEBSITE_BLOCK_v332_CARRIER_CORRECTIONS_v1 — $50K floor (Boreal self-determined, Purbeck has no min).
+const LOAN_AMOUNT_MIN = 50_000;
 const LOAN_AMOUNT_MAX = 1_000_000;
 const PGI_LIMIT_MAX = 1_000_000;
 
@@ -170,9 +172,11 @@ export default function Application() {
     setServerFieldErrors({});
     setSubmitting(true);
     try {
+      // BI_WEBSITE_BLOCK_v332_CARRIER_CORRECTIONS_v1 — add $50K floor check.
       const loan = Number(state.loan_amount) || 0;
       const limit = Number(state.pgi_limit) || 0;
       const local: Record<string, string> = {};
+      if (loan > 0 && loan < LOAN_AMOUNT_MIN) local.loan_amount = `Loan amount ${loan} is below the 50,000 minimum.`;
       if (loan > LOAN_AMOUNT_MAX) local.loan_amount = `Loan amount ${loan} exceeds the 1,000,000 maximum.`;
       if (limit > PGI_LIMIT_MAX) local.pgi_limit = `PGI limit ${limit} exceeds the 1,000,000 maximum.`;
       if (loan && limit && limit > loan) local.pgi_limit = "PGI limit cannot exceed loan amount.";
@@ -311,7 +315,7 @@ export default function Application() {
         <UploadAndScrape onExtract={(extracted: any) => setState((s) => ({ ...s, ...extracted }))} />
       </div>
 
-      {/* Policy Holder */}
+      {/* Policy Holder — v332 adds Government ID type + number */}
       <h2 className="text-lg font-semibold text-sky-100 mt-6 mb-2 border-b border-sky-300/30 pb-1">Policy Holder Information</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
         <TextInput k="guarantor_name" label="Personal Guarantor's Full Legal Name *" />
@@ -319,6 +323,13 @@ export default function Application() {
         <AddressInputGroup rootKey="guarantor_address" label="Primary residential address *" />
         <TextInput k="guarantor_email" label="What is your email address? *" type="email" />
         <TextInput k="guarantor_phone" label="What is your phone number? * (pre-filled from your OTP verification)" type="tel" />
+        <SelectInput k="q_ca_id_type" label="Government ID type *" options={[
+          { value: "Passport", label: "Passport" },
+          { value: "National ID", label: "National ID" },
+          { value: "Driving Licence", label: "Driving Licence" },
+          { value: "Other", label: "Other" },
+        ]} help="As shown on your photo ID (used for KYC by PGI)." />
+        <TextInput k="q_ca_id_number" label="Government ID number *" placeholder="Exactly as shown on the document" />
       </div>
 
       {/* Co-guarantors */}
@@ -354,7 +365,7 @@ export default function Application() {
         <button onClick={addCoGuarantor} className="mt-3 text-sky-200 underline text-sm hover:text-sky-100">+ Add another co-guarantor</button>
       </div>
 
-      {/* Business */}
+      {/* BI_WEBSITE_BLOCK_v332_CARRIER_CORRECTIONS_v1 — startup-doc inline warning is rendered just below the formation_date field. */}
       <h2 className="text-lg font-semibold text-sky-100 mt-6 mb-2 border-b border-sky-300/30 pb-1">Business Information</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
         <SelectInput k="country" label="Which country is the loan agreement based in?" options={[{ value: "Canada", label: "Canada" }]} />
@@ -375,6 +386,20 @@ export default function Application() {
         </div>
         <TextInput k="naics_code" label="What is the NAICS code for the business? *" placeholder="541511" />
         <DateInput k="formation_date" label="What month-year did this business start generating revenue? *" />
+        {(() => {
+          // BI_WEBSITE_BLOCK_v332_CARRIER_CORRECTIONS_v1 — startup-doc inline warning.
+          const fd = String(state.formation_date || "");
+          if (!fd) return null;
+          const dt = new Date(fd);
+          if (isNaN(dt.getTime())) return null;
+          const ageYears = (Date.now() - dt.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+          if (ageYears >= 3) return null;
+          return (
+            <div className="md:col-span-2 p-2 rounded bg-amber-500/10 border border-amber-300/40 text-xs text-amber-100">
+              <strong>Heads up:</strong> your business is under 3 years old. The carrier will require two additional documents at submission: a <em>founder CV</em> and a <em>12–24 month financial forecast</em>. You'll upload them on the documents step.
+            </div>
+          );
+        })()}
       </div>
 
       {/* Loan */}
@@ -406,23 +431,29 @@ export default function Application() {
       {/* Declarations */}
       <h2 className="text-lg font-semibold text-sky-100 mt-6 mb-2 border-b border-sky-300/30 pb-1">Declarations</h2>
       <p className="text-xs text-sky-200/70 mb-3">All 11 declarations must be answered. Any "yes" answer requires a brief explanation.</p>
+      {/* BI_WEBSITE_BLOCK_v332_CARRIER_CORRECTIONS_v1 — Authoritative wording from Craig's
+          corrected changelog 2026-05-25. ALL 11 declarations live here (was 8 in v327).
+          section_1_a, section_6_a, section_3_c moved out of Consents into Declarations
+          because they're carrier-required factual questions, not internal compliance opt-ins. */}
       <div className="grid grid-cols-1 gap-3 mb-6">
         {[
-          { k: "section_1_2", label: "Have you ever defaulted on a loan, had a loan written off, or had a credit facility called by a lender?", adverse: "yes" },
-          { k: "section_2_a", label: "Have you ever filed for personal bankruptcy, consumer proposal, or made a personal arrangement with creditors?", adverse: "yes" },
-          { k: "section_2_b", label: "Has any business you owned, controlled, or directed ever been placed into receivership, liquidation, bankruptcy, or made a proposal to creditors?", adverse: "yes" },
-          { k: "section_2_c", label: "Are there any outstanding personal judgments, liens, or unpaid debts registered against you?", adverse: "yes" },
-          { k: "section_2_d", label: "Are there any outstanding judgments, liens, or material unpaid trade debts against the business?", adverse: "yes" },
-          { k: "section_3_a", label: "Have you ever been charged with, convicted of, or are currently the subject of any criminal investigation or proceeding (excluding minor traffic offences)?", adverse: "yes" },
-          { k: "section_4_a", label: "Are you or the business currently the subject of any regulatory investigation, sanction, or enforcement action by any government or professional body?", adverse: "yes" },
-          { k: "section_5_a", label: "Are you aware of any material adverse change, threatened claim, or financial event that is reasonably likely to affect the business in the next 12 months?", adverse: "yes" },
+          { k: "section_1_a", label: "Does the business carry insurance coverage for all physical assets covered by the personal guarantee?", adverse: null },
+          { k: "section_1_2", label: "Have you ever declared personal bankruptcy?", adverse: "yes" },
+          { k: "section_2_a", label: "Have you ever been barred from serving as a Director, or are you currently under investigation that could result in being barred?", adverse: "yes" },
+          { k: "section_2_b", label: "Have you ever been a Director of a company that has gone through bankruptcy, receivership, or restructuring proceedings?", adverse: "yes" },
+          { k: "section_2_c", label: "Have you ever been a Director of a company that has been under investigation by the Canada Revenue Agency or the Canada Border Services Agency?", adverse: "yes" },
+          { k: "section_2_d", label: "Do you currently have any actual or contingent liability that you will not be able to pay within 30 days of when it becomes due?", adverse: "yes" },
+          { k: "section_3_a", label: "Does the business currently have any bad or doubtful debts owed to it that are likely to materially affect its ability to pay liabilities as they become due?", adverse: "yes" },
+          { k: "section_4_a", label: "Has the business lost a significant investor, customer, or supplier in the last 6 months?", adverse: "yes" },
+          { k: "section_5_a", label: "Are you aware of any information that could materially affect the business's ability to meet its obligations over the next 6 months?", adverse: "yes" },
+          { k: "section_6_a", label: "As of today, is the company solvent (able to pay its debts as they become due)?", adverse: null },
         ].map(({ k, label, adverse }) => {
           const val = String(state.declarations?.[k] ?? "");
           return (
             <div key={k} className="grid grid-cols-1 md:grid-cols-[1fr_180px] gap-2 items-start">
               <label className="text-sm text-sky-100">{label}</label>
               <YesNoSelect value={val} onChange={(v) => updateDecl(k, v)} />
-              {val === adverse && (
+              {adverse && val === adverse && (
                 <div className="md:col-span-2">
                   <textarea className={INPUT_CLS} rows={2} placeholder="Please explain…" value={String(state.declarations?.[`${k}_reason`] ?? "")} onChange={(e) => updateDecl(`${k}_reason`, e.target.value)} />
                 </div>
@@ -430,15 +461,31 @@ export default function Application() {
             </div>
           );
         })}
+
+        {/* section_3_c — truthfulness oath, Agree/Disagree (special case). */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_180px] gap-2 items-start border-t border-sky-300/20 pt-3 mt-2">
+          <label className="text-sm text-sky-100">I confirm that all answers above are true to the best of my knowledge. If anyone else completed this form on my behalf, I confirm they were authorized to do so and that their answers are accurate.</label>
+          <select className={INPUT_CLS} value={String(state.declarations?.section_3_c ?? "")} onChange={(e) => updateDecl("section_3_c", e.target.value)}>
+            <option value="">Select…</option>
+            <option value="Agree" className="text-slate-900">Agree</option>
+            <option value="Disagree" className="text-slate-900">Disagree</option>
+          </select>
+          {String(state.declarations?.section_3_c) === "Disagree" && (
+            <div className="md:col-span-2">
+              <textarea className={INPUT_CLS} rows={2} placeholder="Please explain…" value={String(state.declarations?.section_3_c_reason ?? "")} onChange={(e) => updateDecl("section_3_c_reason", e.target.value)} />
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Consents */}
+      {/* BI_WEBSITE_BLOCK_v332_CARRIER_CORRECTIONS_v1 — Consents trimmed:
+          info_accurate → moved to Declarations as section_3_c
+          business_solvent → moved to Declarations as section_6_a
+          These 5 remaining items are Boreal-internal compliance flags only. */}
       <h2 className="text-lg font-semibold text-sky-100 mt-6 mb-2 border-b border-sky-300/30 pb-1">Consents <span className="text-xs font-normal text-sky-200/60">(document uploads happen on the next step)</span></h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
         {[
           { k: "electronic_signature",  label: "Do you consent to electronic signatures?" },
-          { k: "info_accurate",         label: "Do you certify that all information provided is accurate?" },
-          { k: "business_solvent",      label: "Do you certify the business is solvent as of today?" },
           { k: "no_undisclosed_events", label: "Do you certify there are no undisclosed adverse events?" },
           { k: "data_use",              label: "Do you consent to our use of your data for underwriting?" },
           { k: "credit_pull",           label: "Do you authorize us to pull your credit report?" },

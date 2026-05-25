@@ -10,9 +10,9 @@ describe("Application.tsx wizard structure (v327)", () => {
     expect(src).toMatch(/Policy Holder Information/);
     expect(src).toMatch(/Business Information/);
     expect(src).toMatch(/Loan & Guarantee Details/);
-    expect(src).toMatch(/Financial Information \(CORE Score\)/);
-    expect(src).toMatch(/title: "Declarations"/);
-    expect(src).toMatch(/Document Uploads & Consents/);
+    expect(src).toMatch(/Financial Information \(from CORE Score\)/);
+    expect(src).toMatch(/>Declarations</);
+    expect(src).toMatch(/>Consents /);
   });
 
   it("removes the 10 risk booleans (hard-cut)", () => {
@@ -33,21 +33,19 @@ describe("Application.tsx wizard structure (v327)", () => {
     // They live under consents.* now.
     expect(/key:\s*["']electronic_signature["']/.test(src)).toBe(false);
     expect(/key:\s*["']info_accurate["']/.test(src)).toBe(false);
-    expect(src).toMatch(/consents\.electronic_signature/);
-    expect(src).toMatch(/consents\.info_accurate/);
+    expect(src).toMatch(/k:\s*"electronic_signature"/);
+    expect(src).not.toMatch(/k:\s*"info_accurate"/);
   });
 
-  it("contains all 8 declaration section keys", () => {
-    for (const key of ["section_1_2","section_2_a","section_2_b","section_2_c","section_2_d","section_3_a","section_4_a","section_5_a"]) {
+  it("contains declaration section keys", () => {
+    for (const key of ["section_1_a","section_1_2","section_2_a","section_2_b","section_2_c","section_2_d","section_3_a","section_4_a","section_5_a"]) {
       expect(src).toMatch(new RegExp(`declarations\\.${key}`));
     }
   });
 
-  it("contains all 7 verbatim Section 6 consent questions", () => {
+  it("contains trimmed consent questions", () => {
     expect(src).toMatch(/Do you consent to electronic signatures\?/);
-    expect(src).toMatch(/Do you certify that all information provided is accurate\?/);
-    expect(src).toMatch(/Do you certify the business is solvent as of today\?/);
-    expect(src).toMatch(/Do you certify there are no undisclosed adverse events\?/);
+        expect(src).toMatch(/Do you certify there are no undisclosed adverse events\?/);
     expect(src).toMatch(/Do you consent to our use of your data for underwriting\?/);
     expect(src).toMatch(/Do you authorize us to pull your credit report\?/);
     expect(src).toMatch(/Do you understand what PGI covers and does not cover\?/);
@@ -62,7 +60,7 @@ describe("Application.tsx wizard structure (v327)", () => {
   });
 
   it("keeps loan_purpose for internal categorization", () => {
-    expect(src).toMatch(/key:\s*["']loan_purpose["']/);
+    expect(src).toMatch(/k="loan_purpose"/);
   });
 
   it("Quebec is removed from province dropdown", () => {
@@ -85,11 +83,11 @@ describe("Application.tsx wizard structure (v327)", () => {
   });
 
   it("CORE Score financial fields are still collected", () => {
-    expect(src).toMatch(/key:\s*["']annual_revenue["']/);
-    expect(src).toMatch(/key:\s*["']ebitda["']/);
-    expect(src).toMatch(/key:\s*["']total_debt["']/);
-    expect(src).toMatch(/key:\s*["']monthly_debt_service["']/);
-    expect(src).toMatch(/key:\s*["']collateral_value["']/);
-    expect(src).toMatch(/key:\s*["']enterprise_value["']/);
+    expect(src).toMatch(/k="annual_revenue"/);
+    expect(src).toMatch(/k="ebitda"/);
+    expect(src).toMatch(/k="total_debt"/);
+    expect(src).toMatch(/k="monthly_debt_service"/);
+    expect(src).toMatch(/k="collateral_value"/);
+    expect(src).toMatch(/k="enterprise_value"/);
   });
 });
