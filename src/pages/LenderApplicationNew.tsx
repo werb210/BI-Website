@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import {
   ACCEPT_PARTNER_DOCS, API_BASE, blankLenderForm, buildLenderSubmitBody,
   declarationsComplete, DOC_SLOTS, ELIGIBLE_LOAN_TYPES, emptyCoGuarantor,
-  Field, getLenderToken, INPUT, LBL, LOAN_AMOUNT_MAX, LenderFormState,
+  Field, getLenderToken, INPUT, LBL, LOAN_AMOUNT_MAX, LOAN_AMOUNT_MIN, LenderFormState,
   PARTNER_ALLOWED_MIME, PARTNER_MAX_BYTES, PGI_LIMIT_MAX, PROVINCES_NO_QC,
   RELATIONSHIPS, REQUIRED_KEYS, SECTION_H, TextIn, YesNoSelect,
   type DeclarationsState,
@@ -47,6 +47,7 @@ export default function LenderApplicationNew() {
   const loanAmt = Number(String(f.loan_amount).replace(/[,$\s]/g, "") || 0);
   const pgiAmt = Number(String(f.pgi_limit).replace(/[,$\s]/g, "") || 0);
   const capErrors: string[] = [];
+  if (loanAmt > 0 && loanAmt < LOAN_AMOUNT_MIN) capErrors.push("Loan amount is below the 50,000 minimum.");
   if (loanAmt > LOAN_AMOUNT_MAX) capErrors.push("Loan amount exceeds the 1,000,000 maximum.");
   if (pgiAmt > PGI_LIMIT_MAX) capErrors.push("PGI limit exceeds the 1,000,000 maximum.");
   if (loanAmt && pgiAmt && pgiAmt > loanAmt) capErrors.push("PGI limit cannot exceed loan amount.");
@@ -104,9 +105,34 @@ export default function LenderApplicationNew() {
         <Field label="Guarantor phone *"><TextIn type="tel" value={f.guarantor_phone} onChange={(v) => set("guarantor_phone", v)} /></Field>
         <Field label="Guarantor email *"><TextIn type="email" value={f.guarantor_email} onChange={(v) => set("guarantor_email", v)} /></Field>
         <Field label="Guarantor residential address *"><TextIn value={f.guarantor_address} onChange={(v) => set("guarantor_address", v)} /></Field>
+        {/* BI_WEBSITE_BLOCK_v332_CARRIER_CORRECTIONS_v1 — Government ID required by carrier. */}
+        <Field label="Government ID type *">
+          <select className={INPUT} value={f.q_ca_id_type} onChange={(e) => set("q_ca_id_type", e.target.value as LenderFormState["q_ca_id_type"])}>
+            <option value="">Select…</option>
+            <option value="Passport" className="text-slate-900">Passport</option>
+            <option value="National ID" className="text-slate-900">National ID</option>
+            <option value="Driving Licence" className="text-slate-900">Driving Licence</option>
+            <option value="Other" className="text-slate-900">Other</option>
+          </select>
+        </Field>
+        <Field label="Government ID number *"><TextIn value={f.q_ca_id_number} onChange={(v) => set("q_ca_id_number", v)} /></Field>
       </div>
 
       <h2 className={SECTION_H}>Business</h2>
+      {(() => {
+        // BI_WEBSITE_BLOCK_v332_CARRIER_CORRECTIONS_v1 — startup-doc inline warning when business is < 3 years old.
+        const fd = String(f.business_start_date || "");
+        if (!fd) return null;
+        const dt = new Date(fd);
+        if (isNaN(dt.getTime())) return null;
+        const ageYears = (Date.now() - dt.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+        if (ageYears >= 3) return null;
+        return (
+          <div className="p-2 mb-2 rounded bg-amber-500/10 border border-amber-300/40 text-xs text-amber-100">
+            <strong>Startup detected:</strong> business is under 3 years old. Carrier will require two extra documents at submission: founder CV + 12–24 month financial forecast.
+          </div>
+        );
+      })()}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-2">
         <Field label="Entity type *">
           <select className={INPUT} value={f.entity_type} onChange={(e) => set("entity_type", e.target.value as LenderFormState["entity_type"])}>
@@ -170,20 +196,22 @@ export default function LenderApplicationNew() {
         <Field label="Enterprise value *"><TextIn type="number" value={f.enterprise_value} onChange={(v) => set("enterprise_value", v)} /></Field>
       </div>
 
+      {/* BI_WEBSITE_BLOCK_v332_CARRIER_CORRECTIONS_v1 — authoritative wording from Craig's
+          corrected changelog 2026-05-25. v331 wording was inferred and wrong on 8 of 11. */}
       <h2 className={SECTION_H}>Declarations (all 11 Purbeck-required)</h2>
       <div className="grid grid-cols-1 gap-2 mb-2">
         {[
-          { k: "section_1_a", label: "Consent to underwriting / credit checks", agreeDisagree: false },
-          { k: "section_1_2", label: "Prior loan default / write-off / called credit?", agreeDisagree: false },
-          { k: "section_2_a", label: "Personal bankruptcy history?", agreeDisagree: false },
-          { k: "section_2_b", label: "Business insolvency / receivership history?", agreeDisagree: false },
-          { k: "section_2_c", label: "Outstanding personal judgments / liens?", agreeDisagree: false },
-          { k: "section_2_d", label: "Outstanding business judgments / liens?", agreeDisagree: false },
-          { k: "section_3_a", label: "Criminal proceedings (past or pending)?", agreeDisagree: false },
-          { k: "section_3_c", label: "Agree to PGI policy terms?", agreeDisagree: true },
-          { k: "section_4_a", label: "Regulatory investigations?", agreeDisagree: false },
-          { k: "section_5_a", label: "Anticipated material adverse change (12mo)?", agreeDisagree: false },
-          { k: "section_6_a", label: "Certify information is accurate", agreeDisagree: false },
+          { k: "section_1_a", label: "Does the business carry insurance coverage for all physical assets covered by the personal guarantee?", agreeDisagree: false },
+          { k: "section_1_2", label: "Have you ever declared personal bankruptcy?", agreeDisagree: false },
+          { k: "section_2_a", label: "Have you ever been barred from serving as a Director, or are you currently under investigation that could result in being barred?", agreeDisagree: false },
+          { k: "section_2_b", label: "Have you ever been a Director of a company that has gone through bankruptcy, receivership, or restructuring proceedings?", agreeDisagree: false },
+          { k: "section_2_c", label: "Have you ever been a Director of a company that has been under investigation by the Canada Revenue Agency or the Canada Border Services Agency?", agreeDisagree: false },
+          { k: "section_2_d", label: "Do you currently have any actual or contingent liability that you will not be able to pay within 30 days of when it becomes due?", agreeDisagree: false },
+          { k: "section_3_a", label: "Does the business currently have any bad or doubtful debts owed to it that are likely to materially affect its ability to pay liabilities as they become due?", agreeDisagree: false },
+          { k: "section_3_c", label: "I confirm that all answers above are true to the best of my knowledge (and if anyone else completed this form on my behalf, that they were authorized).", agreeDisagree: true },
+          { k: "section_4_a", label: "Has the business lost a significant investor, customer, or supplier in the last 6 months?", agreeDisagree: false },
+          { k: "section_5_a", label: "Are you aware of any information that could materially affect the business's ability to meet its obligations over the next 6 months?", agreeDisagree: false },
+          { k: "section_6_a", label: "As of today, is the company solvent (able to pay its debts as they become due)?", agreeDisagree: false },
         ].map(({ k, label, agreeDisagree }) => {
           const val = (f.declarations as any)[k] as string;
           const adverse = agreeDisagree ? "Disagree" : "yes";

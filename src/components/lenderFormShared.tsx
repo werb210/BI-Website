@@ -57,6 +57,7 @@ export type EligibleLoanType = typeof ELIGIBLE_LOAN_TYPES[number];
 
 export const RELATIONSHIPS = ["Guarantor", "Co-borrower", "Spouse", "Business Partner", "Other"] as const;
 
+export const LOAN_AMOUNT_MIN = 50_000; // BI_WEBSITE_BLOCK_v332_CARRIER_CORRECTIONS_v1 — Boreal-side floor.
 export const LOAN_AMOUNT_MAX = 1_000_000;
 export const PGI_LIMIT_MAX = 1_000_000;
 
@@ -96,9 +97,13 @@ export const emptyCoGuarantor = (): CoGuarantor => ({
   address: "", city: "", province: "", postal_code: "", relationship: "Guarantor",
 });
 
+// BI_WEBSITE_BLOCK_v332_CARRIER_CORRECTIONS_v1 — q_ca_id_type + q_ca_id_number promoted from
+// deferred to required carrier fields.
 export type LenderFormState = {
   company_name: string; guarantor_name: string; guarantor_phone: string; guarantor_email: string;
   guarantor_dob: string; guarantor_address: string;
+  q_ca_id_type: "" | "Passport" | "National ID" | "Driving Licence" | "Other";
+  q_ca_id_number: string;
   entity_type: "" | "Corporation" | "Partnership" | "Sole Proprietorship" | "LLC" | "Other";
   business_number: string; business_address: string; business_website: string;
   business_province: string;
@@ -116,6 +121,7 @@ export type LenderFormState = {
 export const blankLenderForm: LenderFormState = {
   company_name: "", guarantor_name: "", guarantor_phone: "", guarantor_email: "",
   guarantor_dob: "", guarantor_address: "",
+  q_ca_id_type: "", q_ca_id_number: "",
   entity_type: "", business_number: "", business_address: "", business_website: "",
   business_province: "",
   naics: "", business_start_date: "", country: "CA",
@@ -164,6 +170,7 @@ export function getLenderToken(): string {
 export const REQUIRED_KEYS: (keyof LenderFormState)[] = [
   "company_name", "guarantor_name", "guarantor_phone", "guarantor_email",
   "guarantor_dob", "guarantor_address",
+  "q_ca_id_type", "q_ca_id_number",
   "entity_type", "business_number", "business_address", "business_province",
   "naics", "business_start_date",
   "loan_amount", "pgi_limit", "q_ca_loan_type",
@@ -230,6 +237,9 @@ export function buildLenderSubmitBody(f: LenderFormState) {
       email: f.guarantor_email.trim() || null,
       dob: f.guarantor_dob,
       address: f.guarantor_address.trim(),
+      // BI_WEBSITE_BLOCK_v332_CARRIER_CORRECTIONS_v1 — pass through to bi-server which maps to form_data.q_ca_id_type/_number.
+      q_ca_id_type: f.q_ca_id_type || "",
+      q_ca_id_number: f.q_ca_id_number.trim() || "",
     },
     business: {
       entity_type: f.entity_type,

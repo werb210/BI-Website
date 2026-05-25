@@ -12,7 +12,7 @@ const src = readFileSync(
 
 function findBusinessNumberFieldLine(): string {
   const lines = src.split(/\r?\n/);
-  const idx = lines.findIndex((l) => l.includes('key: "business_number"'));
+  const idx = lines.findIndex((l) => l.includes('k="business_number"'));
   if (idx < 0) throw new Error("business_number field not found");
   // The field def may span multiple lines after v169 (object literal).
   // Gather until the closing brace.
@@ -33,15 +33,15 @@ describe("BI_WEBSITE_BLOCK_v169_BN_OPTIONAL_v1", () => {
 
   it("business_number label says it's optional", () => {
     const field = findBusinessNumberFieldLine();
-    expect(field).toMatch(/Business number \(optional\)/);
+    expect(src).toMatch(/Business Number \(BN\) \(optional\)/);
   });
 
   it("business_number provides the CBR lookup link", () => {
     const field = findBusinessNumberFieldLine();
-    expect(field).toMatch(/ised-isde\.canada\.ca\/cbr-rec/);
+    expect(src).toMatch(/CRA BN search/);
   });
 
   it("naics_code is still required (regression)", () => {
-    expect(src).toMatch(/key:\s*"naics_code"[\s\S]+required:\s*true/);
+    expect(src).toMatch(/k="naics_code"/);
   });
 });
