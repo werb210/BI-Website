@@ -7,7 +7,7 @@
 //   5. Declarations (radio buttons, 2-col grid)
 //   6. Required documents (5 base + 2 startup-conditional)
 // Financials section REMOVED entirely.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LenderApplicationFormBody } from "../components/LenderApplicationFormBody";
 import {
@@ -33,17 +33,40 @@ export default function LenderApplicationNew() {
   const [files, setFiles] = useState<Record<string, File | undefined>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [savedAt, setSavedAt] = useState<Date | null>(null);
 
   function set<K extends keyof LenderFormState>(k: K, v: LenderFormState[K]) { setF((p) => ({ ...p, [k]: v })); }
 
-  const DRAFT_KEY = "bi.lender_draft.v335";
+  // BI_WEBSITE_BLOCK_v345_AUTOSAVE_v1
+  // localStorage draft persistence. No server-side draft endpoint exists
+  // for lender apps yet, so we shadow the form state to localStorage
+  // every 1.5s. Cleared on successful submit.
+  const DRAFT_KEY_v345 = "bi.lender_app_draft";
+  const isDraftHydratedRef = useRef(false);
+  // Hydrate from localStorage on mount (before first paint where possible).
   useEffect(() => {
-    try { const raw = localStorage.getItem(DRAFT_KEY); if (raw) setF((p) => ({ ...p, ...JSON.parse(raw) })); } catch {}
+    if (isDraftHydratedRef.current) return;
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY_v345);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") {
+          setF((prev) => ({ ...prev, ...parsed }));
+        }
+      }
+    } catch { /* private mode / parse error — ignore */ }
+    isDraftHydratedRef.current = true;
   }, []);
+  // Save on every change, debounced 1500ms.
+  const [draftSavedAt, setDraftSavedAt] = useState<number | null>(null);
   useEffect(() => {
-    const id = setTimeout(() => { try { localStorage.setItem(DRAFT_KEY, JSON.stringify(f)); setSavedAt(new Date()); } catch {} }, 1500);
-    return () => clearTimeout(id);
+    if (!isDraftHydratedRef.current) return;
+    const t = setTimeout(() => {
+      try {
+        localStorage.setItem(DRAFT_KEY_v345, JSON.stringify(f));
+        setDraftSavedAt(Date.now());
+      } catch { /* quota / private mode — silent */ }
+    }, 1500);
+    return () => clearTimeout(t);
   }, [f]);
 
   // Dynamic doc slots — startup docs auto-append when business < 3 yrs old.
@@ -92,7 +115,8 @@ export default function LenderApplicationNew() {
         headers: { "Authorization": `Bearer ${token}` },
         body: fd,
       }).catch(() => {});
-      localStorage.removeItem(DRAFT_KEY);
+      // BI_WEBSITE_BLOCK_v345_AUTOSAVE_v1
+      try { localStorage.removeItem("bi.lender_app_draft"); } catch {}
       nav(`/lender/applications/${code}`);
     } catch (e) {
       setError((e as Error).message);
@@ -106,9 +130,9 @@ export default function LenderApplicationNew() {
       <div className="flex justify-between items-center mb-3">
         <div>
           <h1 className="text-xl font-semibold">Lender — New Application</h1>
-          <p className="text-xs text-sky-200/70">Expert mode. All Purbeck-required fields below. {savedAt && <span>Draft saved {savedAt.toLocaleTimeString()}.</span>}</p>
+          <p className="text-xs text-sky-200/70">Expert mode. All Purbeck-required fields below. {draftSavedAt && <span>Draft saved {new Date(draftSavedAt).toLocaleTimeString()}.</span>}</p>
         </div>
-        <button onClick={() => { localStorage.removeItem(DRAFT_KEY); setF(blankLenderForm); setFiles({}); }} className="text-xs text-sky-200 underline">Clear draft</button>
+        <button onClick={() => { localStorage.removeItem(DRAFT_KEY_v345); setF(blankLenderForm); setFiles({}); }} className="text-xs text-sky-200 underline">Clear draft</button>
       </div>
 
       {/* BI_WEBSITE_BLOCK_v341_LENDER_DEMO_UNIFY_v1
@@ -133,9 +157,10 @@ export default function LenderApplicationNew() {
           on desktop. Use a 3-column grid that matches the rest of the form so
           the buttons land in the first column. */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
-        <div className="flex gap-3">
+        <div className="flex gap-3 items-center">
           <button type="button" onClick={() => nav("/lender/applications")} className="px-4 py-2 border border-sky-300/50 rounded text-sky-100 hover:bg-sky-500/20">Cancel</button>
           <button type="button" onClick={onSubmit} disabled={!canSubmit} className="px-6 py-2 bg-sky-500 text-white rounded disabled:opacity-40 hover:bg-sky-400">{busy ? "Submitting…" : "Submit application"}</button>
+          {draftSavedAt && <span className="text-xs text-sky-200/70">Draft saved {new Date(draftSavedAt).toLocaleTimeString()}</span>}
         </div>
       </div>
     </div>
