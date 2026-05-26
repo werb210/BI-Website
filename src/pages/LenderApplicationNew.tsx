@@ -1,14 +1,20 @@
-// BI_WEBSITE_BLOCK_v331_LENDER_EXPERT_GRID_v1
-// Lender New Application — 3-column expert grid. All fields visible, no
-// accordions, no help text per field. Compact, fast-fill, CPA-friendly.
+// BI_WEBSITE_BLOCK_v335_LENDER_RESTRUCTURE_v1
+// New section order:
+//   1. Guarantor + Company  (no Gov ID here anymore)
+//   2. Co-guarantors  (moved up from later in the page)
+//   3. Business  (Gov ID type + number now beside Business website)
+//   4. Loan & Guarantee
+//   5. Declarations (radio buttons, 2-col grid)
+//   6. Required documents (5 base + 2 startup-conditional)
+// Financials section REMOVED entirely.
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  ACCEPT_PARTNER_DOCS, API_BASE, blankLenderForm, buildLenderSubmitBody,
-  declarationsComplete, DOC_SLOTS, ELIGIBLE_LOAN_TYPES, emptyCoGuarantor,
+  ACCEPT_PARTNER_DOCS, AgreeRadio, API_BASE, blankLenderForm, buildLenderSubmitBody,
+  declarationsComplete, docSlotsFor, ELIGIBLE_LOAN_TYPES, emptyCoGuarantor,
   Field, getLenderToken, INPUT, LBL, LOAN_AMOUNT_MAX, LOAN_AMOUNT_MIN, LenderFormState,
   PARTNER_ALLOWED_MIME, PARTNER_MAX_BYTES, PGI_LIMIT_MAX, PROVINCES_NO_QC,
-  RELATIONSHIPS, REQUIRED_KEYS, SECTION_H, TextIn, YesNoSelect,
+  RELATIONSHIPS, REQUIRED_KEYS, SECTION_H, TextIn, YesNoRadio,
   type DeclarationsState,
 } from "../components/lenderFormShared";
 
@@ -24,7 +30,7 @@ export default function LenderApplicationNew() {
   function set<K extends keyof LenderFormState>(k: K, v: LenderFormState[K]) { setF((p) => ({ ...p, [k]: v })); }
   const setDecl = (d: DeclarationsState) => set("declarations", d);
 
-  const DRAFT_KEY = "bi.lender_draft.v331";
+  const DRAFT_KEY = "bi.lender_draft.v335";
   useEffect(() => {
     try { const raw = localStorage.getItem(DRAFT_KEY); if (raw) setF((p) => ({ ...p, ...JSON.parse(raw) })); } catch {}
   }, []);
@@ -32,6 +38,9 @@ export default function LenderApplicationNew() {
     const id = setTimeout(() => { try { localStorage.setItem(DRAFT_KEY, JSON.stringify(f)); setSavedAt(new Date()); } catch {} }, 1500);
     return () => clearTimeout(id);
   }, [f]);
+
+  // Dynamic doc slots — startup docs auto-append when business < 3 yrs old.
+  const docSlots = useMemo(() => docSlotsFor(f.business_start_date), [f.business_start_date]);
 
   function pickFile(slot: string, e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -42,7 +51,7 @@ export default function LenderApplicationNew() {
   }
 
   const missingFields = REQUIRED_KEYS.filter((k) => { const v = f[k]; return typeof v === "string" ? !v.trim() : v == null; });
-  const missingDocs = DOC_SLOTS.filter((d) => d.required && !files[d.key]);
+  const missingDocs = docSlots.filter((d) => d.required && !files[d.key]);
   const declOk = declarationsComplete(f.declarations);
   const loanAmt = Number(String(f.loan_amount).replace(/[,$\s]/g, "") || 0);
   const pgiAmt = Number(String(f.pgi_limit).replace(/[,$\s]/g, "") || 0);
@@ -65,10 +74,9 @@ export default function LenderApplicationNew() {
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok) { setError(data?.error || data?.message || `HTTP ${r.status}`); return; }
-
       const code = data.application_code || data.code || data.id;
       const fd = new FormData();
-      for (const slot of DOC_SLOTS) {
+      for (const slot of docSlots) {
         const file = files[slot.key];
         if (file) { fd.append("files", file); fd.append("doc_types", slot.key); }
       }
@@ -77,7 +85,6 @@ export default function LenderApplicationNew() {
         headers: { "Authorization": `Bearer ${token}` },
         body: fd,
       }).catch(() => {});
-
       localStorage.removeItem(DRAFT_KEY);
       nav(`/lender/applications/${code}`);
     } catch (e) {
@@ -86,6 +93,13 @@ export default function LenderApplicationNew() {
       setBusy(false);
     }
   }
+
+  const isStartup = (() => {
+    if (!f.business_start_date) return false;
+    const dt = new Date(f.business_start_date);
+    if (isNaN(dt.getTime())) return false;
+    return (Date.now() - dt.getTime()) / (365.25 * 24 * 60 * 60 * 1000) < 3;
+  })();
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-6xl text-white">
@@ -97,6 +111,7 @@ export default function LenderApplicationNew() {
         <button onClick={() => { localStorage.removeItem(DRAFT_KEY); setF(blankLenderForm); setFiles({}); }} className="text-xs text-sky-200 underline">Clear draft</button>
       </div>
 
+      {/* 1. Guarantor + Company (Gov ID moved to Business section, v335) */}
       <h2 className={SECTION_H}>Guarantor + Company</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-2">
         <Field label="Company name *"><TextIn value={f.company_name} onChange={(v) => set("company_name", v)} /></Field>
@@ -105,34 +120,36 @@ export default function LenderApplicationNew() {
         <Field label="Guarantor phone *"><TextIn type="tel" value={f.guarantor_phone} onChange={(v) => set("guarantor_phone", v)} /></Field>
         <Field label="Guarantor email *"><TextIn type="email" value={f.guarantor_email} onChange={(v) => set("guarantor_email", v)} /></Field>
         <Field label="Guarantor residential address *"><TextIn value={f.guarantor_address} onChange={(v) => set("guarantor_address", v)} /></Field>
-        {/* BI_WEBSITE_BLOCK_v332_CARRIER_CORRECTIONS_v1 — Government ID required by carrier. */}
-        <Field label="Government ID type *">
-          <select className={INPUT} value={f.q_ca_id_type} onChange={(e) => set("q_ca_id_type", e.target.value as LenderFormState["q_ca_id_type"])}>
-            <option value="">Select…</option>
-            <option value="Passport" className="text-slate-900">Passport</option>
-            <option value="National ID" className="text-slate-900">National ID</option>
-            <option value="Driving Licence" className="text-slate-900">Driving Licence</option>
-            <option value="Other" className="text-slate-900">Other</option>
-          </select>
-        </Field>
-        <Field label="Government ID number *"><TextIn value={f.q_ca_id_number} onChange={(v) => set("q_ca_id_number", v)} /></Field>
       </div>
 
-      <h2 className={SECTION_H}>Business</h2>
-      {(() => {
-        // BI_WEBSITE_BLOCK_v332_CARRIER_CORRECTIONS_v1 — startup-doc inline warning when business is < 3 years old.
-        const fd = String(f.business_start_date || "");
-        if (!fd) return null;
-        const dt = new Date(fd);
-        if (isNaN(dt.getTime())) return null;
-        const ageYears = (Date.now() - dt.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
-        if (ageYears >= 3) return null;
-        return (
-          <div className="p-2 mb-2 rounded bg-amber-500/10 border border-amber-300/40 text-xs text-amber-100">
-            <strong>Startup detected:</strong> business is under 3 years old. Carrier will require two extra documents at submission: founder CV + 12–24 month financial forecast.
+      {/* 2. Co-guarantors — MOVED UP per v335 */}
+      <h2 className={SECTION_H}>Co-guarantors (Canada only)</h2>
+      <p className="text-xs text-sky-200/70 mb-2">Add other individuals on the personal guarantee. Our team will reach out to complete the co-guarantor intake separately.</p>
+      <div className="grid grid-cols-1 gap-2 mb-2">
+        {f.co_guarantors.map((cg, idx) => (
+          <div key={idx} className="grid grid-cols-1 md:grid-cols-5 gap-2 p-2 border border-sky-300/20 rounded bg-sky-500/5">
+            <input className={INPUT} placeholder="First name *"  value={cg.first_name}    onChange={(e) => set("co_guarantors", f.co_guarantors.map((c, i) => i === idx ? { ...c, first_name: e.target.value } : c))} />
+            <input className={INPUT} placeholder="Last name *"   value={cg.last_name}     onChange={(e) => set("co_guarantors", f.co_guarantors.map((c, i) => i === idx ? { ...c, last_name: e.target.value } : c))} />
+            <input className={INPUT} placeholder="Email *" type="email" value={cg.email}  onChange={(e) => set("co_guarantors", f.co_guarantors.map((c, i) => i === idx ? { ...c, email: e.target.value } : c))} />
+            <input className={INPUT} placeholder="Phone *" type="tel"   value={cg.phone}  onChange={(e) => set("co_guarantors", f.co_guarantors.map((c, i) => i === idx ? { ...c, phone: e.target.value } : c))} />
+            <div className="flex gap-2">
+              <select className={INPUT} value={cg.relationship} onChange={(e) => set("co_guarantors", f.co_guarantors.map((c, i) => i === idx ? { ...c, relationship: e.target.value } : c))}>
+                {RELATIONSHIPS.map((r) => <option key={r} value={r} className="text-slate-900">{r}</option>)}
+              </select>
+              <button onClick={() => set("co_guarantors", f.co_guarantors.filter((_, i) => i !== idx))} className="text-rose-300 text-xs">✕</button>
+            </div>
           </div>
-        );
-      })()}
+        ))}
+        <button onClick={() => set("co_guarantors", [...f.co_guarantors, emptyCoGuarantor()])} className="self-start text-sky-200 underline text-sm">+ Add co-guarantor</button>
+      </div>
+
+      {/* 3. Business — now includes Gov ID type + number (moved from Guarantor section per v335) */}
+      <h2 className={SECTION_H}>Business</h2>
+      {isStartup && (
+        <div className="p-2 mb-2 rounded bg-amber-500/10 border border-amber-300/40 text-xs text-amber-100">
+          <strong>Startup detected:</strong> business is under 3 years old. Two extra documents (founder CV + 12–24 month financial forecast) will be required below.
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-2">
         <Field label="Entity type *">
           <select className={INPUT} value={f.entity_type} onChange={(e) => set("entity_type", e.target.value as LenderFormState["entity_type"])}>
@@ -150,15 +167,26 @@ export default function LenderApplicationNew() {
           </select>
         </Field>
         <Field label="Business start date *"><TextIn type="date" value={f.business_start_date} onChange={(v) => set("business_start_date", v)} /></Field>
+        <Field label="Business website"><TextIn value={f.business_website} onChange={(v) => set("business_website", v)} /></Field>
+        <Field label="Government ID type *">
+          <select className={INPUT} value={f.q_ca_id_type} onChange={(e) => set("q_ca_id_type", e.target.value as LenderFormState["q_ca_id_type"])}>
+            <option value="">Select…</option>
+            <option value="Passport" className="text-slate-900">Passport</option>
+            <option value="National ID" className="text-slate-900">National ID</option>
+            <option value="Driving Licence" className="text-slate-900">Driving Licence</option>
+            <option value="Other" className="text-slate-900">Other</option>
+          </select>
+        </Field>
+        <Field label="Government ID number *"><TextIn value={f.q_ca_id_number} onChange={(v) => set("q_ca_id_number", v)} /></Field>
         <Field label="Country">
           <select className={INPUT} value={f.country} onChange={(e) => set("country", e.target.value as LenderFormState["country"])}>
             <option value="CA" className="text-slate-900">Canada</option>
             <option value="US" className="text-slate-900">United States</option>
           </select>
         </Field>
-        <Field label="Business website" className="md:col-span-2"><TextIn value={f.business_website} onChange={(v) => set("business_website", v)} /></Field>
       </div>
 
+      {/* 4. Loan & Guarantee */}
       <h2 className={SECTION_H}>Loan & Guarantee</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-2">
         <Field label="Loan amount (CAD) *"><TextIn type="number" value={f.loan_amount} onChange={(v) => set("loan_amount", v)} /></Field>
@@ -181,86 +209,55 @@ export default function LenderApplicationNew() {
             <option value="refinance" className="text-slate-900">Refinance</option>
           </select>
         </Field>
-        <Field label="CSBFP backed? *"><YesNoSelect value={f.csbfp_backed} onChange={(v) => set("csbfp_backed", v)} /></Field>
-        <Field label="Guaranteed cap? *"><YesNoSelect value={f.loan_has_guaranteed_cap} onChange={(v) => set("loan_has_guaranteed_cap", v)} /></Field>
-        <Field label="Personally guaranteeing? *"><YesNoSelect value={f.personally_guaranteeing} onChange={(v) => set("personally_guaranteeing", v)} /></Field>
+        <Field label="CSBFP backed? *"><YesNoRadio name="csbfp_backed" value={f.csbfp_backed} onChange={(v) => set("csbfp_backed", v)} /></Field>
+        <Field label="Guaranteed cap? *"><YesNoRadio name="loan_has_guaranteed_cap" value={f.loan_has_guaranteed_cap} onChange={(v) => set("loan_has_guaranteed_cap", v)} /></Field>
+        <Field label="Personally guaranteeing? *"><YesNoRadio name="personally_guaranteeing" value={f.personally_guaranteeing} onChange={(v) => set("personally_guaranteeing", v)} /></Field>
       </div>
 
-      <h2 className={SECTION_H}>Financials (for CORE Score)</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-2">
-        <Field label="Annual revenue *"><TextIn type="number" value={f.annual_revenue} onChange={(v) => set("annual_revenue", v)} /></Field>
-        <Field label="EBITDA *"><TextIn type="number" value={f.ebitda} onChange={(v) => set("ebitda", v)} /></Field>
-        <Field label="Total debt *"><TextIn type="number" value={f.total_debt} onChange={(v) => set("total_debt", v)} /></Field>
-        <Field label="Monthly debt service *"><TextIn type="number" value={f.monthly_debt_service} onChange={(v) => set("monthly_debt_service", v)} /></Field>
-        <Field label="Collateral value *"><TextIn type="number" value={f.collateral_value} onChange={(v) => set("collateral_value", v)} /></Field>
-        <Field label="Enterprise value *"><TextIn type="number" value={f.enterprise_value} onChange={(v) => set("enterprise_value", v)} /></Field>
-      </div>
-
-      {/* BI_WEBSITE_BLOCK_v332_CARRIER_CORRECTIONS_v1 — authoritative wording from Craig's
-          corrected changelog 2026-05-25. v331 wording was inferred and wrong on 8 of 11. */}
+      {/* 5. Declarations — radio buttons, 2-col grid, v335 */}
       <h2 className={SECTION_H}>Declarations (all 11 Purbeck-required)</h2>
-      <div className="grid grid-cols-1 gap-2 mb-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
         {[
-          { k: "section_1_a", label: "Does the business carry insurance coverage for all physical assets covered by the personal guarantee?", agreeDisagree: false },
-          { k: "section_1_2", label: "Have you ever declared personal bankruptcy?", agreeDisagree: false },
-          { k: "section_2_a", label: "Have you ever been barred from serving as a Director, or are you currently under investigation that could result in being barred?", agreeDisagree: false },
-          { k: "section_2_b", label: "Have you ever been a Director of a company that has gone through bankruptcy, receivership, or restructuring proceedings?", agreeDisagree: false },
-          { k: "section_2_c", label: "Have you ever been a Director of a company that has been under investigation by the Canada Revenue Agency or the Canada Border Services Agency?", agreeDisagree: false },
-          { k: "section_2_d", label: "Do you currently have any actual or contingent liability that you will not be able to pay within 30 days of when it becomes due?", agreeDisagree: false },
-          { k: "section_3_a", label: "Does the business currently have any bad or doubtful debts owed to it that are likely to materially affect its ability to pay liabilities as they become due?", agreeDisagree: false },
-          { k: "section_3_c", label: "I confirm that all answers above are true to the best of my knowledge (and if anyone else completed this form on my behalf, that they were authorized).", agreeDisagree: true },
-          { k: "section_4_a", label: "Has the business lost a significant investor, customer, or supplier in the last 6 months?", agreeDisagree: false },
-          { k: "section_5_a", label: "Are you aware of any information that could materially affect the business's ability to meet its obligations over the next 6 months?", agreeDisagree: false },
-          { k: "section_6_a", label: "As of today, is the company solvent (able to pay its debts as they become due)?", agreeDisagree: false },
-        ].map(({ k, label, agreeDisagree }) => {
-          const val = (f.declarations as any)[k] as string;
-          const adverse = agreeDisagree ? "Disagree" : "yes";
+          { k: "section_1_a", label: "Does the business carry insurance coverage for all physical assets covered by the personal guarantee?" },
+          { k: "section_1_2", label: "Have you ever declared personal bankruptcy?" },
+          { k: "section_2_a", label: "Have you ever been barred from serving as a Director, or are you under investigation that could result in being barred?" },
+          { k: "section_2_b", label: "Have you ever been a Director of a company that has gone through bankruptcy, receivership, or restructuring proceedings?" },
+          { k: "section_2_c", label: "Have you ever been a Director of a company under investigation by the Canada Revenue Agency or Canada Border Services Agency?" },
+          { k: "section_2_d", label: "Do you currently have any actual or contingent liability you will not be able to pay within 30 days?" },
+          { k: "section_3_a", label: "Does the business currently have any bad or doubtful debts owed to it that materially affect its ability to pay liabilities?" },
+          { k: "section_4_a", label: "Has the business lost a significant investor, customer, or supplier in the last 6 months?" },
+          { k: "section_5_a", label: "Are you aware of any information that could materially affect the business's obligations over the next 6 months?" },
+          { k: "section_6_a", label: "As of today, is the company solvent (able to pay its debts as they become due)?" },
+        ].map(({ k, label }) => {
+          const val = (f.declarations as any)[k] as import("../components/lenderFormShared").YN;
+          const adverse = "yes";
           const reasonKey = `${k}_reason` as keyof DeclarationsState;
+          const showReason = (k === "section_1_2" || k === "section_2_a" || k === "section_2_b" || k === "section_2_c" || k === "section_2_d" || k === "section_3_a" || k === "section_4_a" || k === "section_5_a") && val === adverse;
           return (
-            <div key={k} className="grid grid-cols-1 md:grid-cols-[1fr_160px] gap-2">
-              <label className="text-xs text-sky-100 self-center">{label}</label>
-              {agreeDisagree ? (
-                <select className={INPUT} value={val} onChange={(e) => setDecl({ ...f.declarations, [k]: e.target.value } as any)}>
-                  <option value="">Select…</option>
-                  <option value="Agree" className="text-slate-900">Agree</option>
-                  <option value="Disagree" className="text-slate-900">Disagree</option>
-                </select>
-              ) : (
-                <YesNoSelect value={val as any} onChange={(v) => setDecl({ ...f.declarations, [k]: v } as any)} />
-              )}
-              {val === adverse && (
-                <div className="md:col-span-2">
-                  <input className={INPUT} placeholder="Reason (required when adverse)" value={String((f.declarations as any)[reasonKey] || "")} onChange={(e) => setDecl({ ...f.declarations, [reasonKey]: e.target.value } as any)} />
-                </div>
+            <div key={k} className="p-2 rounded bg-sky-500/5 border border-sky-300/20">
+              <label className="text-xs text-sky-100 block mb-1">{label}</label>
+              <YesNoRadio name={k} value={val} onChange={(v) => setDecl({ ...f.declarations, [k]: v } as any)} />
+              {showReason && (
+                <input className={`${INPUT} mt-2`} placeholder="Reason (required)" value={String((f.declarations as any)[reasonKey] || "")} onChange={(e) => setDecl({ ...f.declarations, [reasonKey]: e.target.value } as any)} />
               )}
             </div>
           );
         })}
+
+        {/* section_3_c — truthfulness oath (Agree/Disagree), spans both columns */}
+        <div className="md:col-span-2 p-2 rounded bg-sky-500/5 border border-sky-300/40 mt-2">
+          <label className="text-xs text-sky-100 block mb-1">I confirm that all answers above are true to the best of my knowledge (and if anyone else completed this form on my behalf, that they were authorized).</label>
+          <AgreeRadio name="section_3_c" value={f.declarations.section_3_c} onChange={(v) => setDecl({ ...f.declarations, section_3_c: v })} />
+          {f.declarations.section_3_c === "Disagree" && (
+            <input className={`${INPUT} mt-2`} placeholder="Please explain (required)" value={f.declarations.section_3_c_reason} onChange={(e) => setDecl({ ...f.declarations, section_3_c_reason: e.target.value })} />
+          )}
+        </div>
       </div>
 
-      <h2 className={SECTION_H}>Co-guarantors (Canada only)</h2>
-      <p className="text-xs text-sky-200/70 mb-2">Add other individuals on the personal guarantee. Our team will reach out to complete the co-guarantor intake separately.</p>
-      <div className="grid grid-cols-1 gap-2 mb-2">
-        {f.co_guarantors.map((cg, idx) => (
-          <div key={idx} className="grid grid-cols-1 md:grid-cols-5 gap-2 p-2 border border-sky-300/20 rounded bg-sky-500/5">
-            <input className={INPUT} placeholder="First name *"  value={cg.first_name}    onChange={(e) => set("co_guarantors", f.co_guarantors.map((c, i) => i === idx ? { ...c, first_name: e.target.value } : c))} />
-            <input className={INPUT} placeholder="Last name *"   value={cg.last_name}     onChange={(e) => set("co_guarantors", f.co_guarantors.map((c, i) => i === idx ? { ...c, last_name: e.target.value } : c))} />
-            <input className={INPUT} placeholder="Email *" type="email" value={cg.email}  onChange={(e) => set("co_guarantors", f.co_guarantors.map((c, i) => i === idx ? { ...c, email: e.target.value } : c))} />
-            <input className={INPUT} placeholder="Phone *" type="tel"   value={cg.phone}  onChange={(e) => set("co_guarantors", f.co_guarantors.map((c, i) => i === idx ? { ...c, phone: e.target.value } : c))} />
-            <div className="flex gap-2">
-              <select className={INPUT} value={cg.relationship} onChange={(e) => set("co_guarantors", f.co_guarantors.map((c, i) => i === idx ? { ...c, relationship: e.target.value } : c))}>
-                {RELATIONSHIPS.map((r) => <option key={r} value={r} className="text-slate-900">{r}</option>)}
-              </select>
-              <button onClick={() => set("co_guarantors", f.co_guarantors.filter((_, i) => i !== idx))} className="text-rose-300 text-xs">✕</button>
-            </div>
-          </div>
-        ))}
-        <button onClick={() => set("co_guarantors", [...f.co_guarantors, emptyCoGuarantor()])} className="self-start text-sky-200 underline text-sm">+ Add co-guarantor</button>
-      </div>
-
+      {/* 6. Required documents — 5 base + 2 startup-conditional */}
       <h2 className={SECTION_H}>Required documents</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-        {DOC_SLOTS.map((slot) => {
+        {docSlots.map((slot) => {
           const picked = files[slot.key];
           return (
             <div key={slot.key} className="p-2 rounded border border-sky-300/30 bg-sky-500/5">
