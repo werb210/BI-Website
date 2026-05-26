@@ -78,7 +78,6 @@ export default function Application() {
     declarations: {},
     consents: {},
     co_guarantors: [] as CoGuarantor[],
-    business_province: "",
     loan_amount: "",
     pgi_limit: "",
     q_ca_loan_type: "",
@@ -87,7 +86,7 @@ export default function Application() {
   const [serverFieldErrors, setServerFieldErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
-  // Load existing application + OTP phone on mount (v330 bugfix).
+  // BI_WEBSITE_BLOCK_v334_PUBLIC_APP_FIXES_ROUND_2_v1
   useEffect(() => {
     if (!publicId) return;
     (async () => {
@@ -103,9 +102,15 @@ export default function Application() {
           return { ...blankAddress };
         };
 
+        // NAICS defensive key-aliasing — older rows may use any of these keys.
+        const naicsAlias = app.naics_code || app.naics || app.q25_naics_code || "";
+
         setState((prev) => ({
           ...prev,
           ...app,
+          // Country defaults to Canada — single-option dropdown should never be blank.
+          country: app.country || "Canada",
+          naics_code: naicsAlias,
           guarantor_address: normAddr(app.guarantor_address),
           business_address: normAddr(app.business_address),
           declarations: app.declarations || {},
@@ -113,18 +118,20 @@ export default function Application() {
           co_guarantors: Array.isArray(app.co_guarantors) ? app.co_guarantors : [],
         }));
 
-        // Pre-fill phone from OTP-verified session (issue #5).
+        // Pre-fill phone from OTP-verified session.
+        // v352 bi-server change ensures /me/pending-application returns phone
+        // at the top level even when pending is null.
         if (!app.guarantor_phone) {
           try {
             const pending: any = await api.getMyPendingApplication();
-            const phone = pending?.phone || pending?.applicant?.phone || pending?.applicant_phone;
+            const phone = pending?.phone;
             if (typeof phone === "string" && phone.trim()) {
               setState((prev) => ({ ...prev, guarantor_phone: phone }));
             }
           } catch { /* non-blocking */ }
         }
       } catch (e) {
-        console.warn("[v330] failed to load application:", (e as Error).message);
+        console.warn("[v334] failed to load application:", (e as Error).message);
       }
     })();
   }, [publicId]);
@@ -180,7 +187,10 @@ export default function Application() {
       if (loan > LOAN_AMOUNT_MAX) local.loan_amount = `Loan amount ${loan} exceeds the 1,000,000 maximum.`;
       if (limit > PGI_LIMIT_MAX) local.pgi_limit = `PGI limit ${limit} exceeds the 1,000,000 maximum.`;
       if (loan && limit && limit > loan) local.pgi_limit = "PGI limit cannot exceed loan amount.";
-      if (String(state.business_province || "").toUpperCase() === "QC") local.business_province = "PGI does not currently write business in Quebec.";
+      // BI_WEBSITE_BLOCK_v334 — QC block now reads from business_address.province (the only province source).
+      if (String(state.business_address?.province || "").toUpperCase() === "QC") {
+        local["business_address.province"] = "PGI does not currently write business in Quebec.";
+      }
       const gaPc = (state.guarantor_address?.postal_code || "").trim();
       if (gaPc && !POSTAL_RE.test(gaPc)) local["guarantor_address.postal_code"] = "Postal code format A1A 1A1 expected.";
       const baPc = (state.business_address?.postal_code || "").trim();
@@ -264,7 +274,7 @@ export default function Application() {
       <div className="md:col-span-2 p-3 rounded border border-sky-300/30 bg-sky-500/5">
         <div className="text-sm font-semibold text-sky-100 mb-2">{label}</div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <div className="md:col-span-2">
+          <div>
             <label className={LABEL_CLS}>Street address</label>
             <input className={INPUT_CLS} value={addr.line1} onChange={(e) => updateAddress(rootKey, "line1", e.target.value)} placeholder="123 King Street West" />
           </div>
@@ -370,8 +380,7 @@ export default function Application() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
         <SelectInput k="country" label="Which country is the loan agreement based in?" options={[{ value: "Canada", label: "Canada" }]} />
         <TextInput k="business_name" label="What is the legal name of the business? *" />
-        <AddressInputGroup rootKey="business_address" label="Business operating address *" />
-        <SelectInput k="business_province" label="Business operating province *" options={PROVINCES_NO_QC} help="Quebec is not currently eligible for PGI coverage." />
+        <AddressInputGroup rootKey="business_address" label="Business operating address * (Quebec not eligible for PGI coverage)" />
         <TextInput k="business_website" label="Business website (optional)" />
         <SelectInput k="entity_type" label="What type of entity is the business?" options={["Corporation","Partnership","Sole Proprietorship","LLC","Other"].map(v => ({ value: v, label: v }))} />
         <div>
@@ -435,7 +444,9 @@ export default function Application() {
           corrected changelog 2026-05-25. ALL 11 declarations live here (was 8 in v327).
           section_1_a, section_6_a, section_3_c moved out of Consents into Declarations
           because they're carrier-required factual questions, not internal compliance opt-ins. */}
-      <div className="grid grid-cols-1 gap-3 mb-6">
+      {/* BI_WEBSITE_BLOCK_v334 — Declarations 2-col grid md:grid-cols-2.
+          Adverse-reason textarea spans both columns (full width when shown). */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
         {[
           { k: "section_1_a", label: "Does the business carry insurance coverage for all physical assets covered by the personal guarantee?", adverse: null },
           { k: "section_1_2", label: "Have you ever declared personal bankruptcy?", adverse: "yes" },
@@ -449,33 +460,36 @@ export default function Application() {
           { k: "section_6_a", label: "As of today, is the company solvent (able to pay its debts as they become due)?", adverse: null },
         ].map(({ k, label, adverse }) => {
           const val = String(state.declarations?.[k] ?? "");
+          const showReason = adverse && val === adverse;
           return (
-            <div key={k} className="grid grid-cols-1 md:grid-cols-[1fr_180px] gap-2 items-start">
-              <label className="text-sm text-sky-100">{label}</label>
+            <div key={k} className={showReason ? "md:col-span-2 p-2 rounded bg-sky-500/5 border border-sky-300/20" : "p-2 rounded bg-sky-500/5 border border-sky-300/20"}>
+              <label className="text-sm text-sky-100 block mb-1">{label}</label>
               <YesNoSelect value={val} onChange={(v) => updateDecl(k, v)} />
-              {adverse && val === adverse && (
-                <div className="md:col-span-2">
-                  <textarea className={INPUT_CLS} rows={2} placeholder="Please explain…" value={String(state.declarations?.[`${k}_reason`] ?? "")} onChange={(e) => updateDecl(`${k}_reason`, e.target.value)} />
-                </div>
+              {showReason && (
+                <textarea className={`${INPUT_CLS} mt-2`} rows={2} placeholder="Please explain…" value={String(state.declarations?.[`${k}_reason`] ?? "")} onChange={(e) => updateDecl(`${k}_reason`, e.target.value)} />
               )}
             </div>
           );
         })}
 
-        {/* section_3_c — truthfulness oath, Agree/Disagree (special case). */}
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_180px] gap-2 items-start border-t border-sky-300/20 pt-3 mt-2">
-          <label className="text-sm text-sky-100">I confirm that all answers above are true to the best of my knowledge. If anyone else completed this form on my behalf, I confirm they were authorized to do so and that their answers are accurate.</label>
-          <select className={INPUT_CLS} value={String(state.declarations?.section_3_c ?? "")} onChange={(e) => updateDecl("section_3_c", e.target.value)}>
-            <option value="">Select…</option>
-            <option value="Agree" className="text-slate-900">Agree</option>
-            <option value="Disagree" className="text-slate-900">Disagree</option>
-          </select>
-          {String(state.declarations?.section_3_c) === "Disagree" && (
-            <div className="md:col-span-2">
-              <textarea className={INPUT_CLS} rows={2} placeholder="Please explain…" value={String(state.declarations?.section_3_c_reason ?? "")} onChange={(e) => updateDecl("section_3_c_reason", e.target.value)} />
+        {/* section_3_c — truthfulness oath, Agree/Disagree (special case), spans both cols. */}
+        {(() => {
+          const val = String(state.declarations?.section_3_c ?? "");
+          const showReason = val === "Disagree";
+          return (
+            <div className="md:col-span-2 p-2 rounded bg-sky-500/5 border border-sky-300/40 mt-2">
+              <label className="text-sm text-sky-100 block mb-1">I confirm that all answers above are true to the best of my knowledge. If anyone else completed this form on my behalf, I confirm they were authorized to do so and that their answers are accurate.</label>
+              <select className={INPUT_CLS} value={val} onChange={(e) => updateDecl("section_3_c", e.target.value)}>
+                <option value="">Select…</option>
+                <option value="Agree" className="text-slate-900">Agree</option>
+                <option value="Disagree" className="text-slate-900">Disagree</option>
+              </select>
+              {showReason && (
+                <textarea className={`${INPUT_CLS} mt-2`} rows={2} placeholder="Please explain…" value={String(state.declarations?.section_3_c_reason ?? "")} onChange={(e) => updateDecl("section_3_c_reason", e.target.value)} />
+              )}
             </div>
-          )}
-        </div>
+          );
+        })()}
       </div>
 
       {/* BI_WEBSITE_BLOCK_v332_CARRIER_CORRECTIONS_v1 — Consents trimmed:
