@@ -19,7 +19,8 @@ export default function Footer() {
             <div style={{ fontWeight: 600, color: "white", marginBottom: 12 }}>Explore</div>
             <ul style={{ listStyle: "none", padding: 0, margin: 0, fontSize: 14, lineHeight: 1.9 }}>
               <li><Link to="/quote" style={{ color: "rgba(255,255,255,0.75)", textDecoration: "none" }}>Get a Quote</Link></li>
-              <li><Link to="/applications/new" style={{ color: "rgba(255,255,255,0.75)", textDecoration: "none" }}>Apply Now</Link></li>
+              {/* BI_WEBSITE_BLOCK_v346_MOBILE_FIRST_LAUNCH_v1 */}
+              <li><Link to="/applications/new" style={{ color: "rgba(255,255,255,0.75)", textDecoration: "none" }}>Get Started</Link></li>
               <li><Link to="/faq" style={{ color: "rgba(255,255,255,0.75)", textDecoration: "none" }}>FAQ</Link></li>
               <li><a href="https://www.boreal.financial" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(255,255,255,0.75)", textDecoration: "none" }}>Visit Boreal Financial</a></li>
             </ul>

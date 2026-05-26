@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import QuoteModal from "./components/QuoteModal";
+// BI_WEBSITE_BLOCK_v346_MOBILE_FIRST_LAUNCH_v1
+import ScrollToTop from "./components/ScrollToTop";
 import FaqModal, { FaqPage } from "./components/Faq";
 import Home from "./pages/Home";
 // BI_WEBSITE_BLOCK_v90_LENDER_API_DOCS_v1
@@ -62,6 +64,7 @@ export default function App() {
   }, []);
   return (
     <BrowserRouter>
+      <ScrollToTop />
       {/* BI_WEBSITE_BLOCK_v168_CARRIER_RESKIN_v1 — aurora app shell */}
       <div className="bi-app-shell">
       <div className="flex min-h-screen flex-col">

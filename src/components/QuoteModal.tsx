@@ -66,7 +66,8 @@ export default function QuoteModal() {
               <p className="mt-2 text-3xl font-bold text-white md:text-4xl">{fmt(prem)}</p>
               <p className="mt-1 text-xs text-slate-400">Indicative. Final premium subject to underwriting.</p>
             </div>
-            <button type="button" onClick={applyNow} disabled={loan < MIN_LOAN || pct <= 0} className="w-full rounded-full bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-400">Apply Now</button>
+            {/* BI_WEBSITE_BLOCK_v346_MOBILE_FIRST_LAUNCH_v1 */}
+            <button type="button" onClick={applyNow} disabled={loan < MIN_LOAN || pct <= 0} className="w-full rounded-full bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-400">Get Started</button>
           </div>
         </div>
       </div>
