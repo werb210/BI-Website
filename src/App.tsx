@@ -45,12 +45,19 @@ import LenderApplicationDetail from "./pages/LenderApplicationDetail";
 import LenderApplicationTimeline from "./pages/LenderApplicationTimeline"; // BI_WEBSITE_BLOCK_v126_DEMO_SANDBOX_AND_CARRIER_FEEDBACK_v1
 
 export default function App() {
-  // BI_WEBSITE_BLOCK_v135_REFERRER_PORTAL_v1 — capture ?ref=<code> on any entry URL.
+  // BI_WEBSITE_BLOCK_v344_REFERRER_WIRE_BRIDGE_v1
+  // Captures ?ref=<value> where value is either:
+  //   - short_code: 4-16 char alphanumeric (legacy v135)
+  //   - UUID: 36-char dashed hex (v360 server format)
+  // Server's v364 normalizer accepts either and looks up by the right column.
   useEffect(() => {
     try {
       const u = new URL(window.location.href);
       const code = u.searchParams.get("ref");
-      if (code && /^[a-z0-9]{4,16}$/i.test(code)) localStorage.setItem("bi.referral_code", code);
+      if (!code) return;
+      const isShortCode = /^[a-z0-9]{4,16}$/i.test(code);
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(code);
+      if (isShortCode || isUuid) localStorage.setItem("bi.referral_code", code);
     } catch { /* noop */ }
   }, []);
   return (
