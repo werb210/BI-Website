@@ -2,12 +2,25 @@
 import { useEffect, useState } from "react";
 
 
-const STAGES = ["new","in_progress","ready_for_submission","submitted","under_review","information_required","approved","declined","policy_issued"] as const;
+// BI_WEBSITE_BLOCK_v339_REFERRER_PORTAL_FIX_v1
+// 5 carrier stages — match lender portal labels + order exactly.
+// Pre-submission rows (created/in_progress/ready_for_submission) are
+// NOT in STAGES; they appear only in the list below the pipeline,
+// never in a pipeline column.
+const STAGES = ["submitted","under_review","information_required","policy_issued","declined"] as const;
 const STAGE_LABELS: Record<string, string> = {
-  new: "New", in_progress: "In Progress", ready_for_submission: "Ready",
-  submitted: "Submitted", under_review: "Under Review",
-  information_required: "Info Needed", approved: "Approved",
-  declined: "Declined", policy_issued: "Issued",
+  submitted: "SUBMITTED",
+  under_review: "UNDERWRITING",
+  information_required: "CONDITIONAL",
+  policy_issued: "BOUND",
+  declined: "DECLINED",
+  // Friendly labels for the list-below view (any non-carrier state).
+  created: "Draft",
+  new: "Draft",
+  in_progress: "In progress",
+  ready_for_submission: "Ready",
+  approved: "Approved",
+  cancelled: "Cancelled",
 };
 
 // BI_WEBSITE_BLOCK_v103_OTP_BASE_FIX_AND_WARMUP_v1 — mirror lib/api.ts BASE.
@@ -196,7 +209,7 @@ export default function ReferrerPortal() {
           autoFocus
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          placeholder="(555) 000-0000"
+          placeholder="+1 (555) 555-5555"
           style={{
             width: "100%", padding: "12px 14px", fontSize: 16,
             border: "1px solid #cbd5e1", borderRadius: 8, marginBottom: 12,
@@ -310,7 +323,14 @@ export default function ReferrerPortal() {
             ["name","Contact name"],["company","Company"],["email","Email"],["mobile","Mobile"],["notes","Notes (optional)"],
           ].map(([k,label])=>(
             <label key={k} className="bi-field"><span>{label}</span>
-              <input value={(draft as any)[k] ?? ""} onChange={(e)=>setDraft(p=>({...p, [k]: e.target.value}))} />
+              <input
+                type={k === "mobile" ? "tel" : "text"}
+                inputMode={k === "mobile" ? "tel" : undefined}
+                autoComplete={k === "mobile" ? "tel" : undefined}
+                placeholder={k === "mobile" ? "+1 (555) 555-5555" : undefined}
+                value={(draft as any)[k] ?? ""}
+                onChange={(e)=>setDraft(p=>({...p, [k]: e.target.value}))}
+              />
             </label>
           ))}
           {err && <div className="form-error">{err}</div>}
@@ -322,18 +342,60 @@ export default function ReferrerPortal() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
-        {STAGES.map((st)=>(
-          <div key={st} className="bi-section">
-            <h3>{STAGE_LABELS[st]}</h3>
-            <ul>
-              {items.filter((m)=>m.stage===st).map((m)=>(
-                <li key={m.id}>{m.name} · {m.company ?? "—"}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
+      {/* BI_WEBSITE_BLOCK_v339_REFERRER_PORTAL_FIX_v1 — 5-stage carrier pipeline */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 md:gap-3 mb-6 mt-4">
+        {STAGES.map((st) => {
+          const count = items.filter((m: any) => (m.status || m.stage) === st).length;
+          return (
+            <div key={st} className="p-3 rounded border border-sky-300/30 bg-sky-500/5">
+              <div className="flex justify-between items-baseline">
+                <span className="text-[10px] md:text-xs font-semibold tracking-wider text-sky-100">{STAGE_LABELS[st] || st}</span>
+                <span className="text-base font-semibold text-sky-100">{count}</span>
+              </div>
+              <div className="text-center mt-3 text-sky-300/40 text-xs">—</div>
+            </div>
+          );
+        })}
       </div>
+
+      {/* Your referrals — full list, all statuses, never duplicates the pipeline */}
+      <h2 className="text-lg font-semibold text-sky-100 mb-2 border-b border-sky-300/30 pb-1">Your referrals</h2>
+      {items.length === 0 && (
+        <div className="text-sm text-sky-200/70 p-4 border border-sky-300/20 rounded bg-sky-500/5">
+          You haven't added any referrals yet. Click "+ Add Referral" above to get started.
+        </div>
+      )}
+      {items.length > 0 && (
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm">
+            <thead>
+              <tr className="text-left text-xs uppercase tracking-wider text-sky-300/70 border-b border-sky-300/20">
+                <th className="py-2 pr-4">Name</th>
+                <th className="py-2 pr-4">Company</th>
+                <th className="py-2 pr-4">Contact</th>
+                <th className="py-2 pr-4">Status</th>
+                <th className="py-2 pr-4">Added</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((m: any) => (
+                <tr key={m.id || m.public_id} className="border-b border-sky-300/10 hover:bg-sky-500/5">
+                  <td className="py-2 pr-4">{m.name || m.guarantor_name || "—"}</td>
+                  <td className="py-2 pr-4">{m.company || m.company_name || "—"}</td>
+                  <td className="py-2 pr-4">
+                    <div>{m.email || "—"}</div>
+                    <div className="text-xs text-sky-200/70">{m.mobile || m.phone || "—"}</div>
+                  </td>
+                  <td className="py-2 pr-4">
+                    <span className="inline-block px-2 py-0.5 rounded text-xs bg-sky-500/15 border border-sky-300/30">{STAGE_LABELS[m.status || m.stage] || m.status || m.stage || "—"}</span>
+                  </td>
+                  <td className="py-2 pr-4 text-sky-200/70">{m.created_at ? new Date(m.created_at).toLocaleDateString() : "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
