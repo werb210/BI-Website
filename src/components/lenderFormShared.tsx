@@ -149,6 +149,53 @@ export const blankLenderForm: LenderFormState = {
   co_guarantors: [],
 };
 
+// BI_WEBSITE_BLOCK_v338_LENDER_DEMO_PARITY_v1
+// Restored for LenderApplicationDemo.tsx — was dropped in v335.
+// All financial fields removed in v335 (lender flow no longer carries CORE Score).
+export const demoLenderForm: LenderFormState = {
+  ...blankLenderForm,
+  company_name: "Maple Leaf Technologies Inc.",
+  guarantor_name: "Sarah Chen",
+  guarantor_phone: "+14165551234",
+  guarantor_email: "sarah.chen@example.com",
+  guarantor_dob: "1985-06-15",
+  guarantor_address: "456 Oak Avenue, Toronto, ON M4V 2P7",
+  q_ca_id_type: "Driving Licence",
+  q_ca_id_number: "DL123456789",
+  entity_type: "Corporation",
+  business_number: "123456789RT0001",
+  business_address: "789 King Street West, Toronto, ON M5H 2A9",
+  business_website: "https://mapleleaftech.example",
+  business_province: "ON",
+  naics: "541511",
+  business_start_date: "2019-03-15",
+  country: "CA",
+  loan_amount: "500000",
+  pgi_limit: "400000",
+  q_ca_loan_type: "Commercial Mortgage",
+  use_of_proceeds: "expansion",
+  loan_funding_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+  policy_start_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+  csbfp_backed: "no",
+  loan_has_guaranteed_cap: "no",
+  personally_guaranteeing: "yes",
+  declarations: {
+    ...blankDeclarations,
+    section_1_a: "yes",
+    section_1_2: "no",
+    section_2_a: "no",
+    section_2_b: "no",
+    section_2_c: "no",
+    section_2_d: "no",
+    section_3_a: "no",
+    section_3_c: "Agree",
+    section_4_a: "no",
+    section_5_a: "no",
+    section_6_a: "yes",
+  },
+  co_guarantors: [],
+};
+
 // BI_WEBSITE_BLOCK_v335 — DOC_SLOTS now exactly the 5 carrier-required types.
 // founder_cv + financial_forecast are computed dynamically based on business age.
 export type DocSlot = { key: string; label: string; required: boolean };
@@ -313,13 +360,3 @@ export function YesNoSelect({ value, onChange }: { value: YN; onChange: (v: YN) 
 export const SECTION: React.CSSProperties = { border: "1px solid #2c3a52", borderRadius: 10, padding: 14, marginBottom: 14, background: "#0b1424" };
 export const SECTION_TITLE: React.CSSProperties = { margin: "0 0 10px", fontSize: 16, color: "#dbeafe" };
 
-export const demoLenderForm = {
-  ...blankLenderForm,
-  monthly_debt_service: "25000",
-  collateral_value: "1500000",
-  enterprise_value: "3200000",
-  annual_revenue: "2800000",
-  ebitda: "430000",
-  total_debt: "1100000",
-  has_other_guarantors: "no",
-} as any as LenderFormState;

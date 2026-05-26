@@ -281,9 +281,14 @@ export default function LenderApplicationNew() {
       )}
       {error && <div className="text-rose-300 mb-2">{error}</div>}
 
-      <div className="flex gap-3 mt-4">
-        <button onClick={() => nav("/lender/applications")} className="px-4 py-2 border border-sky-300/50 rounded text-sky-100 hover:bg-sky-500/20">Cancel</button>
-        <button onClick={onSubmit} disabled={!canSubmit} className="px-6 py-2 bg-sky-500 text-white rounded disabled:opacity-40 hover:bg-sky-400">{busy ? "Submitting…" : "Submit application"}</button>
+      {/* BI_WEBSITE_BLOCK_v338 — Buttons sit under the LEFT column (under Country)
+          on desktop. Use a 3-column grid that matches the rest of the form so
+          the buttons land in the first column. */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+        <div className="flex gap-3">
+          <button type="button" onClick={() => nav("/lender/applications")} className="px-4 py-2 border border-sky-300/50 rounded text-sky-100 hover:bg-sky-500/20">Cancel</button>
+          <button type="button" onClick={onSubmit} disabled={!canSubmit} className="px-6 py-2 bg-sky-500 text-white rounded disabled:opacity-40 hover:bg-sky-400">{busy ? "Submitting…" : "Submit application"}</button>
+        </div>
       </div>
     </div>
   );
