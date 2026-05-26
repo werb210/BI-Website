@@ -128,7 +128,7 @@ export default function Quote() {
             disabled={!canApply}
             className="w-full rounded-full bg-blue-600 px-6 py-4 text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
           >
-            Apply Now
+            Get Started
           </button>
         </div>
       </section>

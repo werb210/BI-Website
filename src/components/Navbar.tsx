@@ -5,61 +5,38 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="bg-brand-bg border-b border-subtle">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <Link
-          to="/"
-          className="text-xl font-semibold tracking-tight hover:opacity-90"
-        >
+    <header className="relative border-b border-card bg-bf-bg">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <Link to="/" className="text-xl font-semibold tracking-tight text-white hover:opacity-90">
           Boreal Risk Management
         </Link>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8 text-sm text-white/80">
-          <Link to="/apply" className="hover:text-white">
-            Coverage
-          </Link>
-          <Link to="/how-it-works" className="hover:text-white">
-            How It Works
-          </Link>
-          <Link to="/faq" className="hover:text-white">
-            FAQ
-          </Link>
-          <Link
-            to="/apply"
-            className="bg-brand-accent hover:bg-brand-accentHover text-white rounded-full px-6 h-10 flex items-center font-medium transition-colors"
-          >
-            Apply
-          </Link>
+        <nav className="hidden items-center gap-8 text-sm text-white/80 md:flex">
+          <Link to="/quote" className="hover:text-white">Coverage</Link>
+          <Link to="/how-it-works" className="hover:text-white">How It Works</Link>
+          <Link to="/faq" className="hover:text-white">FAQ</Link>
+          <Link to="/applications/new" className="flex h-10 items-center rounded-full bg-bf-cta px-6 font-medium text-white transition-colors hover:bg-bf-ctaHover">Get Started</Link>
         </nav>
 
-        {/* Mobile Toggle */}
         <button
-          className="md:hidden text-white text-2xl"
-          onClick={() => setOpen(!open)}
+          type="button"
+          className="rounded-md p-2 text-white md:hidden"
+          aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
         >
-          ☰
+          <span className="text-2xl leading-none">☰</span>
         </button>
       </div>
 
-      {/* Mobile Menu */}
       {open && (
-        <div className="md:hidden bg-brand-bgAlt border-t border-subtle px-6 py-4 space-y-4">
-          <Link to="/apply" className="block text-white/80 hover:text-white">
-            Coverage
-          </Link>
-          <Link to="/how-it-works" className="block text-white/80 hover:text-white">
-            How It Works
-          </Link>
-          <Link to="/faq" className="block text-white/80 hover:text-white">
-            FAQ
-          </Link>
-          <Link
-            to="/apply"
-            className="block bg-brand-accent hover:bg-brand-accentHover text-white rounded-full px-6 h-10 flex items-center justify-center font-medium transition-colors"
-          >
-            Apply
-          </Link>
+        <div className="absolute left-0 right-0 top-full z-[70] border-t border-card bg-bf-bg md:hidden">
+          <nav className="flex flex-col gap-2 px-6 py-4 text-white/90">
+            <Link to="/quote" className="rounded px-1 py-2 hover:bg-white/5" onClick={() => setOpen(false)}>Coverage</Link>
+            <Link to="/how-it-works" className="rounded px-1 py-2 hover:bg-white/5" onClick={() => setOpen(false)}>How It Works</Link>
+            <Link to="/faq" className="rounded px-1 py-2 hover:bg-white/5" onClick={() => setOpen(false)}>FAQ</Link>
+            <Link to="/applications/new" className="mt-2 rounded-full bg-bf-cta px-4 py-2 text-center font-medium text-white hover:bg-bf-ctaHover" onClick={() => setOpen(false)}>Get Started</Link>
+          </nav>
         </div>
       )}
     </header>
