@@ -13,6 +13,9 @@ function unfmtCurrency(s: string): string { return s.replace(/[^0-9]/g, ""); }
 
 const EBITDA_MIN = 50_000;
 const LOAN_MAX = 1_000_000;
+// BI_WEBSITE_BLOCK_v342_SCORE_INLINE_GUARDRAILS_v1
+const LOAN_AMOUNT_MAX_V342 = 1_000_000;
+const PGI_COVERAGE_RATIO_V342 = 0.80;
 // BI_WEBSITE_BLOCK_v107_SCORE_PGI_EBITDA_AUTOSAVE_v1
 const DRAFT_KEY = "bi.score_draft";
 const EBITDA_KEYS = ["net_income", "interest", "taxes", "depreciation", "amortization"] as const;
@@ -112,9 +115,9 @@ export default function Score() {
     // BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — T&C is mandatory
     if (!terms) { setErr("Please accept the Terms & Conditions to continue."); return; }
     if (Number(v.ebitda) < EBITDA_MIN) { setErr(`Minimum EBITDA is $${EBITDA_MIN.toLocaleString()}`); return; }
-    if (Number(v.loan_amount) > LOAN_MAX) { setErr(`Loan amount cannot exceed $${LOAN_MAX.toLocaleString()}`); return; }
+    if (Number(v.loan_amount) > LOAN_AMOUNT_MAX_V342) { setErr(`Loan amount cannot exceed $${LOAN_AMOUNT_MAX_V342.toLocaleString()}`); return; }
     if (Number(v.pgi_limit) > Number(v.loan_amount)) { setErr("PGI limit cannot exceed loan amount."); return; }
-    if (Number(v.pgi_limit) > Number(v.loan_amount) * 0.80) { setErr("PGI limit cannot exceed 80% of loan."); return; }
+    if (Number(v.pgi_limit) > Math.floor(Math.max(0, Math.min(Number(v.loan_amount) || 0, LOAN_AMOUNT_MAX_V342)) * PGI_COVERAGE_RATIO_V342)) { setErr("PGI limit cannot exceed 80% of loan."); return; }
 
     setBusy(true);
     try {
@@ -200,7 +203,29 @@ export default function Score() {
       <h3 className="bi-section-divider">LOAN & GUARANTEE DETAILS</h3>
 
       <Field label="Loan Amount from Bank">
-        <input type="text" inputMode="decimal" value={fmtCurrency(v.loan_amount)} onChange={(e) => set("loan_amount", unfmtCurrency(e.target.value))} placeholder="$0" />
+        {/* BI_WEBSITE_BLOCK_v342_SCORE_INLINE_GUARDRAILS_v1 */}
+        <input
+          type="text"
+          inputMode="decimal"
+          value={fmtCurrency(v.loan_amount)}
+          onChange={(e) => set("loan_amount", unfmtCurrency(e.target.value))}
+          placeholder="$0"
+          aria-invalid={
+            v.loan_amount !== "" && v.loan_amount !== null && v.loan_amount !== undefined
+              ? (Number(v.loan_amount) < 50_000 || Number(v.loan_amount) > LOAN_AMOUNT_MAX_V342)
+              : false
+          }
+        />
+        {v.loan_amount !== "" && v.loan_amount !== null && v.loan_amount !== undefined && Number(v.loan_amount) > 0 && Number(v.loan_amount) < 50_000 && (
+          <span className="bi-field-error" style={{ color: "#fca5a5", fontSize: "0.75rem", marginTop: "0.25rem", display: "block" }}>
+            Loan amount is below the $50,000 minimum.
+          </span>
+        )}
+        {v.loan_amount !== "" && v.loan_amount !== null && v.loan_amount !== undefined && Number(v.loan_amount) > LOAN_AMOUNT_MAX_V342 && (
+          <span className="bi-field-error" style={{ color: "#fca5a5", fontSize: "0.75rem", marginTop: "0.25rem", display: "block" }}>
+            Loan amount cannot exceed $1,000,000.
+          </span>
+        )}
       </Field>
 
       <Field label="Please declare your desired PGI limit.">
@@ -268,22 +293,35 @@ export default function Score() {
 }
 
 function PgiSlider({ loan, value, onChange }: { loan: number; value: number; onChange: (n: number) => void }) {
-  const max80 = Math.floor(loan * 0.80);
-  const pct = loan > 0 ? Math.round((value / loan) * 100) : 0;
-  const safePct = Math.min(80, Math.max(0, pct));
+  // BI_WEBSITE_BLOCK_v342_SCORE_INLINE_GUARDRAILS_v1
+  // Effective max = min(80% × loan_amount, $1M absolute ceiling).
+  const loanForCap = Math.max(0, Math.min(loan || 0, LOAN_AMOUNT_MAX_V342));
+  const pgiMaxAllowed = Math.floor(loanForCap * PGI_COVERAGE_RATIO_V342);
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-        <span style={{ fontSize: "0.85rem", opacity: 0.85 }}>{loan > 0 ? `${safePct}% of loan` : "Enter loan amount first"}</span>
-        <strong>${value.toLocaleString()}</strong>
+        <span style={{ fontSize: "0.85rem", opacity: 0.85 }}>{loan > 0 ? "80% of loan" : "Enter loan amount first"}</span>
+        <strong>{fmtCurrency(String(value || 0))}</strong>
       </div>
-      <input type="range" min={0} max={80} step={5} value={safePct} disabled={loan <= 0}
-        onChange={(e) => onChange(Math.round(loan * (Number(e.target.value) / 100)))}
-        style={{ width: "100%", accentColor: "#2563eb" }} />
+      <input
+        type="range"
+        min={0}
+        max={pgiMaxAllowed}
+        step={1000}
+        value={Number(value) || 0}
+        disabled={loan <= 0}
+        onChange={(e) => onChange(Number(unfmtCurrency(e.target.value)) || 0)}
+        style={{ width: "100%", accentColor: "#2563eb" }}
+      />
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", opacity: 0.6, marginTop: 4 }}>
         <span>0%</span>
-        <span>{loan > 0 ? `Max 80% = $${max80.toLocaleString()}` : "Max 80%"}</span>
+        <span>Max 80% = {fmtCurrency(String(pgiMaxAllowed))}</span>
       </div>
+      {Number(value) > 0 && Number(value) > pgiMaxAllowed && (
+        <span className="bi-field-error" style={{ color: "#fca5a5", fontSize: "0.75rem", marginTop: "0.25rem", display: "block" }}>
+          PGI limit cannot exceed 80% of loan amount (max {fmtCurrency(String(pgiMaxAllowed))}).
+        </span>
+      )}
     </div>
   );
 }
