@@ -59,8 +59,15 @@ export default function LenderApplicationDemo() {
     (async () => {
       if (!realTokenOnMount) return;
       try {
-        const real = localStorage.getItem("bi.lender_token") || "";
-        if (real) localStorage.setItem("bi.real_token_backup", real);
+        // BI_WEBSITE_BLOCK_v338_LENDER_DEMO_PARITY_v1
+        // Persist the real token so exitDemo() can restore it on exit.
+        // Without this, exitDemo's lookup of bi.real_token_backup returns
+        // empty and the user is bounced to /lender/login (the "exit demo
+        // logs me out" bug).
+        try { localStorage.setItem("bi.real_token_backup", realTokenOnMount); } catch {}
+        try { localStorage.setItem("bi.is_demo_session", "1"); } catch {}
+        try { localStorage.setItem("bi.demo_session_started_at", new Date().toISOString()); } catch {}
+
         const r = await fetch(`${API_BASE}/api/v1/lender/demo/session`, {
           method: "POST",
           headers: { Authorization: `Bearer ${realTokenOnMount}` },
