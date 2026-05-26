@@ -1,14 +1,11 @@
-// BI_WEBSITE_BLOCK_v331_LENDER_EXPERT_GRID_v1
-// Lender shared module. v331 swap from inline-style helpers (which clashed
-// with page styling in v328) to className-based Tailwind grid helpers.
-// Wire shape (buildLenderSubmitBody) unchanged from v328 — still produces
-// nested {guarantor, business, loan, financials, declarations, co_guarantors}
-// that bi-server v350 expects.
+// BI_WEBSITE_BLOCK_v335_LENDER_RESTRUCTURE_v1
+// - Financials fields dropped from LenderFormState + REQUIRED_KEYS + buildLenderSubmitBody.
+// - q_ca_id_type/q_ca_id_number stay in the type (they're carrier-required) but move position in the JSX (see LenderApplicationNew.tsx).
+// - DOC_SLOTS shrunk to the 5 carrier-required defaults; founder_cv + financial_forecast are appended dynamically when business_start_date < 3 years (resolved in LenderApplicationNew.tsx via a computed list).
 import React from "react";
 
 export type YN = "" | "yes" | "no";
 
-// Compact Tailwind classes for the 3-column expert grid.
 export const INPUT = "w-full bg-sky-500/15 border border-sky-300/40 text-white placeholder:text-sky-100/50 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-sky-300 focus:bg-sky-500/25";
 export const LBL = "block text-[11px] font-medium text-sky-100 mb-0.5";
 export const SECTION_H = "text-base font-semibold text-sky-100 mt-5 mb-2 border-b border-sky-300/30 pb-1";
@@ -22,17 +19,39 @@ export function Field({ label, children, className = "" }: { label: string; chil
   );
 }
 
-export function TextIn({ value, onChange, placeholder, type = "text", ...rest }: { value: string; onChange: (v: string) => void; placeholder?: string; type?: string } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "type" | "placeholder" | "className">) {
-  return <input type={type} className={INPUT} placeholder={placeholder} value={value ?? ""} onChange={(e) => onChange(e.target.value)} {...rest} />;
+export function TextIn({ value, onChange, placeholder, type = "text" }: { value: string; onChange: (v: string) => void; placeholder?: string; type?: string }) {
+  return <input type={type} className={INPUT} placeholder={placeholder} value={value ?? ""} onChange={(e) => onChange(e.target.value)} />;
 }
 
-export function YesNoSelect({ value, onChange }: { value: YN; onChange: (v: YN) => void }) {
+// BI_WEBSITE_BLOCK_v335 — Radio-pair Yes/No (replaces YesNoSelect dropdown).
+export function YesNoRadio({ name, value, onChange }: { name: string; value: YN; onChange: (v: YN) => void }) {
   return (
-    <select className={INPUT} value={value ?? ""} onChange={(e) => onChange(e.target.value as YN)}>
-      <option value="">Select…</option>
-      <option value="no" className="text-slate-900">No</option>
-      <option value="yes" className="text-slate-900">Yes</option>
-    </select>
+    <div className="flex gap-3">
+      <label className="flex items-center gap-1.5 text-sm text-sky-100 cursor-pointer">
+        <input type="radio" name={name} value="no" checked={value === "no"} onChange={() => onChange("no")} className="accent-sky-400" />
+        No
+      </label>
+      <label className="flex items-center gap-1.5 text-sm text-sky-100 cursor-pointer">
+        <input type="radio" name={name} value="yes" checked={value === "yes"} onChange={() => onChange("yes")} className="accent-sky-400" />
+        Yes
+      </label>
+    </div>
+  );
+}
+
+// Agree/Disagree radio (section_3_c uses this).
+export function AgreeRadio({ name, value, onChange }: { name: string; value: "" | "Agree" | "Disagree"; onChange: (v: "Agree" | "Disagree") => void }) {
+  return (
+    <div className="flex gap-3">
+      <label className="flex items-center gap-1.5 text-sm text-sky-100 cursor-pointer">
+        <input type="radio" name={name} value="Agree" checked={value === "Agree"} onChange={() => onChange("Agree")} className="accent-sky-400" />
+        Agree
+      </label>
+      <label className="flex items-center gap-1.5 text-sm text-sky-100 cursor-pointer">
+        <input type="radio" name={name} value="Disagree" checked={value === "Disagree"} onChange={() => onChange("Disagree")} className="accent-sky-400" />
+        Disagree
+      </label>
+    </div>
   );
 }
 
@@ -57,7 +76,7 @@ export type EligibleLoanType = typeof ELIGIBLE_LOAN_TYPES[number];
 
 export const RELATIONSHIPS = ["Guarantor", "Co-borrower", "Spouse", "Business Partner", "Other"] as const;
 
-export const LOAN_AMOUNT_MIN = 50_000; // BI_WEBSITE_BLOCK_v332_CARRIER_CORRECTIONS_v1 — Boreal-side floor.
+export const LOAN_AMOUNT_MIN = 50_000;
 export const LOAN_AMOUNT_MAX = 1_000_000;
 export const PGI_LIMIT_MAX = 1_000_000;
 
@@ -97,8 +116,7 @@ export const emptyCoGuarantor = (): CoGuarantor => ({
   address: "", city: "", province: "", postal_code: "", relationship: "Guarantor",
 });
 
-// BI_WEBSITE_BLOCK_v332_CARRIER_CORRECTIONS_v1 — q_ca_id_type + q_ca_id_number promoted from
-// deferred to required carrier fields.
+// BI_WEBSITE_BLOCK_v335 — Financials removed (lender goes direct to carrier, no CORE Score).
 export type LenderFormState = {
   company_name: string; guarantor_name: string; guarantor_phone: string; guarantor_email: string;
   guarantor_dob: string; guarantor_address: string;
@@ -112,9 +130,7 @@ export type LenderFormState = {
   q_ca_loan_type: "" | EligibleLoanType;
   use_of_proceeds: "expansion" | "refinance" | "equipment" | "acquisition" | "working_capital" | "real_estate";
   loan_funding_date: string; policy_start_date: string;
-  monthly_debt_service: string; collateral_value: string; enterprise_value: string;
   csbfp_backed: YN; loan_has_guaranteed_cap: YN; personally_guaranteeing: YN;
-  annual_revenue: string; ebitda: string; total_debt: string;
   declarations: DeclarationsState;
   co_guarantors: CoGuarantor[];
 };
@@ -128,24 +144,34 @@ export const blankLenderForm: LenderFormState = {
   loan_amount: "", pgi_limit: "",
   q_ca_loan_type: "", use_of_proceeds: "expansion",
   loan_funding_date: "", policy_start_date: "",
-  monthly_debt_service: "", collateral_value: "", enterprise_value: "",
   csbfp_backed: "", loan_has_guaranteed_cap: "", personally_guaranteeing: "",
-  annual_revenue: "", ebitda: "", total_debt: "",
   declarations: { ...blankDeclarations },
   co_guarantors: [],
 };
 
+// BI_WEBSITE_BLOCK_v335 — DOC_SLOTS now exactly the 5 carrier-required types.
+// founder_cv + financial_forecast are computed dynamically based on business age.
 export type DocSlot = { key: string; label: string; required: boolean };
-export const DOC_SLOTS: DocSlot[] = [
-  { key: "loan_agreement", label: "Lender Agreement / Term Sheet (carrier requires)", required: true },
-  { key: "annual_y1",      label: "Year-end Financials — most recent year",            required: true },
-  { key: "annual_y2",      label: "Year-end Financials — 2 years ago",                 required: true },
-  { key: "annual_y3",      label: "Year-end Financials — 3 years ago",                 required: true },
-  { key: "profit_loss",    label: "Interim Profit & Loss (last 12 months)",            required: true },
-  { key: "balance_sheet",  label: "Interim Balance Sheet (most recent)",               required: true },
-  { key: "ar_aging",       label: "Accounts Receivable Aging",                         required: true },
-  { key: "ap_aging",       label: "Accounts Payable Aging",                            required: true },
+export const DOC_SLOTS_BASE: DocSlot[] = [
+  { key: "loan_agreement", label: "Lender Agreement / Term Sheet",                                required: true },
+  { key: "profit_loss",    label: "Profit & Loss Statement (12 months, monthly)",                  required: true },
+  { key: "balance_sheet",  label: "Balance Sheet (most recent month-end)",                         required: true },
+  { key: "ar_aging",       label: "Accounts Receivable Aging Summary",                             required: true },
+  { key: "ap_aging",       label: "Accounts Payable Aging Summary",                                required: true },
 ];
+export const DOC_SLOTS_STARTUP: DocSlot[] = [
+  { key: "founder_cv",         label: "Founder CV (resume or bio for principal guarantor)",            required: true },
+  { key: "financial_forecast", label: "Financial Forecast (12-24 month projections)",                  required: true },
+];
+export function docSlotsFor(businessStartDate: string): DocSlot[] {
+  if (!businessStartDate) return DOC_SLOTS_BASE;
+  const dt = new Date(businessStartDate);
+  if (isNaN(dt.getTime())) return DOC_SLOTS_BASE;
+  const ageYears = (Date.now() - dt.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+  return ageYears < 3 ? [...DOC_SLOTS_BASE, ...DOC_SLOTS_STARTUP] : DOC_SLOTS_BASE;
+}
+// Kept for back-compat with anything that still imports DOC_SLOTS literally.
+export const DOC_SLOTS = DOC_SLOTS_BASE;
 
 export const PARTNER_ALLOWED_MIME = new Set<string>([
   "application/pdf",
@@ -167,6 +193,7 @@ export function getLenderToken(): string {
   try { return localStorage.getItem("bi.lender_token") || ""; } catch { return ""; }
 }
 
+// BI_WEBSITE_BLOCK_v335 — Financials keys removed from required list.
 export const REQUIRED_KEYS: (keyof LenderFormState)[] = [
   "company_name", "guarantor_name", "guarantor_phone", "guarantor_email",
   "guarantor_dob", "guarantor_address",
@@ -175,9 +202,7 @@ export const REQUIRED_KEYS: (keyof LenderFormState)[] = [
   "naics", "business_start_date",
   "loan_amount", "pgi_limit", "q_ca_loan_type",
   "loan_funding_date", "policy_start_date",
-  "monthly_debt_service", "collateral_value", "enterprise_value",
   "csbfp_backed", "loan_has_guaranteed_cap", "personally_guaranteeing",
-  "annual_revenue", "ebitda", "total_debt",
 ];
 
 export function declarationsComplete(d: DeclarationsState): boolean {
@@ -196,6 +221,9 @@ export function declarationsComplete(d: DeclarationsState): boolean {
   return true;
 }
 
+// BI_WEBSITE_BLOCK_v335 — Financials block dropped from submit body.
+// Server still expects nested {guarantor, business, loan, declarations, co_guarantors};
+// the financials key is omitted entirely (bi-server v350 tolerates it).
 export function buildLenderSubmitBody(f: LenderFormState) {
   const cleanedDecl: Record<string, unknown> = {
     section_1_a: f.declarations.section_1_a,
@@ -237,7 +265,6 @@ export function buildLenderSubmitBody(f: LenderFormState) {
       email: f.guarantor_email.trim() || null,
       dob: f.guarantor_dob,
       address: f.guarantor_address.trim(),
-      // BI_WEBSITE_BLOCK_v332_CARRIER_CORRECTIONS_v1 — pass through to bi-server which maps to form_data.q_ca_id_type/_number.
       q_ca_id_type: f.q_ca_id_type || "",
       q_ca_id_number: f.q_ca_id_number.trim() || "",
     },
@@ -265,25 +292,34 @@ export function buildLenderSubmitBody(f: LenderFormState) {
       personally_guaranteeing: yn(f.personally_guaranteeing),
       has_other_guarantors: f.co_guarantors.length > 0,
     },
-    financials: {
-      revenue_last_year: num(f.annual_revenue),
-      ebitda_last_year: num(f.ebitda),
-      total_debt: num(f.total_debt),
-      monthly_payments: num(f.monthly_debt_service),
-      annual_revenue: num(f.annual_revenue),
-      ebitda: num(f.ebitda),
-      monthly_debt_service: num(f.monthly_debt_service),
-      collateral_value: num(f.collateral_value),
-      enterprise_value: num(f.enterprise_value),
-    },
+    // Financials block intentionally omitted (v335). bi-server v350 accepts the absence.
     declarations: cleanedDecl,
     co_guarantors: f.co_guarantors.filter((c) => c.first_name.trim() && c.last_name.trim() && c.email.trim() && c.phone.trim()),
   };
 }
 
 
-// Legacy style exports kept for compatibility with demo page.
-export const SECTION: React.CSSProperties = { background: "rgba(8, 47, 73, 0.35)", border: "1px solid rgba(125, 211, 252, 0.25)", borderRadius: 10, padding: 12, marginBottom: 12 };
-export const SECTION_TITLE: React.CSSProperties = { fontSize: 16, fontWeight: 600, marginBottom: 10, color: "#e0f2fe" };
+// Backward-compat exports for legacy demo page.
+export function YesNoSelect({ value, onChange }: { value: YN; onChange: (v: YN) => void }) {
+  return (
+    <select className={INPUT} value={value} onChange={(e) => onChange(e.target.value as YN)}>
+      <option value="">Select…</option>
+      <option value="no" className="text-slate-900">No</option>
+      <option value="yes" className="text-slate-900">Yes</option>
+    </select>
+  );
+}
 
-export const demoLenderForm: LenderFormState = { ...blankLenderForm };
+export const SECTION: React.CSSProperties = { border: "1px solid #2c3a52", borderRadius: 10, padding: 14, marginBottom: 14, background: "#0b1424" };
+export const SECTION_TITLE: React.CSSProperties = { margin: "0 0 10px", fontSize: 16, color: "#dbeafe" };
+
+export const demoLenderForm = {
+  ...blankLenderForm,
+  monthly_debt_service: "25000",
+  collateral_value: "1500000",
+  enterprise_value: "3200000",
+  annual_revenue: "2800000",
+  ebitda: "430000",
+  total_debt: "1100000",
+  has_other_guarantors: "no",
+} as any as LenderFormState;
