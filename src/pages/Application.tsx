@@ -2,7 +2,7 @@
 // All helper components live at MODULE LEVEL to fix the 1-char-per-field
 // bug (nested-component remounting on every state change).
 // Step-1 CORE Score fields are NOT asked again in Step 2.
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../lib/api";
 import { CoreBadge } from "../components/CoreBadge";
@@ -295,6 +295,30 @@ export default function Application() {
     try { await api.patchApp(publicId, state); } catch { setError("Save failed"); }
   }
 
+  // BI_WEBSITE_BLOCK_v345_AUTOSAVE_v1
+  // Debounced autosave. Same pattern as Score.tsx. Triggers ~1.5s after
+  // the last edit so users don't lose data on tab close.
+  // Skips the initial mount (state is still being hydrated from server).
+  const [savedAt, setSavedAt] = useState<number | null>(null);
+  const isHydratedRef = useRef(false);
+  useEffect(() => {
+    // Wait for first hydration: state.guarantor_name (or anything from the row)
+    // appears once `getApp` resolves. Until then, don't fire saves.
+    if (!isHydratedRef.current) {
+      if (state.guarantor_name || state.business_name || state.country) {
+        isHydratedRef.current = true;
+      }
+      return;
+    }
+    if (!publicId) return;
+    const t = setTimeout(() => {
+      api.patchApp(publicId, state)
+        .then(() => setSavedAt(Date.now()))
+        .catch(() => { /* swallow — manual Save button still works */ });
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [publicId, state]);
+
   async function handleSubmit() {
     if (!publicId) return;
     setError(null);
@@ -488,9 +512,10 @@ export default function Application() {
 
       {error && <div className="text-rose-300 mb-3">{error}</div>}
 
-      <div className="flex gap-3 mt-6">
+      <div className="flex gap-3 mt-6 items-center">
         <button type="button" onClick={handleSave} className="px-6 py-2 border border-sky-300/50 rounded text-sky-100 hover:bg-sky-500/20">Save</button>
         <button type="button" onClick={handleSubmit} disabled={submitting} className="px-6 py-2 bg-sky-500 text-white rounded disabled:opacity-50 hover:bg-sky-400">{submitting ? "Submitting…" : "Submit"}</button>
+        {savedAt && <span className="text-xs text-sky-200/70">✓ Saved {new Date(savedAt).toLocaleTimeString()}</span>}
       </div>
     </div>
   );
