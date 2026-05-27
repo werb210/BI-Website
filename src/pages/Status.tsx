@@ -17,10 +17,8 @@
 //     when action is required
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-
-const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL
-  || (import.meta as any).env?.VITE_API_URL
-  || "https://bi-server-cse0apamgkheb9d5.canadacentral-01.azurewebsites.net";
+// BI_WEBSITE_BLOCK_v347_TEST1_RUN5_v1
+import { API_BASE } from "@/config";
 
 type App = {
   public_id?: string;

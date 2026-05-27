@@ -1,6 +1,8 @@
 // BI_WEBSITE_BLOCK_v116_LENDER_APPLICATION_DETAIL_v1
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+// BI_WEBSITE_BLOCK_v347_TEST1_RUN5_v1
+import { API_BASE } from "@/config";
 
 type App = {
   id: string;
@@ -49,9 +51,6 @@ function fmtDate(iso?: string | null): string {
   if (!Number.isFinite(d.getTime())) return "—";
   return d.toLocaleString();
 }
-
-const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL
-  || "https://bi-server-cse0apamgkheb9d5.canadacentral-01.azurewebsites.net";
 
 const SECTION_STYLE: React.CSSProperties = {
   background: "#0f1729", border: "1px solid #1c2538", borderRadius: 12,

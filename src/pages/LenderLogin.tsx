@@ -2,11 +2,9 @@
 // 2-stage OTP login (phone -> code). Both stages auto-forward without a button click.
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+// BI_WEBSITE_BLOCK_v347_TEST1_RUN5_v1
+import { API_BASE } from "@/config";
 import { isPhoneReady, isCodeReady } from "../lib/otpAutoForward";
-
-const API_BASE = ((import.meta as any).env?.VITE_API_URL
-  || (import.meta as any).env?.VITE_BI_API_URL
-  || "https://bi-server-cse0apamgkheb9d5.canadacentral-01.azurewebsites.net").replace(/\/$/, "");
 
 type Stage = "phone" | "code";
 

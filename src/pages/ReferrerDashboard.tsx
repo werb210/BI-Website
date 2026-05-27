@@ -2,10 +2,8 @@
 // Referrer dashboard — 5-stage carrier pipeline + full referrals list.
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const API_BASE = ((import.meta as any).env?.VITE_API_URL
-  || (import.meta as any).env?.VITE_BI_API_URL
-  || "https://bi-server-cse0apamgkheb9d5.canadacentral-01.azurewebsites.net").replace(/\/$/, "");
+// BI_WEBSITE_BLOCK_v347_TEST1_RUN5_v1
+import { API_BASE } from "@/config";
 
 // Carrier stages — same 5 columns as lender portal. Order matters (display LtoR).
 const CARRIER_STAGES = [

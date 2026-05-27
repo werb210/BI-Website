@@ -237,9 +237,9 @@ export const PARTNER_ALLOWED_MIME = new Set<string>([
 export const PARTNER_MAX_BYTES = 5 * 1024 * 1024;
 export const ACCEPT_PARTNER_DOCS = "application/pdf,.pdf,.docx,.xlsx,.xls,.csv,.md,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,text/markdown";
 
-export const API_BASE = ((import.meta as any).env?.VITE_API_URL
-  || (import.meta as any).env?.VITE_BI_API_URL
-  || "https://bi-server-cse0apamgkheb9d5.canadacentral-01.azurewebsites.net").replace(/\/$/, "");
+// BI_WEBSITE_BLOCK_v347_TEST1_RUN5_v1 — re-export the canonical
+// API_BASE so existing import paths continue to work.
+export { API_BASE } from "@/config";
 
 export function getLenderToken(): string {
   try { return localStorage.getItem("bi.lender_token") || ""; } catch { return ""; }

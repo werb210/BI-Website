@@ -8,6 +8,8 @@
 //   - Uses useNavigate (no reload loop).
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+// BI_WEBSITE_BLOCK_v347_TEST1_RUN5_v1
+import { API_BASE } from "@/config";
 
 type App = {
   id: string;
@@ -59,10 +61,6 @@ function daysSince(iso?: string | null): string {
   if (d === 1) return "1 day";
   return `${d} days`;
 }
-
-const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL
-  || (import.meta as any).env?.VITE_API_URL
-  || "https://bi-server-cse0apamgkheb9d5.canadacentral-01.azurewebsites.net";
 
 export default function LenderPortal() {
   const navigate = useNavigate();

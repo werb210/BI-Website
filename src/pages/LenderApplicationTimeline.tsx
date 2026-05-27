@@ -1,8 +1,8 @@
 // BI_WEBSITE_BLOCK_v126_DEMO_SANDBOX_AND_CARRIER_FEEDBACK_v1
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
-const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || "https://bi-server-cse0apamgkheb9d5.canadacentral-01.azurewebsites.net";
+// BI_WEBSITE_BLOCK_v347_TEST1_RUN5_v1
+import { API_BASE } from "@/config";
 
 export default function LenderApplicationTimeline() {
   const { code } = useParams<{ code: string }>();
