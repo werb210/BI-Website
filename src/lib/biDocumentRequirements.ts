@@ -1,15 +1,21 @@
-// BI_DOC_LIST_v61 — mirror of BI-Server src/lib/biDocumentRequirements.ts.
-// Source of truth lives on the server; this file MUST stay in sync.
+// BI_WEBSITE_BLOCK_v349_CANONICAL_DOC_LIST_v1 — mirror of BI-Server
+// src/lib/biDocumentRequirements.ts. Source of truth lives on the
+// server; this file MUST stay in sync. Replaces BI_DOC_LIST_v61 which
+// used parallel doc_slot vocabulary (pl_12mo, gov_id_*) that didn't
+// map cleanly to what the upload form actually collects.
+//
+// Canonical 5 always-required + 2 startup-only, doc_type vocabulary,
+// matches PGI's intake page at
+// app.pgicover.com/applications/new/upload?from=score.
 
 export type BiDocSlot =
-  | "pl_12mo"
+  | "loan_agreement"
+  | "profit_loss"
   | "balance_sheet"
   | "ar_aging"
   | "ap_aging"
   | "founder_cv"
-  | "forecast"
-  | "gov_id_primary"
-  | "gov_id_secondary";
+  | "financial_forecast";
 
 export type BiDocRequirement = {
   slot: BiDocSlot;
@@ -22,14 +28,13 @@ export type BiDocRequirement = {
 };
 
 export const BI_DOC_REQUIREMENTS: readonly BiDocRequirement[] = [
-  { slot: "pl_12mo",          label: "Profit & Loss — last 12 months",                       description: "Monthly breakdown for the last 12 months.",                                          carrierBound: true,  conditional: "always",       hasPeriodEnd: true  },
-  { slot: "balance_sheet",    label: "Balance Sheet — most recent month-end",                description: "End of last completed month.",                                                       carrierBound: true,  conditional: "always",       hasPeriodEnd: true  },
-  { slot: "ar_aging",         label: "Accounts Receivable Aging — most recent",              description: "End of last completed month.",                                                       carrierBound: true,  conditional: "always",       hasPeriodEnd: true  },
-  { slot: "ap_aging",         label: "Accounts Payable Aging — most recent",                 description: "End of last completed month.",                                                       carrierBound: true,  conditional: "always",       hasPeriodEnd: true  },
-  { slot: "founder_cv",       label: "Founder CV(s)",                                        description: "Required for businesses under 3 years old. Upload one PDF combining all founders.", carrierBound: true,  conditional: "startup_only", hasPeriodEnd: false },
-  { slot: "forecast",         label: "Financial forecasts",                                  description: "Required for businesses under 3 years old.",                                         carrierBound: true,  conditional: "startup_only", hasPeriodEnd: false },
-  { slot: "gov_id_primary",   label: "Government Photo ID — Driver's Licence",               description: "Valid, unexpired. Boreal-internal KYC; not transmitted to the carrier.",             carrierBound: false, conditional: "always",       hasPeriodEnd: false },
-  { slot: "gov_id_secondary", label: "Government Photo ID — Passport (preferred) or other", description: "Second piece of government-issued photo ID. Boreal-internal KYC.",                   carrierBound: false, conditional: "always",       hasPeriodEnd: false },
+  { slot: "loan_agreement",     label: "Lender Agreement / Term Sheet",     description: "Upload the lender's agreement or term sheet for the loan being insured.", carrierBound: true, conditional: "always",       hasPeriodEnd: false },
+  { slot: "profit_loss",        label: "Profit & Loss Statement",           description: "Last 12 months, monthly breakdown.",                                       carrierBound: true, conditional: "always",       hasPeriodEnd: true  },
+  { slot: "balance_sheet",      label: "Balance Sheet",                     description: "Most recent month-end.",                                                   carrierBound: true, conditional: "always",       hasPeriodEnd: true  },
+  { slot: "ar_aging",           label: "Accounts Receivable Aging Summary", description: "Most recent.",                                                             carrierBound: true, conditional: "always",       hasPeriodEnd: true  },
+  { slot: "ap_aging",           label: "Accounts Payable Aging Summary",    description: "Most recent.",                                                             carrierBound: true, conditional: "always",       hasPeriodEnd: true  },
+  { slot: "founder_cv",         label: "Founder CV(s)",                     description: "Required for businesses under 3 years old. Upload one PDF combining all founders.", carrierBound: true, conditional: "startup_only", hasPeriodEnd: false },
+  { slot: "financial_forecast", label: "Financial Forecast",                description: "Required for businesses under 3 years old. 12-24 month projections.",       carrierBound: true, conditional: "startup_only", hasPeriodEnd: false },
 ] as const;
 
 /** Strict 3-year cutoff. Returns false on missing or unparseable date. */
