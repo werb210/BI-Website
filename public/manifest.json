@@ -3,13 +3,16 @@
   "name": "Boreal Risk Management",
   "short_name": "Boreal",
   "description": "Personal Guarantee Insurance for business loans",
-  "start_url": "/",
+  "start_url": "/applications/new",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#0b1f33",
   "theme_color": "#0b1f33",
-  "categories": ["finance", "business"],
+  "categories": [
+    "finance",
+    "business"
+  ],
   "icons": [
     {
       "src": "/icon.svg",

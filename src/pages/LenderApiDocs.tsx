@@ -4,8 +4,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const BI_SERVER = (import.meta.env.VITE_BI_API_URL as string | undefined)
-  ?? "https://bi-server-cse0apamgkheb9d5.canadacentral-01.azurewebsites.net";
+// BI_WEBSITE_BLOCK_v347_TEST1_RUN5_v1
+import { API_BASE } from "@/config";
 
 type Lang = "curl" | "node" | "python";
 
@@ -68,11 +68,11 @@ const V2_BODY_JSON = `{
 const SAMPLES: Record<Lang, { label: string; submit: string; list: string; docs: string }> = {
   curl: {
     label: "cURL",
-    submit: `curl -X POST ${BI_SERVER}/api/v1/lender/applications \\
+    submit: `curl -X POST ${API_BASE}/api/v1/lender/applications \\
   -H "Authorization: Bearer bk_xxxxxxxx.yyyyyyyyyyyyyyyy" \\
   -H "Content-Type: application/json" \\
   -d '${V2_BODY_JSON.replace(/\n/g, "\n  ")}'`,
-    list: `curl ${BI_SERVER}/api/v1/lender/applications \\
+    list: `curl ${API_BASE}/api/v1/lender/applications \\
   -H "Authorization: Bearer bk_xxxxxxxx.yyyyyyyyyyyyyyyy"`,
     docs: `# Upload required documents. Take application_code from the POST response.
 # Required documents (5 always):
@@ -81,7 +81,7 @@ const SAMPLES: Record<Lang, { label: string; submit: string; list: string; docs:
 #   founder_cv, financial_forecast
 # Constraints: 5 MB max per file. PDF/DOCX/XLS/XLSX/CSV/MD only (no images).
 
-curl -X POST ${BI_SERVER}/api/v1/lender/applications/PGI-A1B2C3D4/documents \\
+curl -X POST ${API_BASE}/api/v1/lender/applications/PGI-A1B2C3D4/documents \\
   -H "Authorization: Bearer bk_xxxxxxxx.yyyyyyyyyyyyyyyy" \\
   -F "files=@./term_sheet.pdf"           -F "doc_types=loan_agreement" \\
   -F "files=@./profit_loss_12mo.pdf"     -F "doc_types=profit_loss" \\
@@ -91,7 +91,7 @@ curl -X POST ${BI_SERVER}/api/v1/lender/applications/PGI-A1B2C3D4/documents \\
   },
   node: {
     label: "Node.js (fetch)",
-    submit: `const res = await fetch("${BI_SERVER}/api/v1/lender/applications", {
+    submit: `const res = await fetch("${API_BASE}/api/v1/lender/applications", {
   method: "POST",
   headers: {
     "Authorization": "Bearer bk_xxxxxxxx.yyyyyyyyyyyyyyyy",
@@ -102,7 +102,7 @@ curl -X POST ${BI_SERVER}/api/v1/lender/applications/PGI-A1B2C3D4/documents \\
 const data = await res.json();
 if (!res.ok) throw new Error(\`\${res.status}: \${JSON.stringify(data)}\`);
 console.log("application_code:", data.application_code);`,
-    list: `const res = await fetch("${BI_SERVER}/api/v1/lender/applications", {
+    list: `const res = await fetch("${API_BASE}/api/v1/lender/applications", {
   headers: { "Authorization": "Bearer bk_xxxxxxxx.yyyyyyyyyyyyyyyy" },
 });
 const data = await res.json();`,
@@ -122,7 +122,7 @@ for (const [filepath, doc_type] of docs) {
   fd.append("files",     createReadStream(filepath));
   fd.append("doc_types", doc_type);
 }
-const res = await fetch(\`${BI_SERVER}/api/v1/lender/applications/\${code}/documents\`, {
+const res = await fetch(\`${API_BASE}/api/v1/lender/applications/\${code}/documents\`, {
   method: "POST",
   headers: { "Authorization": "Bearer bk_xxxxxxxx.yyyyyyyyyyyyyyyy" },
   body: fd,
@@ -135,7 +135,7 @@ const res = await fetch(\`${BI_SERVER}/api/v1/lender/applications/\${code}/docum
 BODY = ${V2_BODY_JSON}
 
 r = requests.post(
-    "${BI_SERVER}/api/v1/lender/applications",
+    "${API_BASE}/api/v1/lender/applications",
     headers={
         "Authorization": "Bearer bk_xxxxxxxx.yyyyyyyyyyyyyyyy",
         "Content-Type": "application/json",
@@ -147,7 +147,7 @@ data = r.json()
 print("application_code:", data["application_code"])`,
     list: `import requests
 r = requests.get(
-    "${BI_SERVER}/api/v1/lender/applications",
+    "${API_BASE}/api/v1/lender/applications",
     headers={"Authorization": "Bearer bk_xxxxxxxx.yyyyyyyyyyyyyyyy"},
 )
 print(r.json())`,
@@ -163,7 +163,7 @@ DOCS = [
 files = [("files", open(p, "rb")) for p, _ in DOCS]
 data = [("doc_types", t) for _, t in DOCS]
 r = requests.post(
-    f"${BI_SERVER}/api/v1/lender/applications/{code}/documents",
+    f"${API_BASE}/api/v1/lender/applications/{code}/documents",
     headers={"Authorization": "Bearer bk_xxxxxxxx.yyyyyyyyyyyyyyyy"},
     files=files, data=data,
 )
@@ -182,7 +182,7 @@ export default function LenderApiDocs() {
   useEffect(() => {
     const token = (() => { try { return localStorage.getItem("bi.lender_token") || ""; } catch { return ""; } })();
     if (!token) { setKeysLoading(false); return; }
-    fetch(`${BI_SERVER}/api/v1/lender/api-keys`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API_BASE}/api/v1/lender/api-keys`, { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.ok ? r.json() : { keys: [] })
       .then((d) => setKeys(Array.isArray(d?.keys) ? d.keys : []))
       .catch(() => setKeys([]))
@@ -195,7 +195,7 @@ export default function LenderApiDocs() {
         <div>
           <div className="text-xs uppercase tracking-wider text-sky-300/60">Lender</div>
           <h1 className="text-2xl font-semibold">API Documentation</h1>
-          <p className="text-sm text-sky-200/70 mt-1">v2 · carrier-aligned · <a href={`${BI_SERVER}/api/v1/lender/openapi.json`} download="boreal-lender-openapi.json" className="underline text-sky-200">OpenAPI 3.1 spec</a></p>
+          <p className="text-sm text-sky-200/70 mt-1">v2 · carrier-aligned · <a href={`${API_BASE}/api/v1/lender/openapi.json`} download="boreal-lender-openapi.json" className="underline text-sky-200">OpenAPI 3.1 spec</a></p>
         </div>
         <button onClick={() => navigate("/lender/portal")} className="text-sm text-sky-200 underline">Back to portal</button>
       </div>

@@ -16,10 +16,8 @@
 // resulting application is filterable in the pipeline as a sandbox row.
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
-const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL
-  || (import.meta as any).env?.VITE_API_URL
-  || "https://bi-server-cse0apamgkheb9d5.canadacentral-01.azurewebsites.net";
+// BI_WEBSITE_BLOCK_v347_TEST1_RUN5_v1
+import { API_BASE } from "@/config";
 
 type ApiKey = {
   id: string;

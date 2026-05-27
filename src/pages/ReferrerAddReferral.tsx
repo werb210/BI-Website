@@ -1,10 +1,8 @@
 // BI_WEBSITE_BLOCK_v336_REFERRER_PORTAL_v1
 import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const API_BASE = ((import.meta as any).env?.VITE_API_URL
-  || (import.meta as any).env?.VITE_BI_API_URL
-  || "https://bi-server-cse0apamgkheb9d5.canadacentral-01.azurewebsites.net").replace(/\/$/, "");
+// BI_WEBSITE_BLOCK_v347_TEST1_RUN5_v1
+import { API_BASE } from "@/config";
 
 export default function ReferrerAddReferral() {
   const nav = useNavigate();
