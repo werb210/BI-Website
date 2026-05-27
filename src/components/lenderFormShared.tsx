@@ -128,7 +128,7 @@ export type LenderFormState = {
   naics: string; business_start_date: string; country: "CA" | "US";
   loan_amount: string; pgi_limit: string;
   q_ca_loan_type: "" | EligibleLoanType;
-  use_of_proceeds: "expansion" | "refinance" | "equipment" | "acquisition" | "working_capital" | "real_estate";
+  use_of_proceeds: "" | "expansion" | "refinance" | "equipment" | "acquisition" | "working_capital" | "real_estate";
   loan_funding_date: string; policy_start_date: string;
   csbfp_backed: YN; loan_has_guaranteed_cap: YN; personally_guaranteeing: YN;
   declarations: DeclarationsState;
@@ -142,7 +142,12 @@ export const blankLenderForm: LenderFormState = {
   business_province: "",
   naics: "", business_start_date: "", country: "CA",
   loan_amount: "", pgi_limit: "",
-  q_ca_loan_type: "", use_of_proceeds: "expansion",
+  // BI_WEBSITE_BLOCK_v347 — use_of_proceeds blank by default. A non-empty
+  // default ("expansion") shows up as "Expansion" pre-selected and on
+  // iPad-portrait the column-3 width truncates the label to "nsion",
+  // which looks like a layout bug. Empty default with a placeholder
+  // option keeps the field obviously unanswered.
+  q_ca_loan_type: "", use_of_proceeds: "",
   loan_funding_date: "", policy_start_date: "",
   csbfp_backed: "", loan_has_guaranteed_cap: "", personally_guaranteeing: "",
   declarations: { ...blankDeclarations },
