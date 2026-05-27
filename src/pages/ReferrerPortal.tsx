@@ -23,6 +23,26 @@ const STAGE_LABELS: Record<string, string> = {
   cancelled: "Cancelled",
 };
 
+// BI_WEBSITE_BLOCK_v347_LAUNCH_BLOCKERS_v1
+// Formats a referral phone for display in the dashboard table. Pre-v347
+// rows can contain unsanitized input (e.g. "5555555555555555555");
+// fall back to truncated raw if the value can't be normalized so we
+// never crash the row render.
+function formatReferralPhone(v: unknown): string {
+  if (!v) return "—";
+  const s = String(v);
+  const digits = s.replace(/\D/g, "");
+  if (digits.length === 11 && digits.startsWith("1")) {
+    return `+1 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 11)}`;
+  }
+  if (digits.length === 10) {
+    return `+1 (${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+  }
+  // Unsalvageable legacy value — show truncated so the column doesn't
+  // explode the layout.
+  return s.length > 18 ? `${s.slice(0, 15)}…` : s;
+}
+
 // BI_WEBSITE_BLOCK_v103_OTP_BASE_FIX_AND_WARMUP_v1 — mirror lib/api.ts BASE.
 const BASE = ((import.meta.env.VITE_API_URL as string | undefined)
   || (import.meta.env.VITE_BI_API_URL as string | undefined)
@@ -168,7 +188,13 @@ export default function ReferrerPortal() {
       // phone".
       const fullName = String(draft.name || "").trim();
       const email = String(draft.email || "").trim();
-      const phone = String(draft.mobile || "").trim();
+      const phoneRaw = String(draft.mobile || "").trim();
+      const phoneDigits = phoneRaw.replace(/\D/g, "");
+      let phone = "";
+      if (phoneDigits.length === 10) phone = `+1${phoneDigits}`;
+      else if (phoneDigits.length === 11 && phoneDigits.startsWith("1")) phone = `+${phoneDigits}`;
+      else if (phoneRaw === "") phone = "";
+      else { setErr("Mobile must be a 10-digit North American number (e.g. +1 555 555 5555)."); setBusy(false); return; }
       if (!fullName) { setErr("Contact name is required."); setBusy(false); return; }
       if (!email && !phone) { setErr("Provide an email or mobile number."); setBusy(false); return; }
       const payload = {
@@ -247,7 +273,7 @@ export default function ReferrerPortal() {
       <label className="bi-field"><span>6-digit code</span>
         <input type="text" inputMode="numeric" autoComplete="one-time-code" autoFocus name="code" placeholder="123456" maxLength={6} value={code} onChange={(e)=>setCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))} disabled={busy} style={{ textAlign: "center", fontSize: "1.5rem", letterSpacing: "0.3em" }} />
       </label>
-      {err && <div className="form-error">{err}</div>}
+      {err && <div className="form-error" role="alert">{err}</div>}
       <button className="primary" onClick={verifyOtp} disabled={busy || code.length !== 6}>{busy ? "Verifying…" : "Verify"}</button>
     </div>
   );
@@ -319,21 +345,28 @@ export default function ReferrerPortal() {
       {popup && (
         <div className="bi-scrape-modal">
           <h3>Add Referral</h3>
-          {[
-            ["name","Contact name"],["company","Company"],["email","Email"],["mobile","Mobile"],["notes","Notes (optional)"],
-          ].map(([k,label])=>(
-            <label key={k} className="bi-field"><span>{label}</span>
+          {([
+            ["name", "Contact name", "Jane Doe"],
+            ["company", "Company", "Acme Construction Ltd."],
+            ["email", "Email", "jane@example.com"],
+            ["mobile", "Mobile", "+1 (555) 555-5555"],
+            ["notes", "Notes (optional)", "Any context for the broker call"],
+          ] as Array<[string, string, string]>).map(([k, label, ph]) => (
+            <label key={k} className="block mb-3">
+              <span className="block text-sm text-sky-100 mb-1">{label}</span>
               <input
-                type={k === "mobile" ? "tel" : "text"}
+                className="w-full bg-sky-500/15 border border-sky-300/40 text-white placeholder:text-sky-100/50 rounded px-3 py-2 focus:outline-none focus:border-sky-300 focus:bg-sky-500/25"
+                type={k === "mobile" ? "tel" : k === "email" ? "email" : "text"}
                 inputMode={k === "mobile" ? "tel" : undefined}
-                autoComplete={k === "mobile" ? "tel" : undefined}
-                placeholder={k === "mobile" ? "+1 (555) 555-5555" : undefined}
+                autoComplete={k === "mobile" ? "tel" : k === "email" ? "email" : undefined}
+                maxLength={k === "mobile" ? 20 : k === "notes" ? 500 : 120}
+                placeholder={ph}
                 value={(draft as any)[k] ?? ""}
-                onChange={(e)=>setDraft(p=>({...p, [k]: e.target.value}))}
+                onChange={(e) => setDraft((p) => ({ ...p, [k]: e.target.value }))}
               />
             </label>
           ))}
-          {err && <div className="form-error">{err}</div>}
+          {err && <div className="form-error" role="alert">{err}</div>}
           <div className="flex gap-2 mt-3">
             <button className="primary" onClick={()=>saveReferral(false)} disabled={busy}>{busy ? "Saving…" : "Save"}</button>
             <button className="secondary" onClick={()=>saveReferral(true)} disabled={busy}>{busy ? "Saving…" : "Save & Next"}</button>
@@ -380,11 +413,11 @@ export default function ReferrerPortal() {
             <tbody>
               {items.map((m: any) => (
                 <tr key={m.id || m.public_id} className="border-b border-sky-300/10 hover:bg-sky-500/5">
-                  <td className="py-2 pr-4">{m.name || m.guarantor_name || "—"}</td>
+                  <td className="py-2 pr-4">{m.full_name || m.name || m.guarantor_name || "—"}</td>
                   <td className="py-2 pr-4">{m.company || m.company_name || "—"}</td>
                   <td className="py-2 pr-4">
                     <div>{m.email || "—"}</div>
-                    <div className="text-xs text-sky-200/70">{m.mobile || m.phone || "—"}</div>
+                    <div className="text-xs text-sky-200/70">{formatReferralPhone(m.mobile || m.phone)}</div>
                   </td>
                   <td className="py-2 pr-4">
                     <span className="inline-block px-2 py-0.5 rounded text-xs bg-sky-500/15 border border-sky-300/30">{STAGE_LABELS[m.status || m.stage] || m.status || m.stage || "—"}</span>

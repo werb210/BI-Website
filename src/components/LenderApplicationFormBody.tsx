@@ -137,7 +137,11 @@ export function LenderApplicationFormBody({ f, set, files, onPickFile, isDemoMod
         <Field label="Loan funding date *"><TextIn type="date" value={f.loan_funding_date} onChange={(v) => set("loan_funding_date", v)} /></Field>
         <Field label="Policy start date *"><TextIn type="date" value={f.policy_start_date} onChange={(v) => set("policy_start_date", v)} /></Field>
         <Field label="Use of proceeds (internal)">
+          {/* BI_WEBSITE_BLOCK_v347_LAUNCH_BLOCKERS_v1 — empty placeholder
+              option so a fresh/cleared form renders as unanswered instead
+              of showing "Expansion" cropped to "nsion" on iPad portrait. */}
           <select className={INPUT} value={f.use_of_proceeds} onChange={(e) => set("use_of_proceeds", e.target.value as LenderFormState["use_of_proceeds"])}>
+            <option value="" className="text-slate-900">Select use of proceeds…</option>
             <option value="working_capital" className="text-slate-900">Working Capital</option>
             <option value="acquisition" className="text-slate-900">Acquisition</option>
             <option value="expansion" className="text-slate-900">Expansion</option>

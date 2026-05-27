@@ -202,6 +202,64 @@ const CONSENTS = [
   { k: "coverage_understood",   label: "Do you understand what PGI covers and does not cover?" },
 ];
 
+// BI_WEBSITE_BLOCK_v347_LAUNCH_BLOCKERS_v1
+// Server error code/field → human label. Used by humanizeSubmitError so the
+// red banner says "Please confirm the solvency declaration" instead of
+// "missing_consents".
+const FIELD_LABELS: Record<string, string> = {
+  info_accurate: "the truthfulness declaration (\"I confirm answers are true\")",
+  business_solvent: "the solvency declaration (\"Is the company solvent?\")",
+  electronic_signature: "the electronic signature consent",
+  no_undisclosed_events: "the no-undisclosed-events consent",
+  data_use: "the data-use consent",
+  credit_pull: "the credit-report authorization",
+  coverage_understood: "the PGI coverage acknowledgement",
+  section_3_c: "the truthfulness declaration",
+  section_6_a: "the solvency declaration",
+};
+
+function formatStartedDate(v: unknown): string {
+  if (!v) return "—";
+  const s = String(v);
+  // Accept either "YYYY-MM-DD" or full ISO datetime.
+  const d = new Date(s.length === 10 ? `${s}T00:00:00Z` : s);
+  if (Number.isNaN(d.getTime())) return s;
+  return d.toLocaleDateString(undefined, { month: "long", year: "numeric", timeZone: "UTC" });
+}
+
+function humanizeSubmitError(payload: any): string {
+  if (!payload) return "Submit failed";
+  const code: string = String(payload.error ?? payload.message ?? "Submit failed");
+  const arr: string[] = Array.isArray(payload.fields)
+    ? payload.fields
+    : Array.isArray(payload.missing)
+    ? payload.missing
+    : [];
+  const labels = arr.map((k) => FIELD_LABELS[k] ?? k);
+  if (code === "missing_consents") {
+    return labels.length
+      ? `Please confirm: ${labels.join("; ")}.`
+      : "Please confirm the declarations and consents at the bottom of the form.";
+  }
+  if (code === "missing_fields") {
+    return labels.length
+      ? `Please complete: ${labels.join("; ")}.`
+      : "Some required fields are missing.";
+  }
+  if (code === "validation") {
+    return labels.length
+      ? `Please complete: ${labels.join("; ")}.`
+      : "Some required fields are missing.";
+  }
+  if (code === "quebec_blocked") return "PGI does not currently write business in Quebec.";
+  if (code === "loan_amount_over_cap") return "Loan amount exceeds the $1,000,000 maximum.";
+  if (code === "pgi_limit_over_cap") return "PGI limit exceeds the $1,000,000 maximum.";
+  if (code === "pgi_limit_over_loan") return "PGI limit cannot exceed loan amount.";
+  if (code === "loan_type_ineligible") return "The selected loan type is not eligible for Canadian PGI coverage.";
+  return code;
+}
+
+
 // ---------- Component ----------
 
 export default function Application() {
@@ -345,11 +403,11 @@ export default function Application() {
       const r: any = await api.submit(publicId);
       if (r?.ok) nav(`/applications/${publicId}/documents`);
       else if (r?.errors) setServerFieldErrors(r.errors);
-      else setError(r?.error || "Submit failed");
+      else setError(humanizeSubmitError(r));
     } catch (e: any) {
       const data = e?.data;
       if (data?.errors) setServerFieldErrors(data.errors);
-      else setError(e?.message || "Submit failed");
+      else setError(humanizeSubmitError(data ?? { error: e?.message }));
     } finally {
       setSubmitting(false);
     }
@@ -380,7 +438,7 @@ export default function Application() {
           <div><div className="text-sky-200/70 text-xs">Loan</div><div>${loanNum.toLocaleString()}</div></div>
           <div><div className="text-sky-200/70 text-xs">PGI limit</div><div>${pgiNum.toLocaleString()} <span className="text-sky-200/60 text-xs">(max ${maxAllowedPgi.toLocaleString()} at 80%)</span></div></div>
           <div><div className="text-sky-200/70 text-xs">NAICS</div><div>{state.naics_code || "—"}</div></div>
-          <div><div className="text-sky-200/70 text-xs">Started</div><div>{state.formation_date || "—"}</div></div>
+          <div><div className="text-sky-200/70 text-xs">Started</div><div>{formatStartedDate(state.formation_date)}</div></div>
         </div>
       </div>
 
@@ -510,7 +568,7 @@ export default function Application() {
         ))}
       </div>
 
-      {error && <div className="text-rose-300 mb-3">{error}</div>}
+      {error && <div className="text-rose-300 mb-3" role="alert">{error}</div>}
 
       <div className="flex gap-3 mt-6 items-center">
         <button type="button" onClick={handleSave} className="px-6 py-2 border border-sky-300/50 rounded text-sky-100 hover:bg-sky-500/20">Save</button>
