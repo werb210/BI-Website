@@ -28,12 +28,25 @@ import { api } from "../lib/api";
 
 // Slots flagged `multi: true` accept >1 file via <input multiple>. The
 // state for those slots is a File[]; single-file slots remain a File.
+// BI_WEBSITE_BLOCK_v348_DOCS_LIST_AND_POSTAL_FORMAT_v1
+// Canonical 5-doc list, verified against PGI's own intake UI at
+// app.pgicover.com/applications/new/upload?from=score (Screenshot
+// "2026-05-26 at 6.58.58 PM.png"). Server allow-list at
+// bi-server/src/routes/biPublicApplicationRoutes.ts:594-597 contains
+// exactly these five plus founder_cv + financial_forecast (added
+// dynamically by RequiredDocumentsList.tsx when business <3 years).
+//
+// Pre-v348 the list contained "annual_financials_3yr" which is NOT in
+// the server allow-list, so every upload 400'd with invalid_doc_type
+// (red banner visible in IMG_1030/IMG_1032). It was also missing
+// loan_agreement (Lender Agreement / Term Sheet), which PGI lists
+// FIRST on their own intake page.
 const REQUIRED_DOCS: Array<{ key: string; label: string; pgiType: string; multi?: boolean }> = [
-  { key: "profit_loss",            label: "Profit & Loss (last 12 months, monthly breakdown)",         pgiType: "profit_loss" },
-  { key: "balance_sheet",          label: "Balance Sheet (most recent month-end)",                     pgiType: "balance_sheet" },
-  { key: "annual_financials_3yr",  label: "3 Years Accountant-Prepared Annual Financials",             pgiType: "annual_financials_3yr", multi: true },
-  { key: "ar_aging",               label: "Accounts Receivable Aging Summary (most recent)",            pgiType: "ar_aging" },
-  { key: "ap_aging",               label: "Accounts Payable Aging Summary (most recent)",               pgiType: "ap_aging" },
+  { key: "loan_agreement", label: "Lender Agreement / Term Sheet",                            pgiType: "loan_agreement" },
+  { key: "profit_loss",    label: "Profit & Loss Statement (last 12 months, monthly breakdown)", pgiType: "profit_loss" },
+  { key: "balance_sheet",  label: "Balance Sheet (most recent month-end)",                    pgiType: "balance_sheet" },
+  { key: "ar_aging",       label: "Accounts Receivable Aging Summary (most recent)",          pgiType: "ar_aging" },
+  { key: "ap_aging",       label: "Accounts Payable Aging Summary (most recent)",             pgiType: "ap_aging" },
 ];
 
 type DocState = {

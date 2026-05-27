@@ -109,6 +109,20 @@ function DateField({ label, value, onChange, withTodayButton, error }: {
   );
 }
 
+// BI_WEBSITE_BLOCK_v348_DOCS_LIST_AND_POSTAL_FORMAT_v1
+// Normalize a Canadian postal code as the user types so what gets
+// stored is the canonical "A1A 1A1" form even when the user types
+// "t3p1p6" or "T3P-1P6" etc. Strips every non-alphanumeric, uppercases,
+// then inserts a space after position 3 once enough characters are
+// present. Idempotent: feeding the already-normalized value back in
+// returns it unchanged. The validation regex at line 42 already
+// accepts the canonical form, so this just upgrades stored values.
+function formatPostalCode(raw: string): string {
+  const clean = raw.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 6);
+  if (clean.length <= 3) return clean;
+  return clean.slice(0, 3) + " " + clean.slice(3);
+}
+
 function AddressFieldGroup({ label, value, onChange, error }: {
   label: string; value: AddressState; onChange: (next: AddressState) => void; error?: string;
 }) {
@@ -134,7 +148,19 @@ function AddressFieldGroup({ label, value, onChange, error }: {
         </div>
         <div>
           <label className={LABEL_CLS}>Postal code</label>
-          <input className={INPUT_CLS} value={addr.postal_code} placeholder="A1A 1A1" onChange={(e) => onChange({ ...addr, postal_code: e.target.value })} />
+          {/* BI_WEBSITE_BLOCK_v348 — normalize on every keystroke so the
+              stored value is canonical "A1A 1A1" regardless of how the
+              user typed it ("t3p1p6", "T3P-1P6", "T3P1P6" all become
+              "T3P 1P6"). */}
+          <input
+            className={INPUT_CLS}
+            value={addr.postal_code}
+            placeholder="A1A 1A1"
+            inputMode="text"
+            autoCapitalize="characters"
+            maxLength={7}
+            onChange={(e) => onChange({ ...addr, postal_code: formatPostalCode(e.target.value) })}
+          />
         </div>
       </div>
       {error && <p className={ERROR_CLS}>{error}</p>}
