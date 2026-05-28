@@ -18,6 +18,16 @@ export function isPhoneReady(raw: string): boolean {
   if (digits.length === 11 && digits.startsWith("1")) return true;
   return false;
 }
+// BI_WEBSITE_BLOCK_v399_OTP_CANONICAL_KEY_v1
+// Collapse a phone to a stable key so the auto-fire guard treats e.g.
+// "7802648467" (10) and "17802648467" (11, leading 1) as the SAME number.
+// The raw-digit guard didn't, so typing/autofilling the country code fired
+// /otp/start twice — and the server then canceled the first (live) code.
+export function canonicalPhoneDigits(raw: string): string {
+  const d = (raw ?? "").replace(/[^0-9]/g, "");
+  if (d.length === 11 && d.startsWith("1")) return d.slice(1);
+  return d;
+}
 export const OTP_CODE_LENGTH = 6;
 export function isCodeReady(raw: string): boolean {
   return (raw ?? "").replace(/[^0-9]/g, "").length === OTP_CODE_LENGTH;
