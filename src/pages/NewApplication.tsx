@@ -8,7 +8,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, setApplicantToken } from "../lib/api";
-import { isPhoneReady, isCodeReady, OTP_CODE_LENGTH } from "../lib/otpAutoForward";
+import { isPhoneReady, isCodeReady, OTP_CODE_LENGTH, canonicalPhoneDigits } from "../lib/otpAutoForward";
 
 export default function NewApplication() {
   const nav = useNavigate();
@@ -28,17 +28,19 @@ export default function NewApplication() {
   async function startOtp(p: string) {
     if (startedRef.current || busy) return;
     startedRef.current = true;
+    // BI_WEBSITE_BLOCK_v399 — mark sent BEFORE the await so a 10->11 digit
+    // transition during the in-flight request can't queue a second start.
+    sentForDigitsRef.current = canonicalPhoneDigits(p);
     setErr(null);
     setBusy(true);
     try {
       await api.applicantOtpStart(p);
-      // BI_WEBSITE_BLOCK_v325 — remember success so backToPhone() doesn't re-send.
-      sentForDigitsRef.current = String(p || "").replace(/\D/g, "");
       setStage("code");
       // focus the code input on next paint
       setTimeout(() => codeInputRef.current?.focus(), 0);
     } catch (e: any) {
       startedRef.current = false; // allow retry
+      sentForDigitsRef.current = null; // failed → allow auto-fire to retry
       setErr(e?.message ?? "Failed to send code. Please try again.");
     } finally {
       setBusy(false);
@@ -95,10 +97,10 @@ export default function NewApplication() {
   // against a re-trigger if the effect fires twice (React strict mode).
   useEffect(() => {
     if (stage !== "phone") return;
-    const digits = String(phone || "").replace(/\D/g, "");
-    // BI_WEBSITE_BLOCK_v325 — don't auto-resend for a phone we already sent to.
-    if (sentForDigitsRef.current === digits) return;
-    if (digits.length === 10 || digits.length === 11) void startOtp(phone);
+    // BI_WEBSITE_BLOCK_v399 — dedupe on the canonical number, not raw digits.
+    if (!isPhoneReady(phone)) return;
+    if (sentForDigitsRef.current === canonicalPhoneDigits(phone)) return;
+    void startOtp(phone);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phone, stage]);
 

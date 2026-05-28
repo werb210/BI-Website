@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 // BI_WEBSITE_BLOCK_v347_TEST1_RUN5_v1
 import { API_BASE } from "@/config";
-import { isPhoneReady, isCodeReady } from "../lib/otpAutoForward";
+import { isPhoneReady, isCodeReady, canonicalPhoneDigits } from "../lib/otpAutoForward";
 
 type Stage = "phone" | "code";
 
@@ -27,6 +27,8 @@ export default function LenderLogin() {
   async function start() {
     if (startedRef.current || busy) return;
     startedRef.current = true;
+    // BI_WEBSITE_BLOCK_v399 — mark sent BEFORE the await (sms only).
+    if (method === "sms") sentForDigitsRef.current = canonicalPhoneDigits(phone);
     setErr(null); setBusy(true);
     try {
       const r = await fetch(`${API_BASE}/api/v1/lender/otp/start`, {
@@ -37,22 +39,21 @@ export default function LenderLogin() {
       if (r.status === 404) {
         setErr(method === "email" ? "This email is not registered as a lender. Contact your Boreal Risk Management rep." : "This phone number is not registered as a lender. Contact your Boreal Risk Management rep.");
         startedRef.current = false;
+        sentForDigitsRef.current = null;
         return;
       }
       if (!r.ok) {
         const j = await r.json().catch(() => ({}));
         setErr(j?.error || `Could not send code (${r.status}).`);
         startedRef.current = false;
+        sentForDigitsRef.current = null;
         return;
-      }
-      // BI_WEBSITE_BLOCK_v325 — remember success so Change-number doesn't re-send.
-      if (method === "sms") {
-        sentForDigitsRef.current = String(phone || "").replace(/\D/g, "");
       }
       setStage("code");
       setTimeout(() => codeInputRef.current?.focus(), 0);
     } catch (e: any) {
       startedRef.current = false;
+      sentForDigitsRef.current = null;
       setErr(e?.message || "Network error");
     } finally { setBusy(false); }
   }
@@ -89,9 +90,8 @@ export default function LenderLogin() {
   // Auto-forward phone -> start OTP
   useEffect(() => {
     if (stage === "phone" && method === "sms" && isPhoneReady(phone)) {
-      // BI_WEBSITE_BLOCK_v325 — don't auto-resend for the same digits.
-      const digits = String(phone || "").replace(/\D/g, "");
-      if (sentForDigitsRef.current === digits) return;
+      // BI_WEBSITE_BLOCK_v399 — dedupe on the canonical number, not raw digits.
+      if (sentForDigitsRef.current === canonicalPhoneDigits(phone)) return;
       void start();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
