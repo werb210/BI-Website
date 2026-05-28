@@ -9,6 +9,7 @@ import {
   getLenderToken,
   LenderFormState,
 } from "../components/lenderFormShared";
+import { enterDemoSession, exitDemoSession, isInDemoSession } from "../lib/demoSession";
 
 const DEMO_FILENAMES: Record<string, string> = {
   loan_agreement: "demo_lender_agreement.pdf",
@@ -22,12 +23,20 @@ const DEMO_FILENAMES: Record<string, string> = {
 
 export default function LenderApplicationDemo() {
   const navigate = useNavigate();
-  const realTokenOnMount = useMemo(() => getLenderToken(), []);
+  const realTokenOnMount = useMemo(() => {
+    try {
+      if (isInDemoSession()) {
+        return localStorage.getItem("bi.real_token_backup") || getLenderToken() || "";
+      }
+    } catch { }
+    return getLenderToken();
+  }, []);
   const [demoToken, setDemoToken] = useState<string>("");
   const [demoReady, setDemoReady] = useState(false);
   const [f, setF] = useState<LenderFormState>(demoLenderForm);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState(false);
 
   const docSlotsForCurrent = useMemo(() => docSlotsFor(f.business_start_date), [f.business_start_date]);
   const files = useMemo(() => {
@@ -47,11 +56,7 @@ export default function LenderApplicationDemo() {
       navigate("/lender/login", { replace: true });
       return;
     }
-    try {
-      localStorage.setItem("bi.real_token_backup", realTokenOnMount);
-      localStorage.setItem("bi.is_demo_session", "1");
-      localStorage.setItem("bi.demo_session_started_at", new Date().toISOString());
-    } catch {}
+    enterDemoSession(realTokenOnMount);
 
     let alive = true;
     (async () => {
@@ -100,7 +105,15 @@ export default function LenderApplicationDemo() {
   }
 
   function resetDemo() { setF(demoLenderForm); }
-  function cancel() { navigate("/lender/portal"); }
+  async function cancel() {
+    if (cancelling) return;
+    setCancelling(true);
+    try {
+      await exitDemoSession({ apiBase: API_BASE, navigate });
+    } finally {
+      setCancelling(false);
+    }
+  }
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-6xl text-white">
@@ -123,7 +136,7 @@ export default function LenderApplicationDemo() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
         <div className="flex gap-3">
-          <button type="button" onClick={cancel} className="px-4 py-2 border border-sky-300/50 rounded text-sky-100 hover:bg-sky-500/20">Cancel</button>
+          <button type="button" onClick={cancel} disabled={cancelling} className="px-4 py-2 border border-sky-300/50 rounded text-sky-100 hover:bg-sky-500/20 disabled:opacity-40">{cancelling ? "Exiting…" : "Cancel"}</button>
           <button type="button" onClick={onSubmit} disabled={!demoReady || busy} className="px-6 py-2 bg-sky-500 text-white rounded disabled:opacity-40 hover:bg-sky-400">{busy ? "Submitting…" : "Submit demo application"}</button>
         </div>
       </div>
