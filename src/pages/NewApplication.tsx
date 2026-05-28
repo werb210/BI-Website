@@ -55,6 +55,15 @@ export default function NewApplication() {
     try {
       const { token } = await api.applicantOtpVerify(p, c);
       setApplicantToken(token);
+      // BI_WEBSITE_BLOCK_v402_NEXT_PARAM_v1 — honor ?next= for the BF→BI
+      // SMS handoff link (https://www.boreal.insure/login?next=/applications/<id>).
+      // Only allow same-origin internal paths (starts with "/" but not "//")
+      // to prevent open-redirect through the next param.
+      const nextParam = new URLSearchParams(window.location.search).get("next");
+      if (nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")) {
+        nav(nextParam);
+        return;
+      }
       // BI_WEBSITE_BLOCK_v130_DEFER_DOCS_FLOW_v1 — if a previously-started application is
       // still waiting on documents, jump straight to its upload page
       // instead of restarting the score flow.

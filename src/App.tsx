@@ -115,6 +115,7 @@ export default function App() {
             <Route path="/lender/applications/new" element={<LenderApplicationNew />} />
             <Route path="/lender/applications/:code" element={<LenderApplicationDetail />} />
             <Route path="/lender/applications/:code/timeline" element={<LenderApplicationTimeline />} /> {/* BI_WEBSITE_BLOCK_v126_DEMO_SANDBOX_AND_CARRIER_FEEDBACK_v1 */}
+            <Route path="/login" element={<NewApplication />} /> {/* BI_WEBSITE_BLOCK_v402_LOGIN_ROUTE_v1 — receives the BF→BI handoff SMS link (https://www.boreal.insure/login?next=/applications/<id>) */}
             <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
         </main>
