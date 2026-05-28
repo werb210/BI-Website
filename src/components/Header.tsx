@@ -61,7 +61,7 @@ export default function Header() {
           style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", minWidth: 0 }}
           onClick={() => setOpen(false)}
         >
-          <img src={logoUrl} alt="" style={{ height: 32, width: "auto", flexShrink: 0 }} />
+          <img src={logoUrl} alt="" style={{ height: 40, width: "auto", flexShrink: 0 }} />
           <span style={{ fontWeight: 600, fontSize: 18, color: "white", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             Boreal Risk Management
           </span>
