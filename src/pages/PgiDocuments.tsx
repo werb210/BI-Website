@@ -53,16 +53,10 @@ type DocState = {
   status: "pending" | "uploaded" | "accepted" | "rejected";
   rejection_reason?: string;
   last_uploaded_at?: string;
+  filename?: string;
 };
 
-export default function PgiDocuments() {
-  const { publicId } = useParams<{ publicId: string }>();
-  const nav = useNavigate();
-  const [docState, setDocState] = useState<Record<string, DocState>>({});
-  const [statusLoadFailed, setStatusLoadFailed] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
-
-  function deriveDocState(documents: any[]): Record<string, DocState> {
+export function deriveDocState(documents: any[]): Record<string, DocState> {
     const byType = new Map<string, any[]>();
     for (const d of documents ?? []) {
       const key = d.doc_type ?? d.pgiType;
@@ -79,22 +73,59 @@ export default function PgiDocuments() {
         next[required.pgiType] = { status: "pending" };
         continue;
       }
-      rows.sort((a, b) => new Date(b.uploaded_at ?? b.last_uploaded_at ?? 0).getTime() - new Date(a.uploaded_at ?? a.last_uploaded_at ?? 0).getTime());
+      const ts = (d: any) => new Date(d.created_at ?? d.uploaded_at ?? d.last_uploaded_at ?? 0).getTime();
+      rows.sort((a, b) => ts(b) - ts(a));
       const latest = rows[0];
+      const filename = latest.original_filename ?? latest.filename ?? undefined;
+      const lastAt = latest.created_at ?? latest.uploaded_at ?? latest.last_uploaded_at;
       if (latest.review_status === "accepted") {
-        next[required.pgiType] = { status: "accepted", last_uploaded_at: latest.uploaded_at ?? latest.last_uploaded_at };
+        next[required.pgiType] = { status: "accepted", last_uploaded_at: lastAt, filename };
       } else if (latest.review_status === "rejected") {
         next[required.pgiType] = {
           status: "rejected",
           rejection_reason: latest.rejection_reason ?? undefined,
-          last_uploaded_at: latest.uploaded_at ?? latest.last_uploaded_at,
+          last_uploaded_at: lastAt,
+          filename,
         };
       } else {
-        next[required.pgiType] = { status: "uploaded", last_uploaded_at: latest.uploaded_at ?? latest.last_uploaded_at };
+        next[required.pgiType] = { status: "uploaded", last_uploaded_at: lastAt, filename };
       }
     }
     return next;
-  }
+}
+
+export function shouldShowInput(status: DocState["status"], isReplacing: boolean): boolean {
+  return status === "pending" || status === "rejected" || (status === "uploaded" && isReplacing);
+}
+
+export type DocSummary = { total: number; accepted: number; rejected: number; pending: number; uploaded: number };
+
+export function bannerKind(s: DocSummary): "rejected" | "all_accepted" | "all_uploaded" | "mixed" {
+  if (s.rejected > 0) return "rejected";
+  if (s.accepted === s.total) return "all_accepted";
+  if (s.pending === 0) return "all_uploaded";
+  return "mixed";
+}
+
+export function summarize(docState: Record<string, DocState>): DocSummary {
+  return REQUIRED_DOCS.reduce((acc, d) => {
+    const status = docState[d.pgiType]?.status ?? "pending";
+    acc.total += 1;
+    if (status === "accepted") acc.accepted += 1;
+    if (status === "rejected") acc.rejected += 1;
+    if (status === "pending") acc.pending += 1;
+    if (status === "uploaded") acc.uploaded += 1;
+    return acc;
+  }, { total: 0, accepted: 0, rejected: 0, pending: 0, uploaded: 0 });
+}
+
+export default function PgiDocuments() {
+  const { publicId } = useParams<{ publicId: string }>();
+  const nav = useNavigate();
+  const [docState, setDocState] = useState<Record<string, DocState>>({});
+  const [statusLoadFailed, setStatusLoadFailed] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const [replacing, setReplacing] = useState<Set<string>>(new Set());
 
   async function refreshDocState() {
     if (!publicId) return;
@@ -168,6 +199,12 @@ export default function PgiDocuments() {
     setErr(null);
     try {
       await api.uploadDocs(publicId!, list.map((file) => ({ docType: pgiType, file })));
+      setReplacing((prev) => {
+        if (!prev.has(pgiType)) return prev;
+        const next = new Set(prev);
+        next.delete(pgiType);
+        return next;
+      });
       await refreshDocState();
     } catch (ex: any) {
       setErr(ex.message ?? "Upload failed");
@@ -175,15 +212,7 @@ export default function PgiDocuments() {
     }
   }
 
-  const summary = REQUIRED_DOCS.reduce((acc, d) => {
-    const status = docState[d.pgiType]?.status ?? "pending";
-    acc.total += 1;
-    if (status === "accepted") acc.accepted += 1;
-    if (status === "rejected") acc.rejected += 1;
-    if (status === "pending") acc.pending += 1;
-    if (status === "uploaded") acc.uploaded += 1;
-    return acc;
-  }, { total: 0, accepted: 0, rejected: 0, pending: 0, uploaded: 0 });
+  const summary = summarize(docState);
 
   function finish() {
     // BI_WEBSITE_BLOCK_v178_FULL_WAVE_v1 — submit no longer requires
@@ -226,28 +255,37 @@ export default function PgiDocuments() {
           </div>
         )}
 
-        {summary.rejected > 0 ? (
+        {bannerKind(summary) === "rejected" ? (
           <div className="mb-4 rounded border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-100">
             ⚠ {summary.rejected} document(s) need your attention — please re-upload below.
           </div>
-        ) : summary.accepted < summary.total ? (
-          <div className="mb-4 rounded border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-100">
-            {summary.accepted}/{summary.total} documents accepted. {summary.pending + summary.uploaded} outstanding.
-          </div>
-        ) : (
+        ) : bannerKind(summary) === "all_accepted" ? (
           <div className="mb-4 rounded border border-green-500/40 bg-green-500/10 p-3 text-sm text-green-100">
             ✓ All documents received and accepted.
+          </div>
+        ) : bannerKind(summary) === "all_uploaded" ? (
+          <div className="mb-4 rounded border border-blue-500/40 bg-blue-500/10 p-3 text-sm text-blue-100">
+            ✓ All {summary.total} documents uploaded — waiting on Boreal review. Nothing more needed from you.
+          </div>
+        ) : (
+          <div className="mb-4 rounded border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-100">
+            {summary.pending} of {summary.total} document(s) still needed
+            {summary.uploaded + summary.accepted > 0 && ` — ${summary.uploaded + summary.accepted} already uploaded.`}
           </div>
         )}
 
         <ul className="space-y-3">
-          {REQUIRED_DOCS.map((d) => (
+          {REQUIRED_DOCS.map((d) => {
+            const current = docState[d.pgiType] ?? { status: "pending" as const };
+            const isReplacing = replacing.has(d.pgiType);
+            const showInput = shouldShowInput(current.status, isReplacing);
+            const canReplace = current.status === "uploaded" && !isReplacing;
+            return (
             <li key={d.key} className="flex flex-col gap-2 rounded-lg border border-card bg-bf-surface p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="font-semibold">{d.label}</div>
                 <div className="mt-1">
                   {(() => {
-                    const current = docState[d.pgiType] ?? { status: "pending" as const };
                     const statusConfig = {
                       pending: { text: "Required", cls: "bg-gray-100 text-gray-700 ring-1 ring-gray-300" },
                       uploaded: { text: "Uploaded — under review", cls: "bg-blue-50 text-blue-700 ring-1 ring-blue-200" },
@@ -259,6 +297,9 @@ export default function PgiDocuments() {
                         <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${statusConfig.cls}`}>
                           {statusConfig.text}
                         </span>
+                        {(current.status === "uploaded" || current.status === "accepted") && current.filename && (
+                          <div className="mt-1 text-xs text-bf-textMuted">{current.filename}</div>
+                        )}
                         {current.status === "rejected" && current.rejection_reason && (
                           <div className="mt-1 text-xs italic text-bf-textMuted">{current.rejection_reason}</div>
                         )}
@@ -268,15 +309,22 @@ export default function PgiDocuments() {
                 </div>
               </div>
               <div>
-                <input
+                {showInput && <input
                   type="file"
                   multiple={d.multi === true}
                   accept="application/pdf,.pdf,.docx,.xlsx,.xls,.csv,.md,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,text/markdown"
                   onChange={(e) => pick(d.key, d.multi === true, e)}
-                />
+                />}
+                {canReplace && (
+                  <button type="button" onClick={() => setReplacing((prev) => new Set(prev).add(d.pgiType))} className="text-xs font-medium text-blue-300 underline hover:text-blue-200">Replace file</button>
+                )}
+                {isReplacing && (
+                  <button type="button" onClick={() => setReplacing((prev) => { const n = new Set(prev); n.delete(d.pgiType); return n; })} className="text-xs text-bf-textMuted underline hover:text-white">Cancel</button>
+                )}
               </div>
             </li>
-          ))}
+          );
+          })}
         </ul>
 
         {/* BI_WEBSITE_BLOCK_v180_DEMO_TOKEN_AND_AUTO_UPLOAD_v1 — "Upload
