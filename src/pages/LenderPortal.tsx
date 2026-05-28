@@ -10,6 +10,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 // BI_WEBSITE_BLOCK_v347_TEST1_RUN5_v1
 import { API_BASE } from "@/config";
+import { exitDemoSession } from "../lib/demoSession";
 
 type App = {
   id: string;
@@ -109,39 +110,10 @@ export default function LenderPortal() {
   const demoActive = useMemo(() => { try { return localStorage.getItem("bi.is_demo_session") === "1"; } catch { return false; } }, []);
 
   async function exitDemo() {
-    // BI_WEBSITE_BLOCK_v304_LENDER_DEMO_CLEANUP_v1 — call BI-Server to
-    // delete demo applications created during this session, then restore
-    // the real lender token and reload. Tolerates a missing/older server
-    // endpoint by logging and proceeding with the local cleanup; that
-    // way the visible UX still works even if the server PR hasn't
-    // deployed yet.
-    const startedAt = (() => {
-      try { return localStorage.getItem("bi.demo_session_started_at") || ""; } catch { return ""; }
-    })();
-    const token = (() => {
-      try { return localStorage.getItem("bi.lender_token") || ""; } catch { return ""; }
-    })();
-    if (startedAt && token) {
-      try {
-        await fetch(`${API_BASE}/api/v1/bi/lender/demo/cleanup`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ session_started_at: startedAt }),
-        });
-      } catch (err) {
-        // Non-fatal: proceed with local cleanup anyway.
-        // eslint-disable-next-line no-console
-        console.warn("[demo] cleanup endpoint unavailable; proceeding", err);
-      }
-    }
-    try {
-      const backup = localStorage.getItem("bi.real_token_backup") || "";
-      if (backup) localStorage.setItem("bi.lender_token", backup);
-      localStorage.removeItem("bi.real_token_backup");
-      localStorage.removeItem("bi.is_demo_session");
-      localStorage.removeItem("bi.demo_session_started_at");
-    } catch {}
-    window.location.reload();
+    await exitDemoSession({
+      apiBase: API_BASE,
+      reload: () => window.location.reload(),
+    });
   }
 
   const grouped = useMemo(() => {
