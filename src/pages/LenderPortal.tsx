@@ -66,7 +66,7 @@ function daysSince(iso?: string | null): string {
 export default function LenderPortal() {
   const navigate = useNavigate();
   const [apps, setApps] = useState<App[] | null>(null);
-  const [me, setMe] = useState<{ name?: string; company_name?: string } | null>(null);
+  const [me, setMe] = useState<{ name?: string; company_name?: string; has_active_key?: boolean } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const token = useMemo(() => {
@@ -144,13 +144,15 @@ export default function LenderPortal() {
             style={{ ...BTN, background: "#3b82f6", color: "white", border: "none" }}>
             + New Application
           </button>
-          {/* BI_WEBSITE_BLOCK_v98_BRANDING_v1 — restore Try Demo App button */}
-          <button onClick={() => navigate("/lender/demo")}
-            style={{ ...BTN, background: "transparent",
-                     border: "1px solid #fbbf24", color: "#fbbf24",
-                     fontWeight: 500 }}>
-            ✨ Try Demo App
-          </button>
+          {/* BI_WEBSITE_BLOCK_v415_DEMO_HIDE_WHEN_KEYED_v1 — hide demo for active lenders with an active key */}
+          {!me?.has_active_key && (
+            <button onClick={() => navigate("/lender/demo")}
+              style={{ ...BTN, background: "transparent",
+                       border: "1px solid #fbbf24", color: "#fbbf24",
+                       fontWeight: 500 }}>
+              ✨ Try Demo App
+            </button>
+          )}
           <a href="/lender/api" onClick={(e) => { e.preventDefault(); navigate("/lender/api"); }}
             style={{ ...BTN, background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1",
                      textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
