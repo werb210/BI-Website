@@ -3,7 +3,7 @@
 // Adds the new Footer below <main> and wraps the whole tree in a
 // flex column so the footer hugs the viewport bottom on short pages.
 import { useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import QuoteModal from "./components/QuoteModal";
@@ -45,6 +45,14 @@ import LenderApplicationNew from "./pages/LenderApplicationNew";
 import LenderLogin from "./pages/LenderLogin"; // BI_WEBSITE_BLOCK_v120_MULTI_LENDER_PUBLIC_AND_LENDER_DOCS_AND_LOGIN_v1
 import LenderApplicationDetail from "./pages/LenderApplicationDetail";
 import LenderApplicationTimeline from "./pages/LenderApplicationTimeline"; // BI_WEBSITE_BLOCK_v126_DEMO_SANDBOX_AND_CARRIER_FEEDBACK_v1
+
+// BI_WEBSITE_BLOCK_v403 — bare /applications/:publicId (the BF->BI handoff SMS
+// link, and any link missing a sub-route) redirects to the form, so OTP no
+// longer dead-ends on the catch-all "*" -> "/" (the main page).
+function ApplicationIndexRedirect() {
+  const { publicId } = useParams();
+  return <Navigate to={`/applications/${publicId}/form`} replace />;
+}
 
 export default function App() {
   // BI_WEBSITE_BLOCK_v344_REFERRER_WIRE_BRIDGE_v1
@@ -116,6 +124,7 @@ export default function App() {
             <Route path="/lender/applications/:code" element={<LenderApplicationDetail />} />
             <Route path="/lender/applications/:code/timeline" element={<LenderApplicationTimeline />} /> {/* BI_WEBSITE_BLOCK_v126_DEMO_SANDBOX_AND_CARRIER_FEEDBACK_v1 */}
             <Route path="/login" element={<NewApplication />} /> {/* BI_WEBSITE_BLOCK_v402_LOGIN_ROUTE_v1 — receives the BF→BI handoff SMS link (https://www.boreal.insure/login?next=/applications/<id>) */}
+            <Route path="/applications/:publicId" element={<ApplicationIndexRedirect />} /> {/* BI_WEBSITE_BLOCK_v403 — bare handoff link -> form */}
             <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
         </main>
