@@ -35,6 +35,8 @@ type Referral = {
   id: string;
   public_id: string;
   status: string;
+  // BI_WEBSITE_BLOCK_v310_PIPELINE_LIVE_v1 — live BI application stage (from the join)
+  application_status?: string | null;
   company_name: string | null;
   guarantor_name: string | null;
   loan_amount: number | string | null;
@@ -55,7 +57,8 @@ export default function ReferrerDashboard() {
 
   useEffect(() => {
     if (!token) { nav("/referrer/login"); return; }
-    (async () => {
+    let alive = true;
+    const load = async () => {
       try {
         const r = await fetch(`${API_BASE}/api/v1/referrer/referrals`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -63,13 +66,19 @@ export default function ReferrerDashboard() {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const data = await r.json();
         const list: Referral[] = Array.isArray(data?.referrals) ? data.referrals : Array.isArray(data) ? data : [];
+        if (!alive) return;
         setReferrals(list);
+        setError(null);
       } catch (e) {
-        setError((e as Error).message);
+        if (alive) setError((e as Error).message);
       } finally {
-        setLoading(false);
+        if (alive) setLoading(false);
       }
-    })();
+    };
+    void load();
+    // BI_WEBSITE_BLOCK_v310_PIPELINE_LIVE_v1 — poll so the referrer pipeline reacts to stage moves.
+    const id = setInterval(() => { void load(); }, 20000);
+    return () => { alive = false; clearInterval(id); };
   }, [token, nav]);
 
   function signOut() {
@@ -81,7 +90,10 @@ export default function ReferrerDashboard() {
   const counts = useMemo(() => {
     const map = new Map<string, number>(CARRIER_STAGES.map((s) => [s.key, 0]));
     for (const r of referrals) {
-      if (map.has(r.status)) map.set(r.status, (map.get(r.status) || 0) + 1);
+      // BI_WEBSITE_BLOCK_v310_PIPELINE_LIVE_v1 — use the live BI application stage
+      // for the pipeline columns, falling back to the referral's own status.
+      const key = (r.application_status ?? r.status) || "";
+      if (map.has(key)) map.set(key, (map.get(key) || 0) + 1);
     }
     return map;
   }, [referrals]);

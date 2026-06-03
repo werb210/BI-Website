@@ -30,11 +30,14 @@ type App = {
 };
 
 type Stage = { key: string; label: string; statuses: string[] };
+// BI_WEBSITE_BLOCK_v310_PIPELINE_LIVE_v1 — status values aligned to the canonical
+// BF-portal biStages ids (created/in_progress/document_review/ready_for_submission/
+// submitted/under_review/information_required/approved/declined/policy_issued).
 const STAGES: Stage[] = [
-  { key: "submitted",    label: "Submitted",    statuses: ["new_application", "submitted", "ready_for_submission"] },
-  { key: "underwriting", label: "Underwriting", statuses: ["underwriting", "in_review"] },
-  { key: "conditional",  label: "Conditional",  statuses: ["conditional_approval", "conditional"] },
-  { key: "bound",        label: "Bound",        statuses: ["bound", "approved", "issued"] },
+  { key: "submitted",    label: "Submitted",    statuses: ["created", "new_application", "in_progress", "document_review", "ready_for_submission", "submitted"] },
+  { key: "underwriting", label: "Underwriting", statuses: ["under_review", "underwriting", "in_review"] },
+  { key: "conditional",  label: "Conditional",  statuses: ["information_required", "conditional_approval", "conditional"] },
+  { key: "bound",        label: "Bound",        statuses: ["policy_issued", "bound", "approved", "issued"] },
   { key: "declined",     label: "Declined",     statuses: ["declined", "withdrawn", "cancelled"] },
 ];
 
@@ -76,7 +79,7 @@ export default function LenderPortal() {
   useEffect(() => {
     if (!token) { navigate("/lender/login", { replace: true }); return; }
     let alive = true;
-    (async () => {
+    const load = async () => {
       try {
         const [meR, mineR] = await Promise.all([
           fetch(`${API_BASE}/api/v1/lender/me`, { headers: { Authorization: `Bearer ${token}` } }),
@@ -90,12 +93,16 @@ export default function LenderPortal() {
         } else {
           const data = await mineR.json().catch(() => []);
           setApps(Array.isArray(data) ? data : (data?.applications || []));
+          setError(null);
         }
       } catch (e: any) {
-        if (alive) { setError(e?.message || "Network error"); setApps([]); }
+        if (alive) { setError(e?.message || "Network error"); setApps((prev) => prev ?? []); }
       }
-    })();
-    return () => { alive = false; };
+    };
+    void load();
+    // BI_WEBSITE_BLOCK_v310_PIPELINE_LIVE_v1 — poll so the lender pipeline reacts to stage moves.
+    const id = setInterval(() => { void load(); }, 20000);
+    return () => { alive = false; clearInterval(id); };
   }, [token, navigate]);
 
   function signOut() {
