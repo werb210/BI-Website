@@ -47,7 +47,11 @@ describe("ReferrerDashboard v336 — 5-stage carrier pipeline + referrals list",
   });
 
   it("Pre-submission referrals do NOT tally into any pipeline column", () => {
-    expect(src).toMatch(/if \(map\.has\(r\.status\)\)/);
+    // BI_WEBSITE_BLOCK_v310_PIPELINE_LIVE_v1 — tally now keys off the live BI
+    // application stage (application_status ?? status) but still only counts
+    // values that are CARRIER_STAGES keys, so pre-submission stages don't tally.
+    expect(src).toMatch(/r\.application_status \?\? r\.status/);
+    expect(src).toMatch(/map\.has\(key\)/);
   });
 
   it("+ Add Referral button routes to /referrer/referrals/new", () => {
