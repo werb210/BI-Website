@@ -123,6 +123,32 @@ function formatPostalCode(raw: string): string {
   return clean.slice(0, 3) + " " + clean.slice(3);
 }
 
+// BI_WEBSITE_BLOCK_v349_ADDRESS_PARSE — the CORE handoff sometimes stores an
+// address as one concatenated string ("123 Main, Calgary, AB, T2P 4P6"). Parse
+// it into line1/city/province/postal so the form prefills each field instead of
+// dumping the whole string into Street.
+function parseAddressString(raw: string): AddressState {
+  const parts = raw.split(",").map((t) => t.trim()).filter(Boolean);
+  let line1 = "", city = "", province = "", postal_code = "";
+  const POSTAL_ANY = /[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d/;
+  if (parts.length) {
+    const last = parts[parts.length - 1];
+    const m = last.match(POSTAL_ANY);
+    if (m) {
+      postal_code = formatPostalCode(m[0]);
+      const rest = last.replace(POSTAL_ANY, "").trim();
+      parts.pop();
+      if (/^[A-Za-z]{2}$/.test(rest)) province = rest.toUpperCase();
+    }
+  }
+  if (!province && parts.length && /^[A-Za-z]{2}$/.test(parts[parts.length - 1])) {
+    province = (parts.pop() as string).toUpperCase();
+  }
+  if (parts.length >= 2) city = parts.pop() as string;
+  line1 = parts.join(", ");
+  return { line1, city, province, postal_code };
+}
+
 function AddressFieldGroup({ label, value, onChange, error }: {
   label: string; value: AddressState; onChange: (next: AddressState) => void; error?: string;
 }) {
@@ -318,7 +344,7 @@ export default function Application() {
           if (v && typeof v === "object" && !Array.isArray(v)) {
             return { line1: v.line1 || "", city: v.city || "", province: v.province || "", postal_code: v.postal_code || "" };
           }
-          if (typeof v === "string" && v.trim()) return { ...blankAddress, line1: v };
+          if (typeof v === "string" && v.trim()) return parseAddressString(v);
           return { ...blankAddress };
         };
         const naicsAlias = app.naics_code || app.naics || app.q25_naics_code || "";
