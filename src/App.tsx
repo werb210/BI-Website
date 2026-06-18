@@ -9,6 +9,8 @@ import Footer from "./components/Footer";
 import QuoteModal from "./components/QuoteModal";
 // BI_WEBSITE_BLOCK_v346_MOBILE_FIRST_LAUNCH_v1
 import ScrollToTop from "./components/ScrollToTop";
+import RouteTracker from "./components/RouteTracker";
+import ConsentBanner from "./components/ConsentBanner";
 import FaqModal, { FaqPage } from "./components/Faq";
 import Home from "./pages/Home";
 // BI_WEBSITE_BLOCK_v90_LENDER_API_DOCS_v1
@@ -77,6 +79,8 @@ export default function App() {
       <div className="bi-app-shell">
       <div className="flex min-h-screen flex-col">
         <Header />
+        <RouteTracker />
+        <ConsentBanner />
         <QuoteModal />
         <FaqModal />
         <main className="bi-main flex-1">
