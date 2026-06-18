@@ -331,6 +331,7 @@ export default function Application() {
   const [serverFieldErrors, setServerFieldErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [step, setStep] = useState(1); // #31 — 2-step split; state stays in this component (no cutover)
 
   // ---- Load on mount ----
   useEffect(() => {
@@ -494,6 +495,7 @@ export default function Application() {
         </div>
       </div>
 
+      {step === 1 && (<>
       {/* Personal Guarantor */}
       <h2 className={SECTION_H_CLS}>Personal Guarantor</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
@@ -561,6 +563,12 @@ export default function Application() {
         </div>
       </div>
 
+      <div className="flex justify-end mt-6">
+        <button type="button" onClick={() => { setStep(2); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="px-6 py-2 bg-sky-500 text-white rounded hover:bg-sky-400">Continue &rarr;</button>
+      </div>
+      </>)}
+
+      {step === 2 && (<>
       {/* Loan Details — only fields NOT in Stage 1 CORE Score */}
       <h2 className={SECTION_H_CLS}>Loan Details</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
@@ -623,10 +631,12 @@ export default function Application() {
       {error && <div className="text-rose-300 mb-3" role="alert">{error}</div>}
 
       <div className="flex gap-3 mt-6 items-center">
+        <button type="button" onClick={() => { setStep(1); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="px-6 py-2 border border-sky-300/50 rounded text-sky-100 hover:bg-sky-500/20">&larr; Back</button>
         <button type="button" onClick={handleSave} className="px-6 py-2 border border-sky-300/50 rounded text-sky-100 hover:bg-sky-500/20">Save</button>
         <button type="button" onClick={handleSubmit} disabled={submitting} className="px-6 py-2 bg-sky-500 text-white rounded disabled:opacity-50 hover:bg-sky-400">{submitting ? "Submitting…" : "Submit"}</button>
         {savedAt && <span className="text-xs text-sky-200/70">✓ Saved {new Date(savedAt).toLocaleTimeString()}</span>}
       </div>
+      </>)}
     </div>
   );
 }
