@@ -42,7 +42,7 @@ import Saved from "./pages/Saved"; // BI_WEBSITE_BLOCK_v130_DEFER_DOCS_FLOW_v1
 import Quote from "./pages/Quote";
 import LenderPortal from "./pages/LenderPortal";
 import LenderApplicationDemo from "./pages/LenderApplicationDemo"; // BI_WEBSITE_BLOCK_v125_LENDER_FIXES_AND_PUBLIC_POLISH_v1
-import ReferrerPortal from "./pages/ReferrerPortal";
+import ReferralLandingPgi from "./pages/ReferralLandingPgi"; // BI_WEBSITE_REFERRAL_LANDING_v1
 import LenderApplicationNew from "./pages/LenderApplicationNew";
 import LenderLogin from "./pages/LenderLogin"; // BI_WEBSITE_BLOCK_v120_MULTI_LENDER_PUBLIC_AND_LENDER_DOCS_AND_LOGIN_v1
 import LenderApplicationDetail from "./pages/LenderApplicationDetail";
@@ -103,11 +103,11 @@ export default function App() {
             <Route path="/lender/api" element={<LenderApiDocs />} />
             <Route path="/lender/sandbox" element={<LenderSandbox />} /> {/* BI_WEBSITE_BLOCK_v131_LENDER_SANDBOX_PANEL_v1 */}
             <Route path="/lender/*" element={<LenderPortal />} />
-            {/* BI_WEBSITE_BLOCK_v96_LAUNCH_UX_v2 — referrer portal restored */}
-            <Route path="/referrer/*" element={<ReferrerPortal />} />
+            {/* BI_WEBSITE_REFERRAL_LANDING_v1 - referral system unified in BF; PGI landing only */}
+            <Route path="/r/:code" element={<ReferralLandingPgi />} />
             <Route path="/application" element={<Navigate to="/applications/new" replace />} />
-            {/* BI_WEBSITE_BLOCK_v96_LAUNCH_UX_v2 — /referral redirect restored */}
-            <Route path="/referral" element={<Navigate to="/referrer/login" replace />} />
+            <Route path="/referrer/*" element={<Navigate to="/r/x" replace />} />
+            <Route path="/referral" element={<Navigate to="/" replace />} />
             {/* BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — mount marketing pages */}
             <Route path="/contact" element={<Contact />} />
             <Route path="/intro" element={<Intro />} />

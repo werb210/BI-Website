@@ -29,7 +29,7 @@ export default function Footer() {
             <div style={{ fontWeight: 600, color: "white", marginBottom: 12 }}>Sign In</div>
             <ul style={{ listStyle: "none", padding: 0, margin: 0, fontSize: 14, lineHeight: 1.9 }}>
               <li><Link to="/lender/login" style={{ color: "rgba(255,255,255,0.75)", textDecoration: "none" }}>Lender Login</Link></li>
-              <li><Link to="/referrer/login" style={{ color: "rgba(255,255,255,0.75)", textDecoration: "none" }}>Referral Login</Link></li>
+              <li><a href="https://staff.boreal.financial/referrer" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(255,255,255,0.75)", textDecoration: "none" }}>Referral Login</a></li>
             </ul>
           </div>
           <div>

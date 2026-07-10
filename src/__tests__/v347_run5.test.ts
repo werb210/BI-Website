@@ -14,8 +14,6 @@ describe("v347 — API_BASE consolidation (R5-#1)", () => {
     "pages/LenderPortal.tsx",
     "pages/LenderApplicationDetail.tsx",
     "pages/LenderSandbox.tsx",
-    "pages/ReferrerAddReferral.tsx",
-    "pages/ReferrerDashboard.tsx",
     "pages/Status.tsx",
   ];
   for (const file of consumerFiles) {
