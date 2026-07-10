@@ -69,7 +69,7 @@ export default function Header() {
 
         <nav className="bi-header-nav-desktop">
           <Link to="/quote" style={linkStyle}>Quote</Link>
-          <Link to="/referrer/login" style={linkStyle}>Referrer Login</Link>
+          <a href="https://staff.boreal.financial/referrer" target="_blank" rel="noopener noreferrer" style={linkStyle}>Referrer Login</a>
           <Link to="/lender/login" style={linkStyle}>Lender Login</Link>
           <a href="https://www.boreal.financial" target="_blank" rel="noopener noreferrer" style={{ ...linkStyle, fontWeight: 500 }}>
             Visit Boreal Financial
@@ -90,7 +90,7 @@ export default function Header() {
 
       <div className={`bi-header-nav-mobile ${open ? "open" : ""}`}>
         <Link to="/quote" onClick={() => setOpen(false)}>Quote</Link>
-        <Link to="/referrer/login" onClick={() => setOpen(false)}>Referrer Login</Link>
+        <a href="https://staff.boreal.financial/referrer" target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)}>Referrer Login</a>
         <Link to="/lender/login" onClick={() => setOpen(false)}>Lender Login</Link>
         <a href="https://www.boreal.financial" target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)}>
           Visit Boreal Financial
