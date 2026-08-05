@@ -43,7 +43,7 @@
     "vitest": "^4.1.7"
   },
   "engines": {
-    "node": ">=20.19.0 <21"
+    "node": ">=22.0.0 <23"
   },
   "packageManager": "npm@10"
 }
