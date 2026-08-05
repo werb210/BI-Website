@@ -1,14 +1,24 @@
 // BI_WEBSITE_BLOCK_v95_LAUNCH_UX_v1 — 3-step centered quote wizard with live premium calc.
-// BI_WEBSITE_BLOCK_v121_BRAND_RATE_AND_LEASE_v1 — secured-only, rate 2.75%, step 3 toggle removed.
+// BI_WEBSITE_BLOCK_v121_BRAND_RATE_AND_LEASE_v1 — secured-only, step 3 toggle removed.
+// BI_WEBSITE_QUOTE_MONTHLY_2_6_v2 - rate 2.6%, MONTHLY figure only.
+// Monthly is the annual premium divided by 12; the annual number is deliberately
+// not shown. The carrier underwrites and can come in lower, so every surface
+// states plainly that this is a non-binding estimate, not a quote.
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const MAX_LOAN = 1_000_000;
 const MIN_LOAN = 10_000;
-const RATE = 0.0275;
+const RATE = 0.026;
+const MONTHS_PER_YEAR = 12;
 
 function fmtCurrency(n: number) {
   return n.toLocaleString("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 });
+}
+
+// Monthly keeps cents: rounding $541.67 to $542 makes a small number look invented.
+function fmtMonthly(n: number) {
+  return n.toLocaleString("en-CA", { style: "currency", currency: "CAD", minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function StepLabel({ n, children }: { n: number; children: React.ReactNode }) {
@@ -35,11 +45,17 @@ export default function Quote() {
     () => Math.round(coverageAmount * RATE),
     [coverageAmount]
   );
+  const monthlyPremium = useMemo(
+    () => annualPremium / MONTHS_PER_YEAR,
+    [annualPremium]
+  );
 
   function applyNow() {
     sessionStorage.setItem(
       "bi.quote",
-      JSON.stringify({ loan, coveragePct, type: "secured", coverageAmount, annualPremium })
+      // annualPremium stays in the payload: /applications/new and everything
+      // downstream already reads that field. monthlyPremium is added, not swapped.
+      JSON.stringify({ loan, coveragePct, type: "secured", coverageAmount, annualPremium, monthlyPremium })
     );
     nav("/applications/new");
   }
@@ -52,7 +68,7 @@ export default function Quote() {
         <header className="mb-10 text-center">
           <h1 className="text-3xl font-bold text-white md:text-4xl">Get Your PGI Quote</h1>
           <p className="mt-3 text-base text-slate-400 md:text-lg">
-            Two quick questions. Indicative annual premium in seconds.
+            Two quick questions. Estimated monthly cost in seconds.
           </p>
         </header>
 
@@ -102,7 +118,7 @@ export default function Quote() {
               <span>Max 80%</span>
             </div>
             <p className="mt-2 text-xs text-slate-500">
-              Indicative rate {(RATE * 100).toFixed(2)}% applied to the covered amount.
+              Estimate based on {(RATE * 100).toFixed(2)}% of the covered amount per year.
             </p>
           </div>
 
@@ -112,13 +128,14 @@ export default function Quote() {
               <span className="font-semibold text-white">{Math.round(coveragePct * 100)}%</span> of
               the debt amount{" "}
               <span className="font-semibold text-white">{fmtCurrency(loan)}</span> would have
-              annual premiums of
+              an estimated monthly cost of
             </p>
             <p className="mt-3 text-3xl font-bold text-white md:text-4xl">
-              {fmtCurrency(annualPremium)}
+              {fmtMonthly(monthlyPremium)}
             </p>
-            <p className="mt-1 text-xs text-slate-400">
-              Indicative. Final premium subject to underwriting.
+            <p className="mt-2 text-xs text-slate-400">
+              This is an estimate only and is not a binding quote. The final premium is
+              set by the carrier after underwriting and may be lower.
             </p>
           </div>
 

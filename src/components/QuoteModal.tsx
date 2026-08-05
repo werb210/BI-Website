@@ -1,11 +1,18 @@
 // BI_WEBSITE_BLOCK_v106_DIAGRAM_AND_QUOTE_MODAL_v1
-// BI_WEBSITE_BLOCK_v121_BRAND_RATE_AND_LEASE_v1 — secured-only, rate 2.75%, debt-type toggle removed.
+// BI_WEBSITE_BLOCK_v121_BRAND_RATE_AND_LEASE_v1 — secured-only, debt-type toggle removed.
+// BI_WEBSITE_QUOTE_MONTHLY_2_6_v2 - rate 2.6%, MONTHLY figure only.
+// Monthly is the annual premium divided by 12; the annual number is deliberately
+// not shown. The carrier underwrites and can come in lower, so every surface
+// states plainly that this is a non-binding estimate, not a quote.
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 const MAX_LOAN = 1_000_000, MIN_LOAN = 10_000;
-const RATE = 0.0275;
+const RATE = 0.026;
+const MONTHS_PER_YEAR = 12;
 const fmt = (n: number) => n.toLocaleString("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 });
+// Monthly keeps cents: rounding $541.67 to $542 makes a small number look invented.
+const fmtMonthly = (n: number) => n.toLocaleString("en-CA", { style: "currency", currency: "CAD", minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export default function QuoteModal() {
   const [params, setParams] = useSearchParams();
@@ -15,6 +22,7 @@ export default function QuoteModal() {
   const [pct, setPct] = useState(0.5);
   const cov = useMemo(() => Math.round(Math.min(Math.max(loan, 0), MAX_LOAN) * pct), [loan, pct]);
   const prem = useMemo(() => Math.round(cov * RATE), [cov]);
+  const monthly = useMemo(() => prem / MONTHS_PER_YEAR, [prem]);
 
   function close() {
     const next = new URLSearchParams(params);
@@ -22,7 +30,8 @@ export default function QuoteModal() {
     setParams(next, { replace: true });
   }
   function applyNow() {
-    sessionStorage.setItem("bi.quote", JSON.stringify({ loan, coveragePct: pct, type: "secured", coverageAmount: cov, annualPremium: prem }));
+    // annualPremium stays in the payload; monthlyPremium is added, not swapped.
+    sessionStorage.setItem("bi.quote", JSON.stringify({ loan, coveragePct: pct, type: "secured", coverageAmount: cov, annualPremium: prem, monthlyPremium: monthly }));
     close();
     nav("/applications/new");
   }
@@ -59,12 +68,12 @@ export default function QuoteModal() {
               <div className="flex items-center justify-between text-sm text-white mb-2"><span>2. Coverage</span><span className="text-lg font-semibold">{Math.round(pct * 100)}%</span></div>
               <input type="range" min={5} max={80} step={5} value={Math.round(pct * 100)} onChange={(e) => setPct(Number(e.target.value) / 100)} className="w-full accent-blue-600" />
               <div className="flex justify-between text-xs text-slate-500"><span>5%</span><span>Max 80%</span></div>
-              <p className="mt-2 text-xs text-slate-500">Indicative rate {(RATE * 100).toFixed(2)}% applied to the covered amount.</p>
+              <p className="mt-2 text-xs text-slate-500">Estimate based on {(RATE * 100).toFixed(2)}% of the covered amount per year.</p>
             </div>
             <div className="rounded-xl border border-blue-500/30 bg-blue-600/10 p-5 text-center">
-              <p className="text-sm text-slate-300">To cover <span className="font-semibold text-white">{Math.round(pct * 100)}%</span> of <span className="font-semibold text-white">{fmt(loan)}</span>, annual premium is</p>
-              <p className="mt-2 text-3xl font-bold text-white md:text-4xl">{fmt(prem)}</p>
-              <p className="mt-1 text-xs text-slate-400">Indicative. Final premium subject to underwriting.</p>
+              <p className="text-sm text-slate-300">To cover <span className="font-semibold text-white">{Math.round(pct * 100)}%</span> of <span className="font-semibold text-white">{fmt(loan)}</span>, the estimated monthly cost is</p>
+              <p className="mt-2 text-3xl font-bold text-white md:text-4xl">{fmtMonthly(monthly)}</p>
+              <p className="mt-2 text-xs text-slate-400">This is an estimate only and is not a binding quote. The final premium is set by the carrier after underwriting and may be lower.</p>
             </div>
             {/* BI_WEBSITE_BLOCK_v346_MOBILE_FIRST_LAUNCH_v1 */}
             <button type="button" onClick={applyNow} disabled={loan < MIN_LOAN || pct <= 0} className="w-full rounded-full bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-400">Get Started</button>
