@@ -6,17 +6,10 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../lib/api";
 import { CoreBadge } from "../components/CoreBadge";
+import { COUNTRY_OPTIONS, isValidPostal, normalizePostal, postalLabel, regionLabel, regionsFor, toCountryCode, type CountryCode } from "@/lib/regions";
 
 // ---------- Constants ----------
 
-const PROVINCES_NO_QC = [
-  { value: "AB", label: "Alberta" }, { value: "BC", label: "British Columbia" },
-  { value: "MB", label: "Manitoba" }, { value: "NB", label: "New Brunswick" },
-  { value: "NL", label: "Newfoundland and Labrador" }, { value: "NS", label: "Nova Scotia" },
-  { value: "NT", label: "Northwest Territories" }, { value: "NU", label: "Nunavut" },
-  { value: "ON", label: "Ontario" }, { value: "PE", label: "Prince Edward Island" },
-  { value: "SK", label: "Saskatchewan" }, { value: "YT", label: "Yukon" },
-];
 const ELIGIBLE_LOAN_TYPES = ["Commercial Mortgage", "Other Secured Loan"];
 const LOAN_PURPOSES = [
   { value: "working_capital", label: "Working Capital" },
@@ -39,7 +32,6 @@ const LABEL_CLS = "block text-xs font-medium text-sky-100 mb-1";
 const HELP_CLS = "text-xs text-sky-200/70 mt-1";
 const ERROR_CLS = "text-xs text-rose-300 mt-1";
 const SECTION_H_CLS = "text-lg font-semibold text-sky-100 mt-6 mb-2 border-b border-sky-300/30 pb-1";
-const POSTAL_RE = /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/;
 
 // ---------- Types ----------
 
@@ -149,8 +141,8 @@ function parseAddressString(raw: string): AddressState {
   return { line1, city, province, postal_code };
 }
 
-function AddressFieldGroup({ label, value, onChange, error }: {
-  label: string; value: AddressState; onChange: (next: AddressState) => void; error?: string;
+function AddressFieldGroup({ label, value, onChange, error, country }: {
+  label: string; value: AddressState; onChange: (next: AddressState) => void; error?: string; country: CountryCode;
 }) {
   const addr = value || blankAddress;
   return (
@@ -166,14 +158,14 @@ function AddressFieldGroup({ label, value, onChange, error }: {
           <input className={INPUT_CLS} value={addr.city} onChange={(e) => onChange({ ...addr, city: e.target.value })} />
         </div>
         <div>
-          <label className={LABEL_CLS}>Province</label>
+          <label className={LABEL_CLS}>{regionLabel(country)}</label>
           <select className={INPUT_CLS} value={addr.province} onChange={(e) => onChange({ ...addr, province: e.target.value })}>
             <option value="">Select…</option>
-            {PROVINCES_NO_QC.map((p) => <option key={p.value} value={p.value} className="text-slate-900">{p.label}</option>)}
+            {regionsFor(country).map((p) => <option key={p.value} value={p.value} className="text-slate-900">{p.label}</option>)}
           </select>
         </div>
         <div>
-          <label className={LABEL_CLS}>Postal code</label>
+          <label className={LABEL_CLS}>{postalLabel(country)}</label>
           {/* BI_WEBSITE_BLOCK_v348 — normalize on every keystroke so the
               stored value is canonical "A1A 1A1" regardless of how the
               user typed it ("t3p1p6", "T3P-1P6", "T3P1P6" all become
@@ -181,11 +173,11 @@ function AddressFieldGroup({ label, value, onChange, error }: {
           <input
             className={INPUT_CLS}
             value={addr.postal_code}
-            placeholder="A1A 1A1"
-            inputMode="text"
-            autoCapitalize="characters"
-            maxLength={7}
-            onChange={(e) => onChange({ ...addr, postal_code: formatPostalCode(e.target.value) })}
+            placeholder={country === "US" ? "73301" : "A1A 1A1"}
+            inputMode={country === "US" ? "numeric" : "text"}
+            autoCapitalize={country === "US" ? "off" : "characters"}
+            maxLength={country === "US" ? 10 : 7}
+            onChange={(e) => onChange({ ...addr, postal_code: normalizePostal(country, e.target.value) })}
           />
         </div>
       </div>
@@ -324,7 +316,7 @@ export default function Application() {
     declarations: {},
     consents: {},
     co_guarantors: [] as CoGuarantor[],
-    country: "Canada", // v337: pre-filled (Canada-only carrier)
+    country: "CA" as CountryCode, // Canada remains the default; US is now selectable.
     q_ca_id_type: "",
     q_ca_id_number: "",
   });
@@ -332,6 +324,7 @@ export default function Application() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [step, setStep] = useState(1); // #31 — 2-step split; state stays in this component (no cutover)
+  const country: CountryCode = toCountryCode(state.country);
 
   // ---- Load on mount ----
   useEffect(() => {
@@ -353,7 +346,7 @@ export default function Application() {
         setState((prev) => ({
           ...prev,
           ...app,
-          country: app.country || "Canada",
+          country: toCountryCode(app.country),
           naics_code: naicsAlias,
           guarantor_address: normAddr(app.guarantor_address),
           business_address: normAddr(app.business_address),
@@ -446,9 +439,9 @@ export default function Application() {
       }
       const ga = state.guarantor_address || blankAddress;
       const ba = state.business_address || blankAddress;
-      if (ga.postal_code && !POSTAL_RE.test(ga.postal_code)) local["guarantor_address.postal_code"] = "Format A1A 1A1 expected.";
-      if (ba.postal_code && !POSTAL_RE.test(ba.postal_code)) local["business_address.postal_code"] = "Format A1A 1A1 expected.";
-      if (String(ba.province || "").toUpperCase() === "QC") local["business_address.province"] = "PGI does not currently write business in Quebec.";
+      if (ga.postal_code && !isValidPostal(country, ga.postal_code)) local["guarantor_address.postal_code"] = `${country === "US" ? "ZIP code 73301 or 73301-1234" : "Postal code A1A 1A1"} expected.`;
+      if (ba.postal_code && !isValidPostal(country, ba.postal_code)) local["business_address.postal_code"] = `${country === "US" ? "ZIP code 73301 or 73301-1234" : "Postal code A1A 1A1"} expected.`;
+      if (country === "CA" && String(ba.province || "").toUpperCase() === "QC") local["business_address.province"] = "PGI does not currently write business in Quebec.";
       if (Object.keys(local).length > 0) { setServerFieldErrors(local); return; }
 
       const payload = { ...state, has_co_guarantors: (state.co_guarantors || []).length > 0 };
@@ -501,7 +494,7 @@ export default function Application() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
         <TextField label="Personal Guarantor's Full Legal Name *" value={String(state.guarantor_name || "")} onChange={(v) => update("guarantor_name", v)} error={fieldErr("guarantor_name")} />
         <DateField label="What is your date of birth? *" value={String(state.guarantor_dob || "")} onChange={(v) => update("guarantor_dob", v)} error={fieldErr("guarantor_dob")} />
-        <AddressFieldGroup label="Primary residential address *" value={state.guarantor_address || blankAddress} onChange={(v) => update("guarantor_address", v)} error={fieldErr("guarantor_address.postal_code")} />
+        <AddressFieldGroup country={country} label="Primary residential address *" value={state.guarantor_address || blankAddress} onChange={(v) => update("guarantor_address", v)} error={fieldErr("guarantor_address.postal_code")} />
         <TextField label="What is your email address? *" type="email" value={String(state.guarantor_email || "")} onChange={(v) => update("guarantor_email", v)} error={fieldErr("guarantor_email")} />
         <TextField label="What is your phone number? * (pre-filled from your OTP verification)" type="tel" value={String(state.guarantor_phone || "")} onChange={(v) => update("guarantor_phone", v)} error={fieldErr("guarantor_phone")} />
       </div>
@@ -516,7 +509,7 @@ export default function Application() {
       {/* Co-guarantors */}
       <div className="mb-6 p-4 rounded border border-sky-300/30 bg-sky-500/5">
         <h3 className="text-sm font-semibold text-sky-100">Co-guarantors (optional)</h3>
-        <p className="text-xs text-sky-200/70 mt-1 mb-3">Add any other individuals who are co-guarantors on this loan (Canada only). Our team will contact you to complete the co-guarantor intake separately.</p>
+        <p className="text-xs text-sky-200/70 mt-1 mb-3">Add any other individuals who are co-guarantors on this loan. Their address fields follow the selected country. Our team will contact you to complete the co-guarantor intake separately.</p>
         {(state.co_guarantors || []).length === 0 && <div className="text-sm text-sky-200/70">No co-guarantors added yet.</div>}
         {(state.co_guarantors as CoGuarantor[] || []).map((cg, idx) => (
           <div key={idx} className="mt-3 p-3 rounded bg-sky-500/10 border border-sky-300/20">
@@ -533,10 +526,10 @@ export default function Application() {
               <input className={INPUT_CLS} placeholder="Address *"      value={cg.address}        onChange={(e) => updateCG(idx, "address", e.target.value)} />
               <input className={INPUT_CLS} placeholder="City *"         value={cg.city}           onChange={(e) => updateCG(idx, "city", e.target.value)} />
               <select className={INPUT_CLS} value={cg.province} onChange={(e) => updateCG(idx, "province", e.target.value)}>
-                <option value="">Province *</option>
-                {PROVINCES_NO_QC.map((p) => <option key={p.value} value={p.value} className="text-slate-900">{p.label}</option>)}
+                <option value="">{regionLabel(country)} *</option>
+                {regionsFor(country).map((p) => <option key={p.value} value={p.value} className="text-slate-900">{p.label}</option>)}
               </select>
-              <input className={INPUT_CLS} placeholder="Postal code *"  value={cg.postal_code}    onChange={(e) => updateCG(idx, "postal_code", e.target.value)} />
+              <input className={INPUT_CLS} placeholder={`${postalLabel(country)} *`} value={cg.postal_code} onChange={(e) => updateCG(idx, "postal_code", normalizePostal(country, e.target.value))} />
               <select className={INPUT_CLS} value={cg.relationship} onChange={(e) => updateCG(idx, "relationship", e.target.value)}>
                 {RELATIONSHIPS.map((r) => <option key={r} value={r} className="text-slate-900">{r}</option>)}
               </select>
@@ -546,12 +539,27 @@ export default function Application() {
         <button type="button" onClick={() => setState((s) => ({ ...s, co_guarantors: [...(s.co_guarantors || []), emptyCoGuarantor()] }))} className="mt-3 text-sky-200 underline text-sm hover:text-sky-100">+ Add another co-guarantor</button>
       </div>
 
-      {/* Business Information (no NAICS, no formation_date, no country — already in CORE Score) */}
+      {/* Business Information (no NAICS or formation_date—they remain in the CORE Score summary) */}
       <h2 className={SECTION_H_CLS}>Business Information</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
         <TextField label="What is the legal name of the business? *" value={String(state.business_name || "")} onChange={(v) => update("business_name", v)} error={fieldErr("business_name")} />
         <SelectField label="What type of entity is the business?" value={String(state.entity_type || "")} onChange={(v) => update("entity_type", v)} options={["Corporation","Partnership","Sole Proprietorship","LLC","Other"].map((v) => ({ value: v, label: v }))} />
-        <AddressFieldGroup label="Business operating address * (Quebec not eligible)" value={state.business_address || blankAddress} onChange={(v) => update("business_address", v)} error={fieldErr("business_address.postal_code") || fieldErr("business_address.province")} />
+        <div className="md:col-span-2">
+          <label className={LABEL_CLS}>Country</label>
+          <select className={INPUT_CLS} value={country} onChange={(e) => {
+            const next = e.target.value as CountryCode;
+            setState((prev) => ({
+              ...prev,
+              country: next,
+              guarantor_address: { ...(prev.guarantor_address || blankAddress), province: "", postal_code: "" },
+              business_address: { ...(prev.business_address || blankAddress), province: "", postal_code: "" },
+              co_guarantors: (prev.co_guarantors || []).map((cg: CoGuarantor) => ({ ...cg, province: "", postal_code: "" })),
+            }));
+          }}>
+            {COUNTRY_OPTIONS.map((option) => <option key={option.value} value={option.value} className="text-slate-900">{option.label}</option>)}
+          </select>
+        </div>
+        <AddressFieldGroup country={country} label={country === "US" ? "Business operating address *" : "Business operating address * (Quebec not eligible)"} value={state.business_address || blankAddress} onChange={(v) => update("business_address", v)} error={fieldErr("business_address.postal_code") || fieldErr("business_address.province")} />
         <TextField label="Business website (optional)" value={String(state.business_website || "")} onChange={(v) => update("business_website", v)} />
         <div>
           <label className={LABEL_CLS}>Business Number (BN) (optional)</label>
