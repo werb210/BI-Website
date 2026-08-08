@@ -10,7 +10,7 @@ export default function Intro() {
       </h1>
 
       <p className="text-lg text-gray-300 mb-8 text-center max-w-xl">
-        Insurance for Canadian business owners with personal guarantees.
+        Insurance for Canadian and United States business owners with personal guarantees.
         Protect your home, savings, and investments.
       </p>
 
