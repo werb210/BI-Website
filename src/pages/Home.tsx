@@ -57,9 +57,9 @@ export default function Home() {
         {/* v131 compliance: referral-source disclosure on hero. */}
         <p className="mt-4 text-xs text-bf-textMuted max-w-2xl mx-auto">
           Boreal Risk Management is a referral and risk advisory partner — not a licensed
-          insurance broker, agent, or adviser. We introduce eligible Canadian business owners to
-          licensed brokers who arrange Personal Guarantee Insurance underwritten by Markel Canada
-          Limited. Not available to Quebec residents.
+          insurance broker, agent, or adviser. We introduce eligible Canadian and United States business
+          owners to licensed brokers who arrange Personal Guarantee Insurance. Not available to
+          Quebec residents.
         </p>
       </section>
       <section className="mx-auto max-w-5xl px-5 py-8 border-t border-subtle">

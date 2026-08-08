@@ -51,7 +51,8 @@ export default function Footer() {
         <p style={{ fontSize: 12, lineHeight: 1.6, color: "rgba(255,255,255,0.5)", marginTop: 24, marginBottom: 8 }}>
           Boreal Risk Management is a referral and risk advisory partner. Insurance is arranged only
           through appropriately licensed insurance entities. We are not a licensed insurance broker,
-          agent, or adviser. We introduce Canadian business owners to licensed brokers who arrange
+          agent, or adviser. We introduce Canadian and United States business owners to licensed brokers
+          who arrange
           Personal Guarantee Insurance underwritten by Markel Canada Limited (A-rated by AM Best,
           S&amp;P, and Fitch). Coverage is subject to underwriting, eligibility, policy terms,
           conditions, exclusions, and applicable provincial insurance regulation. Premium estimates
@@ -66,8 +67,8 @@ export default function Footer() {
         {/* v131 compliance: Quebec exclusion, compensation disclosure, no-cost disclosure, complaints routing. */}
         <p style={{ fontSize: 12, lineHeight: 1.6, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>
           <strong style={{ color: "rgba(255,255,255,0.7)" }}>Geographic availability:</strong> This
-          referral service is available in 9 provinces and 3 territories. <strong>Not available to
-          Quebec residents.</strong>
+          referral service is available in 9 Canadian provinces and 3 territories, and in the United
+          States. <strong>Not available to Quebec residents.</strong>
         </p>
         <p style={{ fontSize: 12, lineHeight: 1.6, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>
           <strong style={{ color: "rgba(255,255,255,0.7)" }}>Cost and compensation:</strong> There
