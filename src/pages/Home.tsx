@@ -46,7 +46,7 @@ export default function Home() {
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">Stop putting your house on the line for your business loan.</h1>
         {/* v130 compliance: subtitle replaced with carrier-audit paragraph.
             Secondary CTA "Learn how PGI works" added (item 16) → existing /how-it-works route. */}
-        <p className="mt-4 text-base sm:text-lg text-bf-textMuted">Cap personal downside when you sign a guarantee for business financing. Boreal helps eligible business owners start the Personal Guarantee Insurance application process. Coverage is subject to underwriting, policy terms, conditions, exclusions, and provincial regulatory requirements.</p>
+        <p className="mt-4 text-base sm:text-lg text-bf-textMuted">Cap personal downside when you sign a guarantee for business financing. Boreal helps eligible business owners start the Personal Guarantee Insurance application process. Coverage is subject to underwriting, policy terms, conditions, exclusions, and applicable regulatory requirements.</p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
           {/* BI_WEBSITE_BLOCK_v346_MOBILE_FIRST_LAUNCH_v1 — renamed from "Start eligibility check" per Todd's iPhone-testing pass. */}
           <Link to="/applications/new" className="rounded-full bg-bf-cta hover:bg-bf-ctaHover px-7 py-3 font-medium text-white">Get Started</Link>
@@ -65,7 +65,7 @@ export default function Home() {
       <section className="mx-auto max-w-5xl px-5 py-8 border-t border-subtle">
         <div className="flex flex-col sm:flex-row sm:justify-center gap-12 text-center">
           <div><div className="text-2xl font-bold text-white">A-rated</div><div className="mt-1 text-sm text-bf-textMuted">Underwriter rated by AM Best, S&amp;P, Fitch</div></div>
-          <div><div className="text-2xl font-bold text-white">9 + 3</div><div className="mt-1 text-sm text-bf-textMuted">Provinces &amp; territories (not available in Quebec)</div></div>
+          <div><div className="text-2xl font-bold text-white">CA & US</div><div className="mt-1 text-sm text-bf-textMuted">Canada and the United States (not available in Quebec)</div></div>
           {/* v111-trust-strip: Backed-by column removed */}
         </div>
       </section>

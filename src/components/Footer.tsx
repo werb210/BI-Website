@@ -12,7 +12,7 @@ export default function Footer() {
           <div>
             <div style={{ fontWeight: 600, color: "white", marginBottom: 12 }}>Boreal Risk Management</div>
             <p style={{ fontSize: 14, lineHeight: 1.5, color: "rgba(255,255,255,0.65)" }}>
-              Personal Guarantee Insurance for Canadian Business Owners.
+              Personal Guarantee Insurance for Canadian and United States Business Owners.
             </p>
           </div>
           <div>
@@ -55,7 +55,7 @@ export default function Footer() {
           who arrange
           Personal Guarantee Insurance underwritten by Markel Canada Limited (A-rated by AM Best,
           S&amp;P, and Fitch). Coverage is subject to underwriting, eligibility, policy terms,
-          conditions, exclusions, and applicable provincial insurance regulation. Premium estimates
+          conditions, exclusions, and applicable insurance regulation. Premium estimates
           shown here are illustrative and non-binding; final terms are set when a licensed broker
           binds a policy. Questions about this referral service: {SUPPORT_EMAIL}.
         </p>

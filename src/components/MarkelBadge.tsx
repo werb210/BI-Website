@@ -1,8 +1,11 @@
+// BI_WEBSITE_US_COPY_SWEEP_v23 - coverage area is Canada and the United
+// States. This component renders on Home AND CSBFP, so a Canada-only claim
+// here appeared on multiple pages.
 // BI_WEBSITE_BLOCK_v100_SCORE_LAYOUT_AND_BRAND_v2
 // Real Markel image at assets/logos/markel_logo.svg; bundled by Vite.
 import markelLogo from "../../assets/logos/markel_logo.svg";
 type Props = { variant?: "compact" | "stacked"; className?: string };
 export default function MarkelBadge({ variant = "compact", className = "" }: Props) {
   if (variant === "stacked") return <div className={className}><img src={markelLogo} alt="Markel" className="h-10 w-auto"/></div>;
-  return <div className={`inline-flex items-center gap-3 ${className}`}><span>Underwritten by</span><img src={markelLogo} alt="Markel" className="h-6 w-auto"/><span>A-rated · 9 provinces & 3 territories</span></div>;
+  return <div className={`inline-flex items-center gap-3 ${className}`}><span>Underwritten by</span><img src={markelLogo} alt="Markel" className="h-6 w-auto"/><span>A-rated · Canada & United States</span></div>;
 }
