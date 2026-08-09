@@ -299,7 +299,7 @@ function humanizeSubmitError(payload: any): string {
   if (code === "loan_amount_over_cap") return "Loan amount exceeds the $1,000,000 maximum.";
   if (code === "pgi_limit_over_cap") return "PGI limit exceeds the $1,000,000 maximum.";
   if (code === "pgi_limit_over_loan") return "PGI limit cannot exceed loan amount.";
-  if (code === "loan_type_ineligible") return "The selected loan type is not eligible for Canadian PGI coverage.";
+  if (code === "loan_type_ineligible") return "The selected loan type is not eligible for PGI coverage.";
   return code;
 }
 
