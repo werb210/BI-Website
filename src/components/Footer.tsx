@@ -1,54 +1,64 @@
-// BI_WEBSITE_BLOCK_v98_BRANDING_v1 + HOTFIX_ROUTER_v1
+// BI_WEBSITE_CHROME_v100 - Boreal Risk Management footer, built to the
+// BF-Website footer.tsx template. Structurally identical: same background,
+// divider, 1200px container, grid, gap, type scale and padding. BI's own
+// links, brand and compliance copy.
+//
+// The compliance paragraphs below are regulatory text. Do not reword them to
+// fit a layout. If BF-Website's footer geometry changes, change it here too -
+// the two are compared by src/__tests__/chromeParity.v100.test.tsx.
 import { Link } from "react-router-dom";
 import markelUrl from "../assets/logo-markel.svg";
+import logoUrl from "../assets/logo-boreal-mountains-white.svg";
 
 const SUPPORT_EMAIL = "info@boreal.financial";
 
 export default function Footer() {
   return (
-    <footer style={{ background: "#0a1120", borderTop: "1px solid #1c2538", color: "rgba(255,255,255,0.8)", padding: "32px 24px 24px" }}>
-      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 32, marginBottom: 24 }}>
+    <footer className="bg-[#0a1120] border-t border-[#1c2538] text-white/80 px-6 py-8">
+      <div className="max-w-[1200px] mx-auto">
+        <div className="grid gap-8 mb-6" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
           <div>
-            <div style={{ fontWeight: 600, color: "white", marginBottom: 12 }}>Boreal Risk Management</div>
-            <p style={{ fontSize: 14, lineHeight: 1.5, color: "rgba(255,255,255,0.65)" }}>
+            <div className="flex items-center gap-3 mb-3">
+              <img src={logoUrl} alt="" className="h-8 w-auto" />
+              <span className="font-semibold text-white">Boreal Risk Management</span>
+            </div>
+            <p className="text-sm leading-relaxed text-white/65">
               Personal Guarantee Insurance for Canadian and United States Business Owners.
             </p>
           </div>
           <div>
-            <div style={{ fontWeight: 600, color: "white", marginBottom: 12 }}>Explore</div>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0, fontSize: 14, lineHeight: 1.9 }}>
-              <li><Link to="/quote" style={{ color: "rgba(255,255,255,0.75)", textDecoration: "none" }}>Get a Quote</Link></li>
-              {/* BI_WEBSITE_BLOCK_v346_MOBILE_FIRST_LAUNCH_v1 */}
-              <li><Link to="/applications/new" style={{ color: "rgba(255,255,255,0.75)", textDecoration: "none" }}>Get Started</Link></li>
-              <li><Link to="/faq" style={{ color: "rgba(255,255,255,0.75)", textDecoration: "none" }}>FAQ</Link></li>
-              <li><a href="https://www.boreal.financial" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(255,255,255,0.75)", textDecoration: "none" }}>Visit Boreal Financial</a></li>
+            <div className="font-semibold text-white mb-3">Explore</div>
+            <ul className="list-none p-0 m-0 text-sm leading-loose">
+              <li><Link to="/quote" className="text-white/75 no-underline">Get a Quote</Link></li>
+              <li><Link to="/applications/new" className="text-white/75 no-underline">Get Started</Link></li>
+              <li><Link to="/faq" className="text-white/75 no-underline">FAQ</Link></li>
+              <li><a href="https://www.boreal.financial" target="_blank" rel="noopener noreferrer" className="text-white/75 no-underline">Visit Boreal Financial</a></li>
             </ul>
           </div>
           <div>
-            <div style={{ fontWeight: 600, color: "white", marginBottom: 12 }}>Sign In</div>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0, fontSize: 14, lineHeight: 1.9 }}>
-              <li><Link to="/lender/login" style={{ color: "rgba(255,255,255,0.75)", textDecoration: "none" }}>Lender Login</Link></li>
-              <li><a href="https://staff.boreal.financial/referrer" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(255,255,255,0.75)", textDecoration: "none" }}>Referral Login</a></li>
+            <div className="font-semibold text-white mb-3">Sign In</div>
+            <ul className="list-none p-0 m-0 text-sm leading-loose">
+              <li><Link to="/lender/login" className="text-white/75 no-underline">Lender Login</Link></li>
+              <li><a href="https://staff.boreal.financial/referrer" target="_blank" rel="noopener noreferrer" className="text-white/75 no-underline">Referral Login</a></li>
             </ul>
           </div>
           <div>
-            <div style={{ fontWeight: 600, color: "white", marginBottom: 12 }}>Contact</div>
-            <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: "rgba(255,255,255,0.75)", textDecoration: "none", fontSize: 14 }}>
+            <div className="font-semibold text-white mb-3">Contact</div>
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="text-white/75 no-underline text-sm">
               {SUPPORT_EMAIL}
             </a>
-            <div style={{ marginTop: 4, fontSize: 14, color: "rgba(255,255,255,0.55)" }}>
+            <div className="mt-1 text-sm text-white/55">
               Mon–Fri 8am–6pm MT
             </div>
-            <div style={{ marginTop: 16 }}>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginBottom: 6, letterSpacing: 1 }}>UNDERWRITTEN BY</div>
-              <img src={markelUrl} alt="Markel Canada" style={{ height: 28, width: "auto" }} />
+            <div className="mt-4">
+              <div className="text-[11px] text-white/45 mb-1.5 tracking-[1px]">UNDERWRITTEN BY</div>
+              <img src={markelUrl} alt="Markel Canada" className="h-7 w-auto" />
             </div>
           </div>
         </div>
 
         {/* v130 compliance: tightened partner-role disclaimer (audit item 10) and added scope-of-PGI line (audit item 11). */}
-        <p style={{ fontSize: 12, lineHeight: 1.6, color: "rgba(255,255,255,0.5)", marginTop: 24, marginBottom: 8 }}>
+        <p className="text-xs leading-relaxed text-white/50 mt-6 mb-2">
           Boreal Risk Management is a referral and risk advisory partner. Insurance is arranged only
           through appropriately licensed insurance entities. We are not a licensed insurance broker,
           agent, or adviser. We introduce Canadian and United States business owners to licensed brokers
@@ -59,34 +69,34 @@ export default function Footer() {
           shown here are illustrative and non-binding; final terms are set when a licensed broker
           binds a policy. Questions about this referral service: {SUPPORT_EMAIL}.
         </p>
-        <p style={{ fontSize: 12, lineHeight: 1.6, color: "rgba(255,255,255,0.5)", marginBottom: 16 }}>
+        <p className="text-xs leading-relaxed text-white/50 mb-4">
           Personal Guarantee Insurance does not prevent business failure, default, insolvency,
           bankruptcy, or lender enforcement. It is designed to respond only to covered claims under
           the policy.
         </p>
         {/* v131 compliance: Quebec exclusion, compensation disclosure, no-cost disclosure, complaints routing. */}
-        <p style={{ fontSize: 12, lineHeight: 1.6, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>
-          <strong style={{ color: "rgba(255,255,255,0.7)" }}>Geographic availability:</strong> This
+        <p className="text-xs leading-relaxed text-white/50 mb-2">
+          <strong className="text-white/70">Geographic availability:</strong> This
           referral service is available in 9 Canadian provinces and 3 territories, and in the United
           States. <strong>Not available to Quebec residents.</strong>
         </p>
-        <p style={{ fontSize: 12, lineHeight: 1.6, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>
-          <strong style={{ color: "rgba(255,255,255,0.7)" }}>Cost and compensation:</strong> There
+        <p className="text-xs leading-relaxed text-white/50 mb-2">
+          <strong className="text-white/70">Cost and compensation:</strong> There
           is no cost to the policyholder to use Boreal Risk Management&rsquo;s referral services.
           Boreal Risk Management may receive referral compensation from the licensed broker or
           carrier upon successful policy placement.
         </p>
-        <p style={{ fontSize: 12, lineHeight: 1.6, color: "rgba(255,255,255,0.5)", marginBottom: 16 }}>
-          <strong style={{ color: "rgba(255,255,255,0.7)" }}>Policy questions:</strong> Questions
+        <p className="text-xs leading-relaxed text-white/50 mb-4">
+          <strong className="text-white/70">Policy questions:</strong> Questions
           about an existing policy, coverage, or a claim should be directed to the licensed broker
           named on your policy documents or to Markel Canada Limited. Questions about this referral
-          service: <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: "rgba(255,255,255,0.65)" }}>{SUPPORT_EMAIL}</a>.
+          service: <a href={`mailto:${SUPPORT_EMAIL}`} className="text-white/65">{SUPPORT_EMAIL}</a>.
         </p>
 
-        <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid #1c2538", paddingTop: 16, fontSize: 13, color: "rgba(255,255,255,0.55)" }}>
-          <div style={{ display: "flex", gap: 16 }}>
-            <Link to="/privacy" style={{ color: "inherit", textDecoration: "none" }}>Privacy Policy</Link>
-            <Link to="/terms" style={{ color: "inherit", textDecoration: "none" }}>Terms of Service</Link>
+        <div className="border-t border-[#1c2538] pt-4 flex justify-between text-xs text-white/55">
+          <div className="flex gap-4">
+            <Link to="/privacy" className="text-inherit no-underline">Privacy Policy</Link>
+            <Link to="/terms" className="text-inherit no-underline">Terms of Service</Link>
           </div>
           <div>© {new Date().getFullYear()} Boreal Risk Management</div>
         </div>
