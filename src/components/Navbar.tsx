@@ -15,7 +15,7 @@ export default function Navbar() {
           <Link to="/quote" className="hover:text-white">Coverage</Link>
           <Link to="/how-it-works" className="hover:text-white">How It Works</Link>
           <Link to="/faq" className="hover:text-white">FAQ</Link>
-          <Link to="/applications/new" className="flex h-10 items-center rounded-full bg-bf-cta px-6 font-medium text-white transition-colors hover:bg-bf-ctaHover">Get Started</Link>
+          <Link to="/applications/new" className="flex h-10 items-center rounded-full bg-bf-cta px-6 font-medium text-[#0B1F3A] transition-colors hover:bg-bf-ctaHover">Get Started</Link>
         </nav>
 
         <button
@@ -35,7 +35,7 @@ export default function Navbar() {
             <Link to="/quote" className="rounded px-1 py-2 hover:bg-white/5" onClick={() => setOpen(false)}>Coverage</Link>
             <Link to="/how-it-works" className="rounded px-1 py-2 hover:bg-white/5" onClick={() => setOpen(false)}>How It Works</Link>
             <Link to="/faq" className="rounded px-1 py-2 hover:bg-white/5" onClick={() => setOpen(false)}>FAQ</Link>
-            <Link to="/applications/new" className="mt-2 rounded-full bg-bf-cta px-4 py-2 text-center font-medium text-white hover:bg-bf-ctaHover" onClick={() => setOpen(false)}>Get Started</Link>
+            <Link to="/applications/new" className="mt-2 rounded-full bg-bf-cta px-4 py-2 text-center font-medium text-[#0B1F3A] hover:bg-bf-ctaHover" onClick={() => setOpen(false)}>Get Started</Link>
           </nav>
         </div>
       )}

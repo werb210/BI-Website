@@ -35,7 +35,7 @@ export default function Saved() {
                 </Link>
                 <Link
                   to={`/applications/${publicId}/documents`}
-                  className="rounded-md bg-bf-cta px-6 py-3 text-center font-semibold text-white hover:bg-bf-ctaHover"
+                  className="rounded-md bg-bf-cta px-6 py-3 text-center font-semibold text-[#0B1F3A] hover:bg-bf-ctaHover"
                 >
                   Upload now anyway
                 </Link>
