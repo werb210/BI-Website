@@ -6,12 +6,32 @@
    BF-Website palette tokens (mirror of BF-Website body / Footer / Industries).
    Use these instead of raw hex codes when reskinning BI body pages. */
 :root {
-  --bf-bg: #020817;
-  --bf-surface: #08132a;
-  --bf-surface-alt: #0d1b39;
-  --bf-footer: #071a2f;
-  --bf-cta: #2563eb;
-  --bf-cta-hover: #1d4ed8;
+  /* BI_WEBSITE_DESIGN_v101 - kept in step with tailwind.config.ts above. */
+  --bf-bg: #081729;
+  --bf-surface: #0B1F3A;
+  --bf-surface-alt: #0d233f;
+  --bf-footer: #0a1120;
+  --bf-cta: #BF9B49;
+  --bf-cta-hover: #cfa953;
+  --bf-ink: #0B1F3A;
+  --bf-mist: #F5F8FC;
+  --bf-line: #E4EAF2;
+  --bf-body: #51617D;
+}
+
+/* BI_WEBSITE_DESIGN_v101 - headings on the display serif, body on Public Sans,
+   exactly as boreal.financial sets them. Without this, bi-website falls back to
+   the system sans and reads as a different company however well the colours
+   match. */
+html,
+body {
+  font-family: "Public Sans", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  font-family: "Libre Caslon Text", Georgia, "Times New Roman", serif;
 }
 
 /* Institutional base styling — matched to BF-Website body bg */
