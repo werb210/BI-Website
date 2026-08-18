@@ -49,9 +49,9 @@ export default function Home() {
         <p className="mt-4 text-base sm:text-lg text-bf-textMuted">Cap personal downside when you sign a guarantee for business financing. Boreal helps eligible business owners start the Personal Guarantee Insurance application process. Coverage is subject to underwriting, policy terms, conditions, exclusions, and applicable regulatory requirements.</p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
           {/* BI_WEBSITE_BLOCK_v346_MOBILE_FIRST_LAUNCH_v1 — renamed from "Start eligibility check" per Todd's iPhone-testing pass. */}
-          <Link to="/applications/new" className="rounded-full bg-bf-cta hover:bg-bf-ctaHover px-7 py-3 font-medium text-white">Get Started</Link>
-          <Link to="?quote=1" className="rounded-full border border-white/30 px-7 py-3 font-medium text-white">Get a Free Quote</Link>
-          <Link to="/how-it-works" className="rounded-full border border-white/30 px-7 py-3 font-medium text-white">Learn how PGI works</Link>
+          <Link to="/applications/new" className="bf-btn bf-btn--primary">Get Started</Link>
+          <Link to="?quote=1" className="bf-btn bf-btn--secondary">Get a Free Quote</Link>
+          <Link to="/how-it-works" className="bf-btn bf-btn--secondary">Learn how PGI works</Link>
         </div>
         <div className="mt-8 flex justify-center"><MarkelBadge /></div>
         {/* v131 compliance: referral-source disclosure on hero. */}
@@ -79,7 +79,7 @@ export default function Home() {
         <section className="mx-auto max-w-3xl px-5 pb-8">
           <div className="rounded-2xl border border-bf-cta/40 bg-bf-cta/10 p-5 text-center">
             <p className="text-sm text-bf-textMuted">Welcome back — your application is saved.</p>
-            <button type="button" onClick={() => nav(`/applications/${rows[0].public_id}/form`)} className="mt-3 rounded-full bg-bf-cta hover:bg-bf-ctaHover px-6 py-2 text-white">Continue your application</button>
+            <button type="button" onClick={() => nav(`/applications/${rows[0].public_id}/form`)} className="mt-3 bf-btn bf-btn--primary">Continue your application</button>
           </div>
         </section>
       )}
@@ -114,9 +114,9 @@ export default function Home() {
       <section className="mx-auto max-w-3xl px-5 py-16 text-center">
         <h2 className="text-3xl font-bold text-white">Ready to review your guarantee exposure?</h2>
         <p className="mt-3 text-bf-textMuted">Start with a quick eligibility check. A full application and underwriting review will be required before coverage can be offered. Most complete submissions are reviewed within 5 business days.</p>
-        <Link to="/applications/new" className="mt-6 inline-block rounded-full bg-bf-cta hover:bg-bf-ctaHover px-8 py-3 font-medium text-white">Get Started</Link>
+        <Link to="/applications/new" className="mt-6 bf-btn bf-btn--primary">Get Started</Link>
       </section>
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-50 p-3 border-t border-card bg-bf-bg/95 backdrop-blur"><Link to="/applications/new" className="block w-full text-center rounded-full bg-bf-cta hover:bg-bf-ctaHover px-6 py-3 font-medium text-white">Get Started</Link></div>
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-50 p-3 border-t border-card bg-bf-bg/95 backdrop-blur"><Link to="/applications/new" className="w-full bf-btn bf-btn--primary">Get Started</Link></div>
     </main>
   );
 }

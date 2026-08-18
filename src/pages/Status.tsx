@@ -266,7 +266,7 @@ export default function Status() {
                 {publicId && (
                   <Link
                     to={`/applications/${publicId}/documents`}
-                    className="mt-4 inline-block rounded-md bg-bf-cta px-5 py-2 font-semibold text-white hover:bg-bf-ctaHover"
+                    className="mt-4 inline-block rounded-md bg-bf-cta px-5 py-2 font-semibold text-[#0B1F3A] hover:bg-bf-ctaHover"
                   >
                     {docs.length > 0 ? "Continue upload" : "Upload documents"}
                   </Link>

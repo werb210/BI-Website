@@ -2,6 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
+/* BI_WEBSITE_DESIGN_v102
+   One button, shared across every page. Mirrors bf-client's button.css so the
+   two properties present the same control. Change both together. */
+.bf-btn {
+  height: 48px;
+  min-height: 44px;
+  padding: 0 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease,
+    box-shadow 120ms ease, transform 60ms ease;
+}
+
+.bf-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(191, 155, 73, 0.45);
+}
+
+.bf-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* Navy on gold, not white on gold. White fails WCAG AA against #BF9B49. */
+.bf-btn--primary {
+  background: #BF9B49;
+  color: #0B1F3A;
+  border: 1px solid #BF9B49;
+}
+.bf-btn--primary:hover:not(:disabled) {
+  background: #cfa953;
+  border-color: #cfa953;
+}
+
+.bf-btn--secondary {
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.bf-btn--secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.bf-btn:disabled {
+  background: #E4EAF2;
+  color: #8593aa;
+  border-color: #E4EAF2;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* BI_WEBSITE_BLOCK_v83_BODY_PALETTE_PARITY_v1
    BF-Website palette tokens (mirror of BF-Website body / Footer / Industries).
    Use these instead of raw hex codes when reskinning BI body pages. */

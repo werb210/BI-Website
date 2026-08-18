@@ -42,7 +42,7 @@ export default function ReferralLandingPgi() {
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         <a
           href={applyHref}
-          className="inline-flex items-center justify-center rounded-full bg-bf-cta px-7 py-3 font-medium text-white transition hover:bg-bf-ctaHover"
+          className="inline-flex items-center justify-center rounded-full bg-bf-cta px-7 py-3 font-medium text-[#0B1F3A] transition hover:bg-bf-ctaHover"
         >
           Apply now
         </a>

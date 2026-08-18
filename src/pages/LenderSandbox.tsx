@@ -242,7 +242,7 @@ export default function LenderSandbox() {
             Test keys begin with <code className="rounded bg-bf-bg/70 px-1">bk_test_</code>. Applications you create with them are tagged as demo, appear in your pipeline as test rows, and never reach the carrier.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
-            <button disabled={busy} onClick={() => generate("test")} className="rounded-md bg-bf-cta px-5 py-2 font-medium text-white hover:bg-bf-ctaHover disabled:opacity-50">
+            <button disabled={busy} onClick={() => generate("test")} className="rounded-md bg-bf-cta px-5 py-2 font-medium text-[#0B1F3A] hover:bg-bf-ctaHover disabled:opacity-50">
               {busy ? "Generating…" : "Generate test key"}
             </button>
             <button disabled={busy || !created || !created.is_sandbox} onClick={sendTest} className="rounded-md border border-emerald-500/40 px-5 py-2 font-medium text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-30">
