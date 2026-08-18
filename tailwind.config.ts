@@ -4,17 +4,29 @@ const config: Config = {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      // BI_WEBSITE_DESIGN_v101 - the marketing site's faces.
+      fontFamily: {
+        display: ["'Libre Caslon Text'", "Georgia", "serif"],
+        sans: ["'Public Sans'", "system-ui", "sans-serif"],
+      },
       colors: {
         // BI_WEBSITE_BLOCK_v83_BODY_PALETTE_PARITY_v1 — exact BF-Website
         // palette so BI body pages match "1 for 1 colours, look feel".
+        // BI_WEBSITE_DESIGN_v101 - the CURRENT BF-Website palette. The previous
+        // values mirrored the pre-rebuild dark theme and are gone from the
+        // marketing site entirely.
         bf: {
-          bg: "#020817",          // page background
-          surface: "#08132a",     // card background
-          surfaceAlt: "#0d1b39",  // hover card
-          footer: "#071a2f",      // footer
-          cta: "#2563eb",         // primary CTA blue
-          ctaHover: "#1d4ed8",    // primary CTA hover
-          textMuted: "rgb(203 213 225)",  // slate-300
+          bg: "#081729",          // page background - boreal ink, deep
+          surface: "#0B1F3A",     // card background - boreal ink
+          surfaceAlt: "#0d233f",  // hover card
+          footer: "#0a1120",      // footer, matching the shared template
+          cta: "#BF9B49",         // primary CTA - boreal gold
+          ctaHover: "#cfa953",    // primary CTA hover
+          ink: "#0B1F3A",         // navy, for use on light surfaces
+          mist: "#F5F8FC",        // light surface
+          line: "#E4EAF2",        // hairline on light surfaces
+          body: "#51617D",        // body copy on light surfaces
+          textMuted: "#c3cfe0",   // muted copy on dark surfaces
         },
         brand: {
           bg: "rgb(2 12 28)",
