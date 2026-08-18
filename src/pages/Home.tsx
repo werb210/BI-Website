@@ -41,8 +41,11 @@ export default function Home() {
     Promise.all(ids.map((id) => api.getApp(id).then((r: any) => r.application).catch(() => null))).then((a) => setRows(a.filter(Boolean) as Row[]));
   }, []);
   return (
-    <main className="min-h-screen bg-bf-bg text-slate-200">
-      <section className="mx-auto max-w-5xl px-5 py-16 text-center">
+    <main className="min-h-screen bg-white text-[#0B1F3A]">
+      {/* BI_WEBSITE_LIGHT_v104 - white ground with navy and mist sections,
+        matching boreal.financial. Was dark on every section. */}
+      <section className="bg-bf-bg">
+        <div className="mx-auto max-w-5xl px-5 py-16 text-center">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">Stop putting your house on the line for your business loan.</h1>
         {/* v130 compliance: subtitle replaced with carrier-audit paragraph.
             Secondary CTA "Learn how PGI works" added (item 16) → existing /how-it-works route. */}
@@ -61,19 +64,24 @@ export default function Home() {
           owners to licensed brokers who arrange Personal Guarantee Insurance. Not available to
           Quebec residents.
         </p>
+        </div>
       </section>
-      <section className="mx-auto max-w-5xl px-5 py-8 border-t border-subtle">
+      <section className="border-y border-bf-line bg-bf-mist">
+        <div className="mx-auto max-w-5xl px-5 py-8">
         <div className="flex flex-col sm:flex-row sm:justify-center gap-12 text-center">
-          <div><div className="text-2xl font-bold text-white">A-rated</div><div className="mt-1 text-sm text-bf-textMuted">Underwriter rated by AM Best, S&amp;P, Fitch</div></div>
-          <div><div className="text-2xl font-bold text-white">CA & US</div><div className="mt-1 text-sm text-bf-textMuted">Canada and the United States (not available in Quebec)</div></div>
+          <div><div className="text-2xl font-bold text-[#0B1F3A]">A-rated</div><div className="mt-1 text-sm text-bf-body">Underwriter rated by AM Best, S&amp;P, Fitch</div></div>
+          <div><div className="text-2xl font-bold text-[#0B1F3A]">CA & US</div><div className="mt-1 text-sm text-bf-body">Canada and the United States (not available in Quebec)</div></div>
           {/* v111-trust-strip: Backed-by column removed */}
+        </div>
         </div>
       </section>
       {/* v130 compliance: sub-hero block (audit item 13). */}
-      <section className="mx-auto max-w-5xl px-5 py-10 border-t border-subtle">
-        <p className="text-center text-base sm:text-lg text-bf-textMuted max-w-3xl mx-auto">
+      <section className="border-b border-bf-line bg-bf-mist">
+        <div className="mx-auto max-w-5xl px-5 py-10">
+        <p className="text-center text-base sm:text-lg text-bf-body max-w-3xl mx-auto">
           Business loans often require a personal guarantee. PGI is designed to help qualifying guarantors insure a defined portion of their personal guarantee exposure, so growth capital does not have to mean unlimited personal risk.
         </p>
+        </div>
       </section>
       {rows.length > 0 && (
         <section className="mx-auto max-w-3xl px-5 pb-8">
@@ -84,31 +92,31 @@ export default function Home() {
         </section>
       )}
       <section id="how-it-works" className="mx-auto max-w-5xl px-5 py-16">
-        <h2 className="text-3xl font-bold text-white text-center">How it works</h2>
+        <h2 className="text-3xl font-bold text-[#0B1F3A] text-center">How it works</h2>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {STEPS.map((s) => (<div key={s.n} className="rounded-2xl border border-card bg-bf-surface p-6"><div className="flex items-start justify-between"><div className="text-bf-cta text-2xl font-bold">{s.n}</div><div className="text-bf-cta opacity-80"><Icon d={s.i}/></div></div><h3 className="mt-2 text-lg font-semibold text-white">{s.t}</h3><p className="mt-2 text-sm text-bf-textMuted">{s.d}</p></div>))}
+          {STEPS.map((s) => (<div key={s.n} className="rounded-2xl border border-bf-line bg-white p-6"><div className="flex items-start justify-between"><div className="text-bf-cta text-2xl font-bold">{s.n}</div><div className="text-bf-cta opacity-80"><Icon d={s.i}/></div></div><h3 className="mt-2 text-lg font-semibold text-[#0B1F3A]">{s.t}</h3><p className="mt-2 text-sm text-bf-body">{s.d}</p></div>))}
         </div>
       </section>
       <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
-        <h2 className="text-3xl font-bold text-white text-center">What your policy covers</h2>
+        <h2 className="text-3xl font-bold text-[#0B1F3A] text-center">What your policy covers</h2>
         <ul className="mt-8 mx-auto max-w-2xl space-y-4">{COVERAGE.map((c, i) => (<li key={i} className="flex gap-3"><span className="text-bf-cta">●</span><span className="text-bf-textMuted">{c}</span></li>))}</ul>
       </section>
       <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
         {/* BI_WEBSITE_BLOCK_v129_MOBILE_DIAGRAM_AND_AFFORDANCES_v1 — desktop image, mobile stacked cards */}<img src="/pgi-diagram.svg" alt="How PGI protects you: sign loan and PGI, default happens, Markel pays the bank, you stay safe" className="hidden md:block w-full h-auto" /><div className="md:hidden pgi-steps-mobile grid grid-cols-1 gap-3 mt-4">{[{n:"1",t:"Sign loan + PGI",d:"Bank requires a personal guarantee. You insure it.",c:"#3b82f6"},{n:"2",t:"Default happens",d:"Bank moves to call your personal guarantee.",c:"#f59e0b"},{n:"3",t:"Markel pays the bank",d:"PGI policy pays the lender directly, up to your limit.",c:"#10b981"},{n:"4",t:"You stay safe",d:"House, RRSP, savings \u2014 protected.",c:"#10b981"}].map((step) => (<div key={step.n} className="rounded-2xl border bg-bf-surface p-4" style={{ borderColor: step.c + "40" }}><div className="flex items-baseline gap-3 mb-1"><span className="text-xs font-semibold uppercase tracking-wide" style={{ color: step.c }}>Step {step.n}</span></div><h4 className="text-base font-semibold text-white">{step.t}</h4><p className="mt-1 text-sm text-bf-textMuted">{step.d}</p></div>))}</div>
       </section>
       <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
-        <h2 className="text-3xl font-bold text-white text-center">Deals that can be insured</h2>
+        <h2 className="text-3xl font-bold text-[#0B1F3A] text-center">Deals that can be insured</h2>
         <p className="mt-3 text-center text-sm text-bf-textMuted">Bank loans are just the start. Lenders, suppliers, and counterparties demand personal guarantees across the entire commercial economy.</p>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{LOANS.map((l) => (<div key={l.t} className="rounded-2xl border border-card bg-bf-surface p-5"><div className="text-bf-cta mb-3"><Icon d={l.i}/></div><h3 className="text-base font-semibold text-white">{l.t}</h3><p className="mt-2 text-sm text-bf-textMuted">{l.d}</p></div>))}</div>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{LOANS.map((l) => (<div key={l.t} className="rounded-2xl border border-card bg-bf-surface p-5"><div className="text-bf-cta mb-3"><Icon d={l.i}/></div><h3 className="text-base font-semibold text-white">{l.t}</h3><p className="mt-2 text-sm text-bf-body">{l.d}</p></div>))}</div>
       </section>
       <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
-        <h2 className="text-3xl font-bold text-white text-center">Why we partner with PGI</h2>
+        <h2 className="text-3xl font-bold text-[#0B1F3A] text-center">Why we partner with PGI</h2>
         <p className="mt-3 text-center text-sm text-bf-textMuted">Most guarantors don’t realize there’s a third option.</p>
         <div className="mt-10 overflow-x-auto rounded-2xl border border-card bg-bf-surface"><table className="w-full text-sm min-w-[560px]"><thead><tr><th className="text-left py-4 px-4 font-medium text-bf-textMuted w-[26%]"></th><th className="py-4 px-3 font-medium text-white text-center">Doing nothing</th><th className="py-4 px-3 font-medium text-white text-center">Credit insurance</th><th className="py-4 px-3 font-medium text-bf-cta text-center">PGI</th></tr></thead><tbody><tr className="border-t border-card"><td className="py-4 px-4 text-white font-medium">Who’s protected</td><td className="py-4 px-3 text-bf-textMuted text-center">Nobody</td><td className="py-4 px-3 text-bf-textMuted text-center">The lender</td><td className="py-4 px-3 text-white text-center font-medium">You &amp; your family</td></tr><tr className="border-t border-card"><td className="py-4 px-4 text-white font-medium">Who pays the lender if you default</td><td className="py-4 px-3 text-bf-textMuted text-center">You — from personal assets</td><td className="py-4 px-3 text-bf-textMuted text-center">Insurer pays lender</td><td className="py-4 px-3 text-white text-center font-medium">Insurer pays lender</td></tr><tr className="border-t border-card"><td className="py-4 px-4 text-white font-medium">Your house, RRSP, savings</td><td className="py-4 px-3 text-bf-textMuted text-center">At risk</td><td className="py-4 px-3 text-bf-textMuted text-center">At risk</td><td className="py-4 px-3 text-white text-center font-medium">Protected</td></tr><tr className="border-t border-card"><td className="py-4 px-4 text-white font-medium">Annual cost</td><td className="py-4 px-3 text-bf-textMuted text-center">$0</td><td className="py-4 px-3 text-bf-textMuted text-center">1.5–3.0% of loan</td><td className="py-4 px-3 text-white text-center font-medium">2.6% of loan</td></tr></tbody></table></div>
       </section>
       <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
-        <h2 className="text-3xl font-bold text-white text-center">Why Boreal Risk Management</h2>
-        <div className="mt-10 grid gap-6 md:grid-cols-3">{WHY.map((w) => (<div key={w.t}><div className="text-bf-cta mb-2"><Icon d={w.i}/></div><h3 className="text-lg font-semibold text-white">{w.t}</h3><p className="mt-2 text-sm text-bf-textMuted">{w.d}</p></div>))}</div>
+        <h2 className="text-3xl font-bold text-[#0B1F3A] text-center">Why Boreal Risk Management</h2>
+        <div className="mt-10 grid gap-6 md:grid-cols-3">{WHY.map((w) => (<div key={w.t}><div className="text-bf-cta mb-2"><Icon d={w.i}/></div><h3 className="text-lg font-semibold text-white">{w.t}</h3><p className="mt-2 text-sm text-bf-body">{w.d}</p></div>))}</div>
       </section>
       {/* v130 compliance: final CTA rewritten per audit item 15. */}
       <section className="mx-auto max-w-3xl px-5 py-16 text-center">
