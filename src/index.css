@@ -51,6 +51,52 @@
   border-color: rgba(255, 255, 255, 0.5);
 }
 
+/* BI_WEBSITE_DESIGN_v103
+   The field treatment, matching bf-client's inputs: 48px tall with a 44px
+   floor, 8px radius, hairline border at rest, gold border and gold ring on
+   focus. These sit on a dark ground here, so the surface is a translucent
+   white rather than the white bf-client uses. */
+.bf-field {
+  width: 100%;
+  height: 48px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  font-size: 16px;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.bf-field::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.bf-field:focus {
+  outline: none;
+  border-color: #BF9B49;
+  box-shadow: 0 0 0 3px rgba(191, 155, 73, 0.45);
+}
+
+.bf-field:disabled {
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.4);
+  cursor: not-allowed;
+}
+
+/* select and textarea need the height rules relaxed */
+select.bf-field {
+  padding-right: 32px;
+}
+
+textarea.bf-field {
+  height: auto;
+  min-height: 96px;
+  padding: 12px 14px;
+  line-height: 1.5;
+}
+
 .bf-btn:disabled {
   background: #E4EAF2;
   color: #8593aa;
