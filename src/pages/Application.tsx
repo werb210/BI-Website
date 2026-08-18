@@ -27,11 +27,14 @@ const LOAN_AMOUNT_MIN = 50_000;
 const LOAN_AMOUNT_MAX = 1_000_000;
 const PGI_COVERAGE_RATIO = 0.80; // v337: pgi_limit cannot exceed 80% of loan_amount.
 
-const INPUT_CLS = "w-full bg-sky-500/15 border border-sky-300/40 text-white placeholder:text-sky-100/50 rounded px-3 py-2 focus:outline-none focus:border-sky-300";
-const LABEL_CLS = "block text-xs font-medium text-sky-100 mb-1";
-const HELP_CLS = "text-xs text-sky-200/70 mt-1";
-const ERROR_CLS = "text-xs text-rose-300 mt-1";
-const SECTION_H_CLS = "text-lg font-semibold text-sky-100 mt-6 mb-2 border-b border-sky-300/30 pb-1";
+// BI_WEBSITE_DESIGN_v103 - one field treatment, shared with bf-client. The
+// gold ring is the same one every button and every other property uses, so a
+// keyboard user gets a consistent signal across the whole estate.
+const INPUT_CLS = "bf-field";
+const LABEL_CLS = "block text-sm font-medium text-white/80 mb-1.5";
+const HELP_CLS = "text-xs text-white/55 mt-1";
+const ERROR_CLS = "text-xs text-[#ff9a92] mt-1";
+const SECTION_H_CLS = "text-lg font-semibold text-white mt-6 mb-2 border-b border-white/12 pb-1";
 
 // ---------- Types ----------
 
@@ -90,7 +93,7 @@ function DateField({ label, value, onChange, withTodayButton, error }: {
       <div className="flex gap-2">
         <input type="date" className={INPUT_CLS} value={value} onChange={(e) => onChange(e.target.value)} />
         {withTodayButton && (
-          <button type="button" className="whitespace-nowrap px-3 py-2 text-xs bg-sky-400/20 border border-sky-300/40 text-sky-100 rounded hover:bg-sky-400/30"
+          <button type="button" className="whitespace-nowrap px-3 py-2 text-xs bg-white/10 border border-white/20 text-white rounded hover:bg-white/[0.14]"
                   onClick={() => onChange(new Date().toISOString().slice(0, 10))} title="Fill with today's date">
             Use today
           </button>
@@ -146,8 +149,8 @@ function AddressFieldGroup({ label, value, onChange, error, country }: {
 }) {
   const addr = value || blankAddress;
   return (
-    <div className="md:col-span-2 p-3 rounded border border-sky-300/30 bg-sky-500/5">
-      <div className="text-sm font-semibold text-sky-100 mb-2">{label}</div>
+    <div className="md:col-span-2 p-3 rounded border border-white/12 bg-white/[0.04]">
+      <div className="text-sm font-semibold text-white mb-2">{label}</div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
         <div>
           <label className={LABEL_CLS}>Street address</label>
@@ -190,10 +193,10 @@ function YesNoButtons({ name, value, onChange }: { name: string; value: boolean 
   return (
     <div className="flex gap-2" role="radiogroup" aria-label={name}>
       <button type="button"
-              className={`flex-1 px-4 py-2 rounded border text-sm transition ${value === false ? "bg-sky-500 text-white border-sky-400" : "bg-sky-500/10 text-sky-100 border-sky-300/40 hover:bg-sky-500/20"}`}
+              className={`flex-1 px-4 py-2 rounded border text-sm transition ${value === false ? "bg-[#BF9B49] text-[#0B1F3A] border-[#BF9B49]" : "bg-white/[0.06] text-white border-white/20 hover:bg-white/[0.10]"}`}
               onClick={() => onChange(false)}>No</button>
       <button type="button"
-              className={`flex-1 px-4 py-2 rounded border text-sm transition ${value === true ? "bg-sky-500 text-white border-sky-400" : "bg-sky-500/10 text-sky-100 border-sky-300/40 hover:bg-sky-500/20"}`}
+              className={`flex-1 px-4 py-2 rounded border text-sm transition ${value === true ? "bg-[#BF9B49] text-[#0B1F3A] border-[#BF9B49]" : "bg-white/[0.06] text-white border-white/20 hover:bg-white/[0.10]"}`}
               onClick={() => onChange(true)}>Yes</button>
     </div>
   );
@@ -203,10 +206,10 @@ function YesNoStr({ name, value, onChange }: { name: string; value: string; onCh
   return (
     <div className="flex gap-2" role="radiogroup" aria-label={name}>
       <button type="button"
-              className={`flex-1 px-4 py-2 rounded border text-sm transition ${value === "no" ? "bg-sky-500 text-white border-sky-400" : "bg-sky-500/10 text-sky-100 border-sky-300/40 hover:bg-sky-500/20"}`}
+              className={`flex-1 px-4 py-2 rounded border text-sm transition ${value === "no" ? "bg-[#BF9B49] text-[#0B1F3A] border-[#BF9B49]" : "bg-white/[0.06] text-white border-white/20 hover:bg-white/[0.10]"}`}
               onClick={() => onChange("no")}>No</button>
       <button type="button"
-              className={`flex-1 px-4 py-2 rounded border text-sm transition ${value === "yes" ? "bg-sky-500 text-white border-sky-400" : "bg-sky-500/10 text-sky-100 border-sky-300/40 hover:bg-sky-500/20"}`}
+              className={`flex-1 px-4 py-2 rounded border text-sm transition ${value === "yes" ? "bg-[#BF9B49] text-[#0B1F3A] border-[#BF9B49]" : "bg-white/[0.06] text-white border-white/20 hover:bg-white/[0.10]"}`}
               onClick={() => onChange("yes")}>Yes</button>
     </div>
   );
@@ -215,10 +218,10 @@ function AgreeButtons({ name, value, onChange }: { name: string; value: string; 
   return (
     <div className="flex gap-2" role="radiogroup" aria-label={name}>
       <button type="button"
-              className={`flex-1 px-4 py-2 rounded border text-sm transition ${value === "Agree" ? "bg-sky-500 text-white border-sky-400" : "bg-sky-500/10 text-sky-100 border-sky-300/40 hover:bg-sky-500/20"}`}
+              className={`flex-1 px-4 py-2 rounded border text-sm transition ${value === "Agree" ? "bg-[#BF9B49] text-[#0B1F3A] border-[#BF9B49]" : "bg-white/[0.06] text-white border-white/20 hover:bg-white/[0.10]"}`}
               onClick={() => onChange("Agree")}>Agree</button>
       <button type="button"
-              className={`flex-1 px-4 py-2 rounded border text-sm transition ${value === "Disagree" ? "bg-sky-500 text-white border-sky-400" : "bg-sky-500/10 text-sky-100 border-sky-300/40 hover:bg-sky-500/20"}`}
+              className={`flex-1 px-4 py-2 rounded border text-sm transition ${value === "Disagree" ? "bg-[#BF9B49] text-[#0B1F3A] border-[#BF9B49]" : "bg-white/[0.06] text-white border-white/20 hover:bg-white/[0.10]"}`}
               onClick={() => onChange("Disagree")}>Disagree</button>
     </div>
   );
@@ -478,13 +481,13 @@ export default function Application() {
       </div>
 
       {/* Read-only CORE Score summary — fields not re-asked in Step 2 (v337). */}
-      <div className="mb-6 p-3 rounded border border-sky-300/30 bg-sky-500/5">
-        <div className="text-xs uppercase tracking-wider text-sky-300/70 mb-2">From your CORE Score</div>
+      <div className="mb-6 p-3 rounded border border-white/12 bg-white/[0.04]">
+        <div className="text-xs uppercase tracking-wider text-white/50 mb-2">From your CORE Score</div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-          <div><div className="text-sky-200/70 text-xs">Loan</div><div>${loanNum.toLocaleString()}</div></div>
-          <div><div className="text-sky-200/70 text-xs">PGI limit</div><div>${pgiNum.toLocaleString()} <span className="text-sky-200/60 text-xs">(max ${maxAllowedPgi.toLocaleString()} at 80%)</span></div></div>
-          <div><div className="text-sky-200/70 text-xs">NAICS</div><div>{state.naics_code || "—"}</div></div>
-          <div><div className="text-sky-200/70 text-xs">Started</div><div>{formatStartedDate(state.formation_date)}</div></div>
+          <div><div className="text-white/55 text-xs">Loan</div><div>${loanNum.toLocaleString()}</div></div>
+          <div><div className="text-white/55 text-xs">PGI limit</div><div>${pgiNum.toLocaleString()} <span className="text-white/50 text-xs">(max ${maxAllowedPgi.toLocaleString()} at 80%)</span></div></div>
+          <div><div className="text-white/55 text-xs">NAICS</div><div>{state.naics_code || "—"}</div></div>
+          <div><div className="text-white/55 text-xs">Started</div><div>{formatStartedDate(state.formation_date)}</div></div>
         </div>
       </div>
 
@@ -507,15 +510,15 @@ export default function Application() {
       </div>
 
       {/* Co-guarantors */}
-      <div className="mb-6 p-4 rounded border border-sky-300/30 bg-sky-500/5">
-        <h3 className="text-sm font-semibold text-sky-100">Co-guarantors (optional)</h3>
-        <p className="text-xs text-sky-200/70 mt-1 mb-3">Add any other individuals who are co-guarantors on this loan. Their address fields follow the selected country. Our team will contact you to complete the co-guarantor intake separately.</p>
-        {(state.co_guarantors || []).length === 0 && <div className="text-sm text-sky-200/70">No co-guarantors added yet.</div>}
+      <div className="mb-6 p-4 rounded border border-white/12 bg-white/[0.04]">
+        <h3 className="text-sm font-semibold text-white">Co-guarantors (optional)</h3>
+        <p className="text-xs text-white/55 mt-1 mb-3">Add any other individuals who are co-guarantors on this loan. Their address fields follow the selected country. Our team will contact you to complete the co-guarantor intake separately.</p>
+        {(state.co_guarantors || []).length === 0 && <div className="text-sm text-white/55">No co-guarantors added yet.</div>}
         {(state.co_guarantors as CoGuarantor[] || []).map((cg, idx) => (
-          <div key={idx} className="mt-3 p-3 rounded bg-sky-500/10 border border-sky-300/20">
+          <div key={idx} className="mt-3 p-3 rounded bg-white/[0.06] border border-white/12">
             <div className="flex justify-between items-center mb-2">
               <strong className="text-sm">Co-guarantor #{idx + 1}</strong>
-              <button type="button" onClick={() => setState((s) => ({ ...s, co_guarantors: (s.co_guarantors || []).filter((_: any, i: number) => i !== idx) }))} className="text-rose-300 text-xs hover:text-rose-200">Remove</button>
+              <button type="button" onClick={() => setState((s) => ({ ...s, co_guarantors: (s.co_guarantors || []).filter((_: any, i: number) => i !== idx) }))} className="text-[#ff9a92] text-xs hover:text-rose-200">Remove</button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <input className={INPUT_CLS} placeholder="First name *"   value={cg.first_name}    onChange={(e) => updateCG(idx, "first_name", e.target.value)} />
@@ -536,7 +539,7 @@ export default function Application() {
             </div>
           </div>
         ))}
-        <button type="button" onClick={() => setState((s) => ({ ...s, co_guarantors: [...(s.co_guarantors || []), emptyCoGuarantor()] }))} className="mt-3 text-sky-200 underline text-sm hover:text-sky-100">+ Add another co-guarantor</button>
+        <button type="button" onClick={() => setState((s) => ({ ...s, co_guarantors: [...(s.co_guarantors || []), emptyCoGuarantor()] }))} className="mt-3 text-white/70 underline text-sm hover:text-white">+ Add another co-guarantor</button>
       </div>
 
       {/* Business Information (no NAICS or formation_date—they remain in the CORE Score summary) */}
@@ -565,14 +568,14 @@ export default function Application() {
           <label className={LABEL_CLS}>Business Number (BN) (optional)</label>
           <div className="flex gap-2">
             <input className={INPUT_CLS} value={String(state.business_number || "")} onChange={(e) => update("business_number", e.target.value)} placeholder="123456789RT0001" />
-            <button type="button" onClick={openBnLookup} className="whitespace-nowrap px-3 py-2 text-xs bg-sky-400/20 border border-sky-300/40 text-sky-100 rounded hover:bg-sky-400/30">Look up by name</button>
+            <button type="button" onClick={openBnLookup} className="whitespace-nowrap px-3 py-2 text-xs bg-white/10 border border-white/20 text-white rounded hover:bg-white/[0.14]">Look up by name</button>
           </div>
           <p className={HELP_CLS}>Don't know your BN? The button opens the federal Canada Business Registries search.</p>
         </div>
       </div>
 
       <div className="flex justify-end mt-6">
-        <button type="button" onClick={() => { setStep(2); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="px-6 py-2 bg-sky-500 text-white rounded hover:bg-sky-400">Continue &rarr;</button>
+        <button type="button" onClick={() => { setStep(2); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="px-6 py-2 bg-[#BF9B49] text-white rounded hover:bg-[#BF9B49]">Continue &rarr;</button>
       </div>
       </>)}
 
@@ -601,14 +604,14 @@ export default function Application() {
 
       {/* Declarations — Yes/No buttons (v337) */}
       <h2 className={SECTION_H_CLS}>Declarations</h2>
-      <p className="text-xs text-sky-200/70 mb-3">All 11 declarations must be answered. Any "yes" answer requires a brief explanation.</p>
+      <p className="text-xs text-white/55 mb-3">All 11 declarations must be answered. Any "yes" answer requires a brief explanation.</p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
         {DECLARATIONS.map(({ k, label, adverse }) => {
           const val = String(state.declarations?.[k] || "");
           const showReason = !!adverse && val === adverse;
           return (
-            <div key={k} className={`p-2 rounded bg-sky-500/5 border border-sky-300/20 ${showReason ? "md:col-span-2" : ""}`}>
-              <label className="text-sm text-sky-100 block mb-2">{label}</label>
+            <div key={k} className={`p-2 rounded bg-white/[0.04] border border-white/12 ${showReason ? "md:col-span-2" : ""}`}>
+              <label className="text-sm text-white block mb-2">{label}</label>
               <YesNoStr name={k} value={val} onChange={(v) => updateDecl(k, v)} />
               {showReason && (
                 <textarea className={`${INPUT_CLS} mt-2`} rows={2} placeholder="Please explain…" value={String(state.declarations?.[`${k}_reason`] || "")} onChange={(e) => updateDecl(`${k}_reason`, e.target.value)} />
@@ -616,8 +619,8 @@ export default function Application() {
             </div>
           );
         })}
-        <div className="md:col-span-2 p-2 rounded bg-sky-500/5 border border-sky-300/40 mt-2">
-          <label className="text-sm text-sky-100 block mb-2">I confirm that all answers above are true to the best of my knowledge. If anyone else completed this form on my behalf, I confirm they were authorized to do so and that their answers are accurate.</label>
+        <div className="md:col-span-2 p-2 rounded bg-white/[0.04] border border-white/20 mt-2">
+          <label className="text-sm text-white block mb-2">I confirm that all answers above are true to the best of my knowledge. If anyone else completed this form on my behalf, I confirm they were authorized to do so and that their answers are accurate.</label>
           <AgreeButtons name="section_3_c" value={String(state.declarations?.section_3_c || "")} onChange={(v) => updateDecl("section_3_c", v)} />
           {String(state.declarations?.section_3_c) === "Disagree" && (
             <textarea className={`${INPUT_CLS} mt-2`} rows={2} placeholder="Please explain…" value={String(state.declarations?.section_3_c_reason || "")} onChange={(e) => updateDecl("section_3_c_reason", e.target.value)} />
@@ -626,23 +629,23 @@ export default function Application() {
       </div>
 
       {/* Consents — 5 internal compliance opt-ins */}
-      <h2 className={SECTION_H_CLS}>Consents <span className="text-xs font-normal text-sky-200/60">(document uploads happen on the next step)</span></h2>
+      <h2 className={SECTION_H_CLS}>Consents <span className="text-xs font-normal text-white/50">(document uploads happen on the next step)</span></h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
         {CONSENTS.map(({ k, label }) => (
-          <label key={k} className="flex items-start gap-2 p-2 rounded bg-sky-500/5 border border-sky-300/20 cursor-pointer">
+          <label key={k} className="flex items-start gap-2 p-2 rounded bg-white/[0.04] border border-white/12 cursor-pointer">
             <input type="checkbox" className="mt-1" checked={!!state.consents?.[k]} onChange={(e) => updateConsent(k, e.target.checked)} />
-            <span className="text-sm text-sky-100">{label}</span>
+            <span className="text-sm text-white">{label}</span>
           </label>
         ))}
       </div>
 
-      {error && <div className="text-rose-300 mb-3" role="alert">{error}</div>}
+      {error && <div className="text-[#ff9a92] mb-3" role="alert">{error}</div>}
 
       <div className="flex gap-3 mt-6 items-center">
-        <button type="button" onClick={() => { setStep(1); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="px-6 py-2 border border-sky-300/50 rounded text-sky-100 hover:bg-sky-500/20">&larr; Back</button>
-        <button type="button" onClick={handleSave} className="px-6 py-2 border border-sky-300/50 rounded text-sky-100 hover:bg-sky-500/20">Save</button>
-        <button type="button" onClick={handleSubmit} disabled={submitting} className="px-6 py-2 bg-sky-500 text-white rounded disabled:opacity-50 hover:bg-sky-400">{submitting ? "Submitting…" : "Submit"}</button>
-        {savedAt && <span className="text-xs text-sky-200/70">✓ Saved {new Date(savedAt).toLocaleTimeString()}</span>}
+        <button type="button" onClick={() => { setStep(1); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="px-6 py-2 border border-white/25 rounded text-white hover:bg-white/[0.10]">&larr; Back</button>
+        <button type="button" onClick={handleSave} className="px-6 py-2 border border-white/25 rounded text-white hover:bg-white/[0.10]">Save</button>
+        <button type="button" onClick={handleSubmit} disabled={submitting} className="px-6 py-2 bg-[#BF9B49] text-white rounded disabled:opacity-50 hover:bg-[#BF9B49]">{submitting ? "Submitting…" : "Submit"}</button>
+        {savedAt && <span className="text-xs text-white/55">✓ Saved {new Date(savedAt).toLocaleTimeString()}</span>}
       </div>
       </>)}
     </div>
