@@ -4,6 +4,7 @@
 // flex column so the footer hugs the viewport bottom on short pages.
 import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+import Canonical from "./components/Canonical";// BI_WEBSITE_CANONICAL_v268
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import QuoteModal from "./components/QuoteModal";
@@ -75,6 +76,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <Canonical />{/* BI_WEBSITE_CANONICAL_v268 */}
       {/* BI_WEBSITE_BLOCK_v168_CARRIER_RESKIN_v1 — aurora app shell */}
       <div className="bi-app-shell">
       <div className="flex min-h-screen flex-col">
