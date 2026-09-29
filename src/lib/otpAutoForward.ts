@@ -20,7 +20,7 @@ export function isPhoneReady(raw: string): boolean {
 }
 // BI_WEBSITE_BLOCK_v399_OTP_CANONICAL_KEY_v1
 // Collapse a phone to a stable key so the auto-fire guard treats e.g.
-// "7802648467" (10) and "17802648467" (11, leading 1) as the SAME number.
+// "4035550188" (10) and "14035550188" (11, leading 1) as the SAME number.
 // The raw-digit guard didn't, so typing/autofilling the country code fired
 // /otp/start twice — and the server then canceled the first (live) code.
 export function canonicalPhoneDigits(raw: string): string {
