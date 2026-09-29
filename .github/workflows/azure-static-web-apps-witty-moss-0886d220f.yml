@@ -5,10 +5,10 @@ on:
     branches: [main]
 jobs:
   build_and_deploy_job:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Build and Deploy Job
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           submodules: true
           lfs: false
