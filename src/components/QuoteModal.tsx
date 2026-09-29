@@ -62,13 +62,13 @@ export default function QuoteModal() {
                 <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
                 <input type="number" inputMode="numeric" min={MIN_LOAN} max={MAX_LOAN} step={1000} value={loan} onChange={(e) => setLoan(Math.min(Math.max(Number(e.target.value || 0), 0), MAX_LOAN))} className="w-full rounded-lg border border-white/15 bg-bf-bg px-9 py-3 text-white outline-none focus:border-blue-500" />
               </div>
-              <p className="mt-1 text-xs text-slate-500">Min {fmt(MIN_LOAN)} · Max {fmt(MAX_LOAN)}</p>
+              <p className="mt-1 text-xs text-slate-400">Min {fmt(MIN_LOAN)} · Max {fmt(MAX_LOAN)}</p>
             </div>
             <div>
               <div className="flex items-center justify-between text-sm text-white mb-2"><span>2. Coverage</span><span className="text-lg font-semibold">{Math.round(pct * 100)}%</span></div>
               <input type="range" min={5} max={80} step={5} value={Math.round(pct * 100)} onChange={(e) => setPct(Number(e.target.value) / 100)} className="w-full accent-blue-600" />
-              <div className="flex justify-between text-xs text-slate-500"><span>5%</span><span>Max 80%</span></div>
-              <p className="mt-2 text-xs text-slate-500">Estimate based on {(RATE * 100).toFixed(2)}% of the covered amount per year.</p>
+              <div className="flex justify-between text-xs text-slate-400"><span>5%</span><span>Max 80%</span></div>
+              <p className="mt-2 text-xs text-slate-400">Estimate based on {(RATE * 100).toFixed(2)}% of the covered amount per year.</p>
             </div>
             <div className="rounded-xl border border-blue-500/30 bg-blue-600/10 p-5 text-center">
               <p className="text-sm text-slate-300">To cover <span className="font-semibold text-white">{Math.round(pct * 100)}%</span> of <span className="font-semibold text-white">{fmt(loan)}</span>, the estimated monthly cost is</p>
@@ -76,7 +76,7 @@ export default function QuoteModal() {
               <p className="mt-2 text-xs text-slate-400">This is an estimate only and is not a binding quote. The final premium is set by the carrier after underwriting and may be lower.</p>
             </div>
             {/* BI_WEBSITE_BLOCK_v346_MOBILE_FIRST_LAUNCH_v1 */}
-            <button type="button" onClick={applyNow} disabled={loan < MIN_LOAN || pct <= 0} className="w-full rounded-full bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-400">Get Started</button>
+            <button type="button" onClick={applyNow} disabled={loan < MIN_LOAN || pct <= 0} className="w-full rounded-full bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 disabled:bg-slate-700 disabled:text-slate-400">Get Started</button>
           </div>
         </div>
       </div>

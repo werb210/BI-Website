@@ -19,7 +19,7 @@ describe("footer geometry matches BF-Website", () => {
 
   it("uses the template type scale on links and the bottom bar", () => {
     expect(FOOTER).toContain('text-sm leading-loose');
-    expect(FOOTER).toContain('pt-4 flex justify-between text-xs text-white/55');
+    expect(FOOTER).toContain('pt-4 flex justify-between text-xs text-white/75');
   });
 
   it("carries the logo in the brand column, as the template does", () => {

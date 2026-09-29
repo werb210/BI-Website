@@ -61,7 +61,7 @@ export default function Header() {
           </a>
           <Link
             to="/applications/new"
-            className="rounded-full bg-blue-600 px-5 py-2 font-medium text-white no-underline hover:bg-blue-500"
+            className="rounded-full bg-blue-600 px-5 py-2 font-medium text-white no-underline hover:bg-blue-700"
           >
             Get Started
           </Link>
@@ -105,7 +105,7 @@ export default function Header() {
           </a>
           <Link
             to="/applications/new"
-            className="rounded-full bg-blue-600 px-5 py-2 text-center font-medium text-white no-underline hover:bg-blue-500"
+            className="rounded-full bg-blue-600 px-5 py-2 text-center font-medium text-white no-underline hover:bg-blue-700"
             onClick={() => setOpen(false)}
           >
             Get Started

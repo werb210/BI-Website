@@ -92,7 +92,7 @@ export default function Quote() {
                 aria-label="Debt amount"
               />
             </div>
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-slate-400">
               Minimum {fmtCurrency(MIN_LOAN)} · Maximum {fmtCurrency(MAX_LOAN)}
             </p>
           </div>
@@ -113,11 +113,11 @@ export default function Quote() {
               className="mt-2 w-full accent-blue-600"
               aria-label="Coverage percentage"
             />
-            <div className="mt-1 flex justify-between text-xs text-slate-500">
+            <div className="mt-1 flex justify-between text-xs text-slate-400">
               <span>5%</span>
               <span>Max 80%</span>
             </div>
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-slate-400">
               Estimate based on {(RATE * 100).toFixed(2)}% of the covered amount per year.
             </p>
           </div>
@@ -143,7 +143,7 @@ export default function Quote() {
             type="button"
             onClick={applyNow}
             disabled={!canApply}
-            className="w-full rounded-full bg-blue-600 px-6 py-4 text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+            className="w-full rounded-full bg-blue-600 px-6 py-4 text-base font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
           >
             Get Started
           </button>

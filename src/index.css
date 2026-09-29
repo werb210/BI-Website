@@ -289,7 +289,7 @@ button.primary,
   border-radius: 999px;
   border: none;
   background: var(--bf-cta);
-  color: #fff;
+  color: #0B1F3A; /* BI_WEBSITE_READABILITY_v3: navy on gold 6.3:1 (white was 2.6:1) */
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;
@@ -299,7 +299,7 @@ button.primary,
 }
 button.primary:hover, .primary:hover { background: var(--bf-cta-hover); }
 button.primary:active, .primary:active { transform: translateY(1px); }
-button.primary:disabled, .primary:disabled { opacity: 0.4; cursor: not-allowed; }
+button.primary:disabled, .primary:disabled { opacity: 0.8; cursor: not-allowed; }
 @media (min-width: 640px) {
   button.primary, .primary { width: auto; }
 }
@@ -391,9 +391,9 @@ input[type="month"]::-webkit-calendar-picker-indicator { filter: invert(1); curs
 .bi-asap-btn { padding: 0 12px; height: 38px; border-radius: 8px; background: #1a2c47; color: #93c5fd; border: 1px solid #3b82f6; font-size: 12px; font-weight: 700; letter-spacing: 1px; cursor: pointer; white-space: nowrap; }
 .bi-asap-btn:hover { background: #243752; }
 .bi-submit-card { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; align-items: stretch; }
-.bi-submit-primary { padding: 14px 20px; border-radius: 12px; background: #10b981; color: white; font-size: 16px; font-weight: 700; border: none; cursor: pointer; }
-.bi-submit-primary:hover:not(:disabled) { background: #059669; }
-.bi-submit-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.bi-submit-primary { padding: 14px 20px; border-radius: 12px; background: #047857; color: white; font-size: 16px; font-weight: 700; border: none; cursor: pointer; }
+.bi-submit-primary:hover:not(:disabled) { background: #065f46; }
+.bi-submit-primary:disabled { opacity: 0.8; cursor: not-allowed; }
 .bi-submit-hint { color: #94a3b8; text-align: center; font-size: 13px; }
 
 

@@ -253,7 +253,7 @@ export default function LenderApiDocs() {
           <button
             key={l}
             onClick={() => setLang(l)}
-            className={`px-3 py-1.5 rounded text-sm border ${lang === l ? "bg-sky-500 text-white border-sky-400" : "bg-sky-500/10 text-sky-100 border-sky-300/40 hover:bg-sky-500/20"}`}
+            className={`px-3 py-1.5 rounded text-sm border ${lang === l ? "bg-sky-700 text-white border-sky-400" : "bg-sky-500/10 text-sky-100 border-sky-300/40 hover:bg-sky-500/20"}`}
           >
             {SAMPLES[l].label}
           </button>

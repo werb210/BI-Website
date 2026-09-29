@@ -22,12 +22,13 @@ type App = {
   documents?: any[];
 };
 
+// BI_WEBSITE_READABILITY_v3: badge backgrounds dark enough for white text (all >= 5:1).
 const STAGE_COLORS: Record<string, string> = {
-  submitted:    "#3b82f6",
-  underwriting: "#f59e0b",
-  conditional:  "#8b5cf6",
-  bound:        "#10b981",
-  declined:     "#6b7280",
+  submitted:    "#1d4ed8",
+  underwriting: "#b45309",
+  conditional:  "#6d28d9",
+  bound:        "#047857",
+  declined:     "#4b5563",
 };
 
 const STAGE_LABELS: Record<string, string> = {
@@ -109,7 +110,7 @@ export default function LenderApplicationDetail() {
   }, [code, token, navigate]);
 
   const stage = app?.stage || "submitted";
-  const stageColor = STAGE_COLORS[stage] || "#6b7280";
+  const stageColor = STAGE_COLORS[stage] || "#4b5563";
   const stageLabel = STAGE_LABELS[stage] || stage;
   const ci = app?.core_inputs || {};
 

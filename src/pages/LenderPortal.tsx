@@ -148,7 +148,7 @@ export default function LenderPortal() {
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <button onClick={() => navigate("/lender/applications/new")}
-            style={{ ...BTN, background: "#3b82f6", color: "white", border: "none" }}>
+            style={{ ...BTN, background: "#2563eb", color: "white", border: "none" }}>
             + New Application
           </button>
           {/* BI_WEBSITE_BLOCK_v415_DEMO_HIDE_WHEN_KEYED_v1 — hide demo for active lenders with an active key */}

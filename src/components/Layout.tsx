@@ -12,7 +12,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         </div>
       </main>
 
-      <footer className="bg-brand-bgAlt border-t border-subtle py-8 text-center text-sm text-white/60">
+      <footer className="bg-brand-bgAlt border-t border-subtle py-8 text-center text-sm text-white/75">
         © {new Date().getFullYear()} Boreal Financial
       </footer>
     </div>

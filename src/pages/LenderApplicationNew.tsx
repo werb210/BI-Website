@@ -159,7 +159,7 @@ export default function LenderApplicationNew() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
         <div className="flex gap-3 items-center">
           <button type="button" onClick={() => nav("/lender/applications")} className="px-4 py-2 border border-sky-300/50 rounded text-sky-100 hover:bg-sky-500/20">Cancel</button>
-          <button type="button" onClick={onSubmit} disabled={!canSubmit} className="px-6 py-2 bg-sky-500 text-white rounded disabled:opacity-40 hover:bg-sky-400">{busy ? "Submitting…" : "Submit application"}</button>
+          <button type="button" onClick={onSubmit} disabled={!canSubmit} className="px-6 py-2 bg-sky-700 text-white rounded disabled:opacity-80 hover:bg-sky-800">{busy ? "Submitting…" : "Submit application"}</button>
           {draftSavedAt && <span className="text-xs text-sky-200/70">Draft saved {new Date(draftSavedAt).toLocaleTimeString()}</span>}
         </div>
       </div>
