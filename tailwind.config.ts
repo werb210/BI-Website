@@ -22,6 +22,7 @@ const config: Config = {
           footer: "#0a1120",      // footer, matching the shared template
           cta: "#BF9B49",         // primary CTA - boreal gold
           ctaHover: "#cfa953",    // primary CTA hover
+          ctaInk: "#7A5C1B",      // BI_WEBSITE_READABILITY_v3: gold for TEXT on light surfaces (6.2:1)
           ink: "#0B1F3A",         // navy, for use on light surfaces
           mist: "#F5F8FC",        // light surface
           line: "#E4EAF2",        // hairline on light surfaces

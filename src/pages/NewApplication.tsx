@@ -187,8 +187,8 @@ export default function NewApplication() {
               onClick={() => void startOtp(phone)}
               style={{
                 width: "100%", padding: "14px 20px", fontSize: 17, fontWeight: 700,
-                background: "#f59e0b", color: "#fff", border: 0, borderRadius: 8,
-                cursor: busy ? "wait" : "pointer", opacity: busy || !phone.trim() ? 0.6 : 1,
+                background: "#f59e0b", color: "#0B1F3A", border: 0, borderRadius: 8,
+                cursor: busy ? "wait" : "pointer", opacity: busy || !phone.trim() ? 0.8 : 1,
               }}
             >
               {busy ? "Sending…" : "Start Your Application →"}
@@ -197,7 +197,7 @@ export default function NewApplication() {
               We{"'"}ll text you a one-time code to verify.
             </p>
           </div>
-          <small style={{ display: "block", textAlign: "center", marginTop: 16, opacity: 0.7 }}>
+          <small style={{ display: "block", textAlign: "center", marginTop: 16 }}>
             By continuing, you agree to our{" "}
             <a href="/terms" target="_blank" rel="noreferrer">Terms of Service</a> and{" "}
             <a href="/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>.

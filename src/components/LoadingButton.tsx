@@ -12,7 +12,7 @@ export default function LoadingButton({
   ...rest
 }: Props) {
   const variant =
-    "bg-[#1e63ff] hover:bg-[#174fd6] shadow-[0_6px_20px_rgba(30,99,255,0.35)]";
+    "bg-[#1e63ff] text-white hover:bg-[#174fd6] shadow-[0_6px_20px_rgba(30,99,255,0.35)]";
 
   return (
     <button

@@ -180,9 +180,9 @@ export default function LenderLogin() {
                 onClick={start}
                 style={{
                   width: "100%", padding: "14px 20px", fontSize: 17, fontWeight: 700,
-                  background: "#f59e0b", color: "#fff", border: 0, borderRadius: 8,
+                  background: "#f59e0b", color: "#0B1F3A", border: 0, borderRadius: 8,
                   cursor: busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ? "not-allowed" : "pointer",
-                  opacity: busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ? 0.6 : 1,
+                  opacity: busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ? 0.8 : 1,
                 }}
               >
                 {busy ? "Sending..." : "Send code"}
@@ -216,9 +216,9 @@ export default function LenderLogin() {
             onClick={start}
             style={{
               width: "100%", padding: "14px 20px", fontSize: 17, fontWeight: 700,
-              background: "#f59e0b", color: "#fff", border: 0, borderRadius: 8,
+              background: "#f59e0b", color: "#0B1F3A", border: 0, borderRadius: 8,
               cursor: busy || !isPhoneReady(phone) ? "not-allowed" : "pointer",
-              opacity: busy || !isPhoneReady(phone) ? 0.6 : 1,
+              opacity: busy || !isPhoneReady(phone) ? 0.8 : 1,
             }}
           >
             {busy ? "Sending…" : "Send code →"}

@@ -49,7 +49,7 @@ function Group({ title, hint, children }: { title: string; hint?: string; childr
   return (
     <div>
       <h3 className="text-sm font-semibold text-white/80 mb-1">{title}</h3>
-      {hint && <p className="text-xs text-white/50 mb-2">{hint}</p>}
+      {hint && <p className="text-xs text-white/75 mb-2">{hint}</p>}
       <div className="space-y-3">{children}</div>
     </div>
   );
@@ -67,7 +67,7 @@ function Slot({
   return (
     <div className="rounded border border-white/10 bg-white/5 p-3">
       <label className="block text-sm font-medium text-white">{req.label}*</label>
-      <p className="text-xs text-white/60 mt-0.5">{req.description}</p>
+      <p className="text-xs text-white/75 mt-0.5">{req.description}</p>
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <input
           type="file"

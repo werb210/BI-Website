@@ -136,8 +136,8 @@ export default function LenderApplicationDemo() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
         <div className="flex gap-3">
-          <button type="button" onClick={cancel} disabled={cancelling} className="px-4 py-2 border border-sky-300/50 rounded text-sky-100 hover:bg-sky-500/20 disabled:opacity-40">{cancelling ? "Exiting…" : "Cancel"}</button>
-          <button type="button" onClick={onSubmit} disabled={!demoReady || busy} className="px-6 py-2 bg-sky-500 text-white rounded disabled:opacity-40 hover:bg-sky-400">{busy ? "Submitting…" : "Submit demo application"}</button>
+          <button type="button" onClick={cancel} disabled={cancelling} className="px-4 py-2 border border-sky-300/50 rounded text-sky-100 hover:bg-sky-500/20 disabled:opacity-80">{cancelling ? "Exiting…" : "Cancel"}</button>
+          <button type="button" onClick={onSubmit} disabled={!demoReady || busy} className="px-6 py-2 bg-sky-700 text-white rounded disabled:opacity-80 hover:bg-sky-800">{busy ? "Submitting…" : "Submit demo application"}</button>
         </div>
       </div>
     </div>

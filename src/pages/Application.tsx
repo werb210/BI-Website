@@ -32,7 +32,7 @@ const PGI_COVERAGE_RATIO = 0.80; // v337: pgi_limit cannot exceed 80% of loan_am
 // keyboard user gets a consistent signal across the whole estate.
 const INPUT_CLS = "bf-field";
 const LABEL_CLS = "block text-sm font-medium text-white/80 mb-1.5";
-const HELP_CLS = "text-xs text-white/55 mt-1";
+const HELP_CLS = "text-xs text-white/75 mt-1";
 const ERROR_CLS = "text-xs text-[#ff9a92] mt-1";
 const SECTION_H_CLS = "text-lg font-semibold text-white mt-6 mb-2 border-b border-white/12 pb-1";
 
@@ -482,12 +482,12 @@ export default function Application() {
 
       {/* Read-only CORE Score summary — fields not re-asked in Step 2 (v337). */}
       <div className="mb-6 p-3 rounded border border-white/12 bg-white/[0.04]">
-        <div className="text-xs uppercase tracking-wider text-white/50 mb-2">From your CORE Score</div>
+        <div className="text-xs uppercase tracking-wider text-white/75 mb-2">From your CORE Score</div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-          <div><div className="text-white/55 text-xs">Loan</div><div>${loanNum.toLocaleString()}</div></div>
-          <div><div className="text-white/55 text-xs">PGI limit</div><div>${pgiNum.toLocaleString()} <span className="text-white/50 text-xs">(max ${maxAllowedPgi.toLocaleString()} at 80%)</span></div></div>
-          <div><div className="text-white/55 text-xs">NAICS</div><div>{state.naics_code || "—"}</div></div>
-          <div><div className="text-white/55 text-xs">Started</div><div>{formatStartedDate(state.formation_date)}</div></div>
+          <div><div className="text-white/75 text-xs">Loan</div><div>${loanNum.toLocaleString()}</div></div>
+          <div><div className="text-white/75 text-xs">PGI limit</div><div>${pgiNum.toLocaleString()} <span className="text-white/75 text-xs">(max ${maxAllowedPgi.toLocaleString()} at 80%)</span></div></div>
+          <div><div className="text-white/75 text-xs">NAICS</div><div>{state.naics_code || "—"}</div></div>
+          <div><div className="text-white/75 text-xs">Started</div><div>{formatStartedDate(state.formation_date)}</div></div>
         </div>
       </div>
 
@@ -512,8 +512,8 @@ export default function Application() {
       {/* Co-guarantors */}
       <div className="mb-6 p-4 rounded border border-white/12 bg-white/[0.04]">
         <h3 className="text-sm font-semibold text-white">Co-guarantors (optional)</h3>
-        <p className="text-xs text-white/55 mt-1 mb-3">Add any other individuals who are co-guarantors on this loan. Their address fields follow the selected country. Our team will contact you to complete the co-guarantor intake separately.</p>
-        {(state.co_guarantors || []).length === 0 && <div className="text-sm text-white/55">No co-guarantors added yet.</div>}
+        <p className="text-xs text-white/75 mt-1 mb-3">Add any other individuals who are co-guarantors on this loan. Their address fields follow the selected country. Our team will contact you to complete the co-guarantor intake separately.</p>
+        {(state.co_guarantors || []).length === 0 && <div className="text-sm text-white/75">No co-guarantors added yet.</div>}
         {(state.co_guarantors as CoGuarantor[] || []).map((cg, idx) => (
           <div key={idx} className="mt-3 p-3 rounded bg-white/[0.06] border border-white/12">
             <div className="flex justify-between items-center mb-2">
@@ -575,7 +575,7 @@ export default function Application() {
       </div>
 
       <div className="flex justify-end mt-6">
-        <button type="button" onClick={() => { setStep(2); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="px-6 py-2 bg-[#BF9B49] text-white rounded hover:bg-[#BF9B49]">Continue &rarr;</button>
+        <button type="button" onClick={() => { setStep(2); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="px-6 py-2 bg-[#BF9B49] text-[#0B1F3A] font-semibold rounded hover:bg-[#cfa953]">Continue &rarr;</button>
       </div>
       </>)}
 
@@ -604,7 +604,7 @@ export default function Application() {
 
       {/* Declarations — Yes/No buttons (v337) */}
       <h2 className={SECTION_H_CLS}>Declarations</h2>
-      <p className="text-xs text-white/55 mb-3">All 11 declarations must be answered. Any "yes" answer requires a brief explanation.</p>
+      <p className="text-xs text-white/75 mb-3">All 11 declarations must be answered. Any "yes" answer requires a brief explanation.</p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
         {DECLARATIONS.map(({ k, label, adverse }) => {
           const val = String(state.declarations?.[k] || "");
@@ -629,7 +629,7 @@ export default function Application() {
       </div>
 
       {/* Consents — 5 internal compliance opt-ins */}
-      <h2 className={SECTION_H_CLS}>Consents <span className="text-xs font-normal text-white/50">(document uploads happen on the next step)</span></h2>
+      <h2 className={SECTION_H_CLS}>Consents <span className="text-xs font-normal text-white/75">(document uploads happen on the next step)</span></h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
         {CONSENTS.map(({ k, label }) => (
           <label key={k} className="flex items-start gap-2 p-2 rounded bg-white/[0.04] border border-white/12 cursor-pointer">
@@ -644,8 +644,8 @@ export default function Application() {
       <div className="flex gap-3 mt-6 items-center">
         <button type="button" onClick={() => { setStep(1); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="px-6 py-2 border border-white/25 rounded text-white hover:bg-white/[0.10]">&larr; Back</button>
         <button type="button" onClick={handleSave} className="px-6 py-2 border border-white/25 rounded text-white hover:bg-white/[0.10]">Save</button>
-        <button type="button" onClick={handleSubmit} disabled={submitting} className="px-6 py-2 bg-[#BF9B49] text-white rounded disabled:opacity-50 hover:bg-[#BF9B49]">{submitting ? "Submitting…" : "Submit"}</button>
-        {savedAt && <span className="text-xs text-white/55">✓ Saved {new Date(savedAt).toLocaleTimeString()}</span>}
+        <button type="button" onClick={handleSubmit} disabled={submitting} className="px-6 py-2 bg-[#BF9B49] text-[#0B1F3A] font-semibold rounded disabled:opacity-80 hover:bg-[#cfa953]">{submitting ? "Submitting…" : "Submit"}</button>
+        {savedAt && <span className="text-xs text-white/75">✓ Saved {new Date(savedAt).toLocaleTimeString()}</span>}
       </div>
       </>)}
     </div>

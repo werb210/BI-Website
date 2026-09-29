@@ -89,7 +89,7 @@ function Field({ label, error, hint, children }: { label: string; error?: string
     <div>
       <label className="mb-1 block text-sm">{label}</label>
       {children}
-      {hint && <p className="mt-1 text-xs text-white/60">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-white/75">{hint}</p>}
       {error && <p className="mt-1 text-xs text-red-300">{error}</p>}
     </div>
   );

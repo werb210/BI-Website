@@ -26,12 +26,12 @@ export default function PremiumCalculator() {
         onChange={(e) => setAmount(Number(e.target.value))}
       />
 
-      <p className="mt-2 text-xs text-white/60">Estimate based on {(RATE * 100).toFixed(2)}% per year.</p>
+      <p className="mt-2 text-xs text-white/75">Estimate based on {(RATE * 100).toFixed(2)}% per year.</p>
 
       <div className="mt-6 font-semibold text-lg">
         Estimated Monthly Premium: {monthly.toLocaleString("en-CA", { style: "currency", currency: "CAD", minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </div>
-      <p className="mt-2 text-xs text-white/60">
+      <p className="mt-2 text-xs text-white/75">
         This is an estimate only and is not a binding quote. The final premium is set by
         the carrier after underwriting and may be lower.
       </p>

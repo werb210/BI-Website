@@ -16,7 +16,7 @@ export default function ReferralLandingPgi() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-24 text-center">
         <h1 className="text-2xl font-bold text-white">This referral link is no longer valid</h1>
-        <p className="mt-3 text-white/60">
+        <p className="mt-3 text-white/75">
           Please ask your referrer to send you a fresh link, or visit{" "}
           <a href={BI_SITE} className="underline">boreal.insure</a>.
         </p>

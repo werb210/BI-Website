@@ -242,10 +242,10 @@ export default function LenderSandbox() {
             Test keys begin with <code className="rounded bg-bf-bg/70 px-1">bk_test_</code>. Applications you create with them are tagged as demo, appear in your pipeline as test rows, and never reach the carrier.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
-            <button disabled={busy} onClick={() => generate("test")} className="rounded-md bg-bf-cta px-5 py-2 font-medium text-[#0B1F3A] hover:bg-bf-ctaHover disabled:opacity-50">
+            <button disabled={busy} onClick={() => generate("test")} className="rounded-md bg-bf-cta px-5 py-2 font-medium text-[#0B1F3A] hover:bg-bf-ctaHover disabled:opacity-80">
               {busy ? "Generating…" : "Generate test key"}
             </button>
-            <button disabled={busy || !created || !created.is_sandbox} onClick={sendTest} className="rounded-md border border-emerald-500/40 px-5 py-2 font-medium text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-30">
+            <button disabled={busy || !created || !created.is_sandbox} onClick={sendTest} className="rounded-md border border-emerald-500/40 px-5 py-2 font-medium text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-80">
               Send test application now
             </button>
           </div>
@@ -276,7 +276,7 @@ export default function LenderSandbox() {
           </p>
           <div className="mt-4">
             {liveKeysEnabled === true ? (
-              <button disabled={busy} onClick={() => generate("live")} className="rounded-md border border-amber-500/40 px-5 py-2 font-medium text-amber-200 hover:bg-amber-500/10 disabled:opacity-50">
+              <button disabled={busy} onClick={() => generate("live")} className="rounded-md border border-amber-500/40 px-5 py-2 font-medium text-amber-200 hover:bg-amber-500/10 disabled:opacity-80">
                 {busy ? "Generating…" : "Generate live key"}
               </button>
             ) : requestSent ? (
@@ -288,7 +288,7 @@ export default function LenderSandbox() {
                 <div className="rounded border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-100">
                   Live keys are off by default. Test your integration with a sandbox key first; once you're ready, request approval here and our team will SMS you when it's enabled (usually same business day).
                 </div>
-                <button disabled={busy || liveKeysEnabled === null} onClick={requestLive} className="rounded-md border border-amber-500/40 px-5 py-2 font-medium text-amber-200 hover:bg-amber-500/10 disabled:opacity-50">
+                <button disabled={busy || liveKeysEnabled === null} onClick={requestLive} className="rounded-md border border-amber-500/40 px-5 py-2 font-medium text-amber-200 hover:bg-amber-500/10 disabled:opacity-80">
                   {busy ? "Requesting…" : "Request live keys"}
                 </button>
               </div>
