@@ -11,6 +11,9 @@ import markelUrl from "../assets/logo-markel.svg";
 import logoUrl from "../assets/logo-boreal-mountains-white.svg";
 
 const SUPPORT_EMAIL = "info@boreal.financial";
+// BI_WEBSITE_MAIN_LINE_866_v1 - the 866 main line answers for Boreal Insurance too.
+const PHONE_DISPLAY = "+1 (866) 631-8939";
+const PHONE_HREF = "tel:+18666318939";
 
 export default function Footer() {
   return (
@@ -44,6 +47,9 @@ export default function Footer() {
           </div>
           <div>
             <div className="font-semibold text-white mb-3">Contact</div>
+            <a href={PHONE_HREF} className="block text-white/75 no-underline text-sm">
+              {PHONE_DISPLAY}
+            </a>
             <a href={`mailto:${SUPPORT_EMAIL}`} className="text-white/75 no-underline text-sm">
               {SUPPORT_EMAIL}
             </a>
