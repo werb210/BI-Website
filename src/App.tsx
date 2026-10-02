@@ -17,6 +17,7 @@ import Home from "./pages/Home";
 // BI_WEBSITE_BLOCK_v90_LENDER_API_DOCS_v1
 // BI_WEBSITE_BLOCK_v94_LAUNCH_HARDENING_v1
 import Privacy from "./pages/Privacy";
+import DeleteAccount from "./pages/DeleteAccount"; // BI_WEBSITE_DELETE_ACCOUNT_v273
 import Terms from "./pages/Terms";
 import LenderApiDocs from "./pages/LenderApiDocs";
 import LenderSandbox from "./pages/LenderSandbox"; // BI_WEBSITE_BLOCK_v131_LENDER_SANDBOX_PANEL_v1
@@ -121,6 +122,7 @@ export default function App() {
             <Route path="/csbfp" element={<CSBFP />} />
             <Route path="/resources" element={<Resources />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/delete-account" element={<DeleteAccount />} />
             <Route path="/terms" element={<Terms />} />
             {/* BI_WEBSITE_BLOCK_v120_MULTI_LENDER_PUBLIC_AND_LENDER_DOCS_AND_LOGIN_v1 — explicit lender routes BEFORE catchall and BEFORE /lender/* */}
             <Route path="/lender/demo" element={<LenderApplicationDemo />} /> {/* BI_WEBSITE_BLOCK_v125_LENDER_FIXES_AND_PUBLIC_POLISH_v1 */}
