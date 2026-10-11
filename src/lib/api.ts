@@ -1,9 +1,8 @@
 // BI_WEBSITE_BLOCK_PGI_FULL_APP_v1
-// BI_WEBSITE_BLOCK_v91_API_BASE_AND_DOCS_STAGE_v1 — read VITE_API_URL
-// (what .env actually sets) AND keep VITE_BI_API_URL as fallback.
-const BASE = ((import.meta.env.VITE_API_URL as string | undefined)
-  || (import.meta.env.VITE_BI_API_URL as string | undefined)
-  || window.location.origin).replace(/\/$/, "") + "/api/v1";
+// BI_WEBSITE_BLOCK_v789_AUDIT_ROUND2 [151] - one API base for the whole site.
+import { API_BASE } from "../config";
+
+const BASE = API_BASE + "/api/v1";
 
 // BI_WEBSITE_BLOCK_v97_OTP_GATE_AND_FLOW_v1 — applicant token helpers (OTP gate before CORE)
 const APPLICANT_TOKEN_KEY = "bi.applicant_token";

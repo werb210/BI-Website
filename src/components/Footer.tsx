@@ -9,11 +9,13 @@
 import { Link } from "react-router-dom";
 import markelUrl from "../assets/logo-markel.svg";
 import logoUrl from "../assets/logo-boreal-mountains-white.svg";
+import { OPERATOR_NAME, OPERATOR_PHONE_DISPLAY, OPERATOR_PHONE_HREF } from "../lib/operator";
 
 const SUPPORT_EMAIL = "info@boreal.financial";
 // BI_WEBSITE_MAIN_LINE_866_v1 - the 866 main line answers for Boreal Insurance too.
-const PHONE_DISPLAY = "+1 (866) 631-8939";
-const PHONE_HREF = "tel:+18666318939";
+// BI_WEBSITE_BLOCK_v789_AUDIT_ROUND2 [141] - shown as (866) 631-8939, from src/lib/operator.ts.
+const PHONE_DISPLAY = OPERATOR_PHONE_DISPLAY;
+const PHONE_HREF = OPERATOR_PHONE_HREF;
 
 export default function Footer() {
   return (
@@ -35,6 +37,7 @@ export default function Footer() {
               <li><Link to="/quote" className="text-white/75 no-underline">Get a Quote</Link></li>
               <li><Link to="/applications/new" className="text-white/75 no-underline">Get Started</Link></li>
               <li><Link to="/faq" className="text-white/75 no-underline">FAQ</Link></li>
+              <li><Link to="/contact" className="text-white/75 no-underline">Contact Us</Link></li>
               <li><a href="https://www.boreal.financial" target="_blank" rel="noopener noreferrer" className="text-white/75 no-underline">Visit Boreal Financial</a></li>
             </ul>
           </div>
@@ -54,7 +57,7 @@ export default function Footer() {
               {SUPPORT_EMAIL}
             </a>
             <div className="mt-1 text-sm text-white/75">
-              Mon–Fri 8am–6pm MT
+              Mon-Fri 8am-6pm MT
             </div>
             <div className="mt-4">
               <div className="text-[11px] text-white/75 mb-1.5 tracking-[1px]">UNDERWRITTEN BY</div>
@@ -88,7 +91,7 @@ export default function Footer() {
         </p>
         <p className="text-xs leading-relaxed text-white/75 mb-2">
           <strong className="text-white/70">Cost and compensation:</strong> There
-          is no cost to the policyholder to use Boreal Risk Management&rsquo;s referral services.
+          is no cost to the policyholder to use Boreal Risk Management's referral services.
           Boreal Risk Management may receive referral compensation from the licensed broker or
           carrier upon successful policy placement.
         </p>
@@ -104,7 +107,7 @@ export default function Footer() {
             <Link to="/privacy" className="text-inherit no-underline">Privacy Policy</Link>
             <Link to="/terms" className="text-inherit no-underline">Terms of Service</Link>
           </div>
-          <div>© {new Date().getFullYear()} Boreal Risk Management</div>
+          <div>(c) {new Date().getFullYear()} {OPERATOR_NAME}</div>
         </div>
       </div>
     </footer>

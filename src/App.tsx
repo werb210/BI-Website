@@ -4,7 +4,8 @@
 // flex column so the footer hugs the viewport bottom on short pages.
 import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
-import Canonical from "./components/Canonical";// BI_WEBSITE_CANONICAL_v268
+import RouteMeta from "./seo/RouteMeta"; // BI_WEBSITE_BLOCK_v789_AUDIT_ROUND2 [146]
+import NotFound from "./pages/NotFound"; // BI_WEBSITE_BLOCK_v789_AUDIT_ROUND2 [152]
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import QuoteModal from "./components/QuoteModal";
@@ -78,7 +79,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <Canonical />{/* BI_WEBSITE_CANONICAL_v268 */}
+      <RouteMeta />
       {/* BI_WEBSITE_BLOCK_v168_CARRIER_RESKIN_v1 — aurora app shell */}
       <div className="bi-app-shell">
       <div className="flex min-h-screen flex-col">
@@ -134,7 +135,7 @@ export default function App() {
             <Route path="/lender/applications/:code/timeline" element={<LenderApplicationTimeline />} /> {/* BI_WEBSITE_BLOCK_v126_DEMO_SANDBOX_AND_CARRIER_FEEDBACK_v1 */}
             <Route path="/login" element={<NewApplication />} /> {/* BI_WEBSITE_BLOCK_v402_LOGIN_ROUTE_v1 — receives the BF→BI handoff SMS link (https://www.boreal.insure/login?next=/applications/<id>) */}
             <Route path="/applications/:publicId" element={<ApplicationIndexRedirect />} /> {/* BI_WEBSITE_BLOCK_v403 — bare handoff link -> form */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<NotFound />} />
       </Routes>
         </main>
         <Footer />

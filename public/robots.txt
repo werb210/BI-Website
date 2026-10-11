@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
+Disallow: /applications/
+Disallow: /lender/
+Disallow: /r/
+Disallow: /referrer/
 
-Sitemap: https://www.borealinsurance.com/sitemap.xml
+Sitemap: https://boreal.insure/sitemap.xml

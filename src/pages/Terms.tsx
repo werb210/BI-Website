@@ -1,24 +1,34 @@
 // BI_WEBSITE_BLOCK_v128_MOBILE_FIRST_AND_LOGO_AND_LEGAL_v1
 // Terms of service with real content. Replaces the old placeholder
-// stubs. Drafted for the operator's review — not legal advice; replace
+// stubs. Drafted for the operator's review - not legal advice; replace
 // before launch if your counsel wants different wording.
+// BI_WEBSITE_BLOCK_v789_AUDIT_ROUND2 [141] - names the operator.
+import {
+  OPERATOR_ADDRESS,
+  OPERATOR_NAME,
+  OPERATOR_PHONE_DISPLAY,
+  OPERATOR_PHONE_HREF,
+  OPERATOR_SITE,
+} from "../lib/operator";
+
 export default function Terms() {
   return (
     <div className="bg-bf-bg text-white">
       <section className="mx-auto max-w-3xl px-5 py-12 md:px-8 md:py-16">
         <h1 className="mb-2 text-3xl font-bold text-white sm:text-4xl">Terms of Service</h1>
-        <p className="mb-8 text-sm text-slate-400">Last updated: May 2026</p>
+        <p className="mb-8 text-sm text-slate-400">Last updated: October 2026</p>
         <div className="space-y-8 leading-relaxed">
           <p className="text-slate-300">
-            These Terms of Service ("Terms") govern your use of boreal.financial and any
-            Boreal Risk products or services (the "Service"). By using the Service, you
-            agree to these Terms. If you do not agree, do not use the Service.
+            These Terms of Service ("Terms") govern your use of {OPERATOR_SITE} and any
+            related products or services (the "Service") operated by {OPERATOR_NAME}
+            ("we", "us", "our"). By using the Service, you agree to these Terms. If you
+            do not agree, do not use the Service.
           </p>
 
           <section>
             <h2 className="mb-3 text-xl font-semibold text-white">Who We Are</h2>
             <p className="text-slate-300">
-              Boreal Risk is a referral platform operated by Boreal Financial. We are not
+              The Service is a referral platform operated by {OPERATOR_NAME}, {OPERATOR_ADDRESS}. We are not
               a licensed insurance broker, agent, adviser, or carrier. We introduce
               Canadian businesses to licensed brokers who arrange Personal Guarantee
               Insurance ("PGI") underwritten by Markel Canada Limited. Coverage,
@@ -91,7 +101,7 @@ export default function Terms() {
             <h2 className="mb-3 text-xl font-semibold text-white">Intellectual Property</h2>
             <p className="text-slate-300">
               The Service, including its software, design, content, and trademarks, is
-              owned by Boreal Financial or its licensors. You receive a limited,
+              owned by {OPERATOR_NAME} or its licensors. You receive a limited,
               non-exclusive, non-transferable, revocable licence to use the Service for
               its intended purpose. You retain ownership of content you submit, and grant
               us a worldwide licence to host, transmit, and process it as needed to
@@ -103,7 +113,7 @@ export default function Terms() {
             <h2 className="mb-3 text-xl font-semibold text-white">Limitation of Liability</h2>
             <p className="text-slate-300">
               To the maximum extent permitted by law, the Service is provided "as is" and
-              "as available" without warranties of any kind. Boreal Risk and its
+              "as available" without warranties of any kind. {OPERATOR_NAME} and its
               affiliates will not be liable for indirect, incidental, consequential,
               special, or punitive damages, or for any loss of profit, revenue, data, or
               goodwill, arising from your use of (or inability to use) the Service. Our
@@ -135,8 +145,10 @@ export default function Terms() {
           <section>
             <h2 className="mb-3 text-xl font-semibold text-white">Contact</h2>
             <p className="text-slate-300">
-              For questions about these Terms, contact us at{" "}
-              <a className="text-bf-cta hover:underline" href="mailto:legal@boreal.financial">legal@boreal.financial</a>.
+              For questions about these Terms, contact {OPERATOR_NAME} at{" "}
+              <a className="text-bf-cta hover:underline" href="mailto:legal@boreal.financial">legal@boreal.financial</a>,
+              call <a className="text-bf-cta hover:underline" href={OPERATOR_PHONE_HREF}>{OPERATOR_PHONE_DISPLAY}</a>,
+              or write to {OPERATOR_ADDRESS}, Canada.
             </p>
           </section>
         </div>

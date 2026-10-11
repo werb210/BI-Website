@@ -6,19 +6,19 @@ import { describe, expect, it } from "vitest";
 const read = (p: string) => readFileSync(join(process.cwd(), "src", p), "utf-8");
 const quote = read("pages/Quote.tsx");
 const modal = read("components/QuoteModal.tsx");
-const calc = read("components/PremiumCalculator.tsx");
+// v789: components/PremiumCalculator.tsx was never mounted and was deleted.
 const home = read("pages/Home.tsx");
 
 describe("PGI quote surfaces", () => {
   it("no surface still carries the old 2.75% rate", () => {
-    for (const src of [quote, modal, calc, home]) {
+    for (const src of [quote, modal, home]) {
       expect(src).not.toContain("0.0275");
       expect(src).not.toContain("2.75%");
     }
   });
 
-  it("the three calculators use 2.6%", () => {
-    for (const src of [quote, modal, calc]) expect(src).toContain("const RATE = 0.026;");
+  it("both calculators use 2.6%", () => {
+    for (const src of [quote, modal]) expect(src).toContain("const RATE = 0.026;");
   });
 
   it("the arithmetic gives the expected monthly figure", () => {
@@ -37,12 +37,10 @@ describe("PGI quote surfaces", () => {
     expect(quote).not.toContain("fmtCurrency(annualPremium)");
     expect(modal).toContain("fmtMonthly(monthly)");
     expect(modal).not.toContain("{fmt(prem)}");
-    expect(calc).toContain("Estimated Monthly Premium");
-    expect(calc).not.toContain("Estimated Annual Premium");
   });
 
   it("every surface says the estimate is not binding", () => {
-    for (const src of [quote, modal, calc]) expect(src).toContain("is not a binding quote");
+    for (const src of [quote, modal]) expect(src).toContain("is not a binding quote");
   });
 
   it("keeps annualPremium in the payload so the application flow still reads it", () => {

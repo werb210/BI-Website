@@ -3,17 +3,23 @@ import faviconUrl from "../assets/logos/fav.png";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
+import { API_BASE } from "./config";
 import "./index.css";
 // BI_WEBSITE_BLOCK_v168_CARRIER_RESKIN_v1 — carrier-aligned theme
 import "./styles/carrier.css";
 
-// BI_WEBSITE_BLOCK_v103_OTP_BASE_FIX_AND_WARMUP_v1 — wake the B1 worker on first paint.
+// BI_WEBSITE_BLOCK_v103_OTP_BASE_FIX_AND_WARMUP_v1 - wake the B1 worker on first paint.
+// v789: same API base as every other caller (src/config.ts).
 try {
-  const __apiBase = ((import.meta.env.VITE_API_URL as string | undefined)
-    || (import.meta.env.VITE_BI_API_URL as string | undefined)
-    || window.location.origin).replace(/\/$/, "");
-  fetch(__apiBase + "/health", { method: "GET", mode: "cors" }).catch(() => {});
+  fetch(API_BASE + "/health", { method: "GET", mode: "cors" }).catch(() => {});
 } catch { /* noop */ }
+
+// BI_WEBSITE_BLOCK_v789_AUDIT_ROUND2 [142] - the font stylesheet loads as
+// media="print" so it never blocks first paint; this swaps it in. It used to
+// be an inline onload handler, which the Content-Security-Policy blocks.
+for (const link of Array.from(document.querySelectorAll<HTMLLinkElement>("link[data-swap-media]"))) {
+  link.media = link.dataset.swapMedia || "all";
+}
 
 // BI_WEBSITE_BLOCK_v132_PORTAL_RE_OTP_EVERY_VISIT_v1
 // Strict re-OTP: every page load wipes any persisted portal auth
