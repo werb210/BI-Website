@@ -1,6 +1,8 @@
 import { getAuthToken } from "../lib/auth";
+// BI_WEBSITE_BLOCK_v789_AUDIT_ROUND2 [151] - one API base for the whole site.
+import { API_BASE } from "../config";
 
-const API_URL = import.meta.env.VITE_API_URL || "";
+const API_URL = API_BASE;
 
 export class ApiError extends Error {
   status: number;

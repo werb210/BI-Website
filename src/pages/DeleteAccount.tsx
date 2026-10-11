@@ -38,7 +38,7 @@ export default function DeleteAccount() {
           <section>
             <h2 className="mb-3 text-xl font-semibold text-white">Or ask us to delete it</h2>
             <p className="text-slate-200">
-              Email info@boreal.financial from the email address on your application, or call +1 (866) 631-8939, and ask us to delete your account. We confirm it is you, then delete your account within 30 days and email you when it is done. You can also ask us to delete the basic contact record described below.
+              Email info@boreal.financial from the email address on your application, or call (866) 631-8939, and ask us to delete your account. We confirm it is you, then delete your account within 30 days and email you when it is done. You can also ask us to delete the basic contact record described below.
             </p>
           </section>
           <section>

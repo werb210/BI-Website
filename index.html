@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- Consent Mode v2 — default denied until the consent banner grants -->
+    <!-- Consent Mode v2 - default denied until the consent banner grants -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -37,36 +37,35 @@
     <!-- BI_WEBSITE_BLOCK_v99_MARKETING_HOME_v1 iOS PWA splash fallback -->
     <link rel="apple-touch-startup-image" href="/icons/icon-512.png" />
     <meta name="format-detection" content="telephone=no" />
-    <!-- BI_WEBSITE_BLOCK_v94_LAUNCH_HARDENING_v1 -->
-    <meta name="description" content="Personal Guarantee Insurance for Canadian businesses. Protect your personal assets when securing business financing. Get a quote in minutes." />
+    <!-- BI_WEBSITE_BLOCK_v789_AUDIT_ROUND2 [146] - defaults for "/". The build
+         rewrites these per route (src/seo/routeMeta.ts, seoBuildPlugin in
+         vite.config.ts) and src/seo/RouteMeta.tsx updates them on navigation. -->
+    <title>Boreal Risk Management - Personal Guarantee Insurance for Business Owners</title>
+    <meta name="description" content="Personal Guarantee Insurance for Canadian and United States business owners. Protect your personal assets when securing business financing. Get a quote in minutes." />
     <meta name="keywords" content="personal guarantee insurance, PGI, Canadian business loans, business financing protection, Boreal Risk Management" />
     <meta name="robots" content="index, follow" />
-    <!-- BI_WEBSITE_CANONICAL_v268 - this pointed at https://boreal.financial, telling
-         Google every page on boreal.insure was a duplicate of a different site. The
-         per-route value is set by src/components/Canonical.tsx; this is the default
-         a crawler sees before hydration. -->
-    <link rel="canonical" href="https://www.boreal.insure/" />
-    <!-- Open Graph -->
+    <link rel="canonical" href="https://boreal.insure/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Boreal Risk Management" />
-    <meta property="og:title" content="Boreal Risk Management — Personal Guarantee Insurance for Canadian Businesses" />
-    <meta property="og:description" content="Protect your personal assets when securing business financing. Get a PGI quote in minutes." />
-    <meta property="og:image" content="/og.png" />
-    <!-- Twitter -->
+    <meta property="og:title" content="Boreal Risk Management - Personal Guarantee Insurance for Business Owners" />
+    <meta property="og:description" content="Personal Guarantee Insurance for Canadian and United States business owners. Protect your personal assets when securing business financing. Get a quote in minutes." />
+    <meta property="og:url" content="https://boreal.insure/" />
+    <meta property="og:image" content="https://boreal.insure/og.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Boreal Risk Management" />
-    <meta name="twitter:description" content="Personal Guarantee Insurance for Canadian businesses." />
-    <meta name="twitter:image" content="/icons/icon-512.png" />
-    <title>Boreal Risk Management — Personal Guarantee Insurance for Canadian Businesses</title>
+    <meta name="twitter:title" content="Boreal Risk Management - Personal Guarantee Insurance for Business Owners" />
+    <meta name="twitter:description" content="Personal Guarantee Insurance for Canadian and United States business owners. Protect your personal assets when securing business financing. Get a quote in minutes." />
+    <meta name="twitter:image" content="https://boreal.insure/og.png" />
     <!-- BI_WEBSITE_DESIGN_v101 - same faces as boreal.financial, loaded
-         non-blocking so they never delay first paint. -->
+         non-blocking so they never delay first paint. v789: the media swap
+         happens in src/main.tsx, because the Content-Security-Policy blocks
+         inline onload handlers. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&family=Public+Sans:wght@400;500;600;700&display=swap"
       media="print"
-      onload="this.media='all';this.onload=null;"
+      data-swap-media="all"
     />
     <noscript>
       <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />

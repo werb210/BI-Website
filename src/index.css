@@ -69,8 +69,11 @@
   transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
+/* BI_WEBSITE_BLOCK_v789_AUDIT_ROUND2 [143] - 0.4 white was 3.5:1 on the
+   field; 0.6 is 5.1:1 or better on every site background
+   (src/__tests__/contrast.v789.test.ts). */
 .bf-field::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .bf-field:focus {
@@ -81,7 +84,7 @@
 
 .bf-field:disabled {
   background: rgba(255, 255, 255, 0.03);
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.6);
   cursor: not-allowed;
 }
 
@@ -97,9 +100,11 @@ textarea.bf-field {
   line-height: 1.5;
 }
 
+/* BI_WEBSITE_BLOCK_v789_AUDIT_ROUND2 [144] - #8593aa on #E4EAF2 was 2.6:1;
+   #51617D (--bf-body) is 5.2:1. */
 .bf-btn:disabled {
   background: #E4EAF2;
-  color: #8593aa;
+  color: #51617D;
   border-color: #E4EAF2;
   cursor: not-allowed;
   transform: none;

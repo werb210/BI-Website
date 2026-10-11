@@ -1,26 +1,250 @@
 {
-  "$comment": "BI_WEBSITE_BLOCK_1_34B_SWA_CONFIG_BUNDLED",
-  "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": [
-      "/assets/*",
-      "/*.{png,jpg,jpeg,gif,svg,webp,ico,css,js,json,txt,xml,webmanifest,woff,woff2,ttf,otf,map}"
-    ]
-  },
+  "$comment": "BI_WEBSITE_BLOCK_1_34B_SWA_CONFIG_BUNDLED. v789 [142][152]: no navigationFallback, so unknown URLs get a real 404 (dist/404.html). Every App.tsx route is listed under routes: static routes are rewritten to the dist/<route>/index.html written by the build (src/seo/routeMeta.ts), parameterised ones to /index.html. src/__tests__/staticWebApp.v789.test.ts keeps this list, routeMeta.ts and App.tsx in step, and checks the CSP script hashes against index.html.",
+  "routes": [
+    {
+      "route": "/assets/*",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "route": "/",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/404.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/quote",
+      "rewrite": "/quote/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/what-is-pgi",
+      "rewrite": "/what-is-pgi/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/how-it-works",
+      "rewrite": "/how-it-works/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/coverage",
+      "rewrite": "/coverage/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/why-it-matters",
+      "rewrite": "/why-it-matters/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/csbfp",
+      "rewrite": "/csbfp/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/resources",
+      "rewrite": "/resources/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/faq",
+      "rewrite": "/faq/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/contact",
+      "rewrite": "/contact/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/privacy",
+      "rewrite": "/privacy/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/terms",
+      "rewrite": "/terms/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/delete-account",
+      "rewrite": "/delete-account/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/intro",
+      "rewrite": "/intro/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/applications/new",
+      "rewrite": "/applications/new/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/applications/new/country",
+      "rewrite": "/applications/new/country/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/applications/new/score",
+      "rewrite": "/applications/new/score/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/application",
+      "rewrite": "/application/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/login",
+      "rewrite": "/login/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/referral",
+      "rewrite": "/referral/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/lender/api",
+      "rewrite": "/lender/api/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/lender/sandbox",
+      "rewrite": "/lender/sandbox/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/lender/demo",
+      "rewrite": "/lender/demo/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/lender/login",
+      "rewrite": "/lender/login/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/lender/portal",
+      "rewrite": "/lender/portal/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/lender/applications/new",
+      "rewrite": "/lender/applications/new/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/applications/*",
+      "rewrite": "/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/lender/*",
+      "rewrite": "/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/r/*",
+      "rewrite": "/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/referrer/*",
+      "rewrite": "/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    }
+  ],
   "mimeTypes": {
     ".json": "application/json",
     ".webmanifest": "application/manifest+json"
   },
   "globalHeaders": {
-    "Cache-Control": "no-cache",
+    "Content-Security-Policy": "default-src 'self'; script-src 'self' 'sha256-TD2YkiApSAiRbFyTklLMEYZtl6vZf6OWNGfZFWfFhjU=' 'sha256-CtsphLSJCwO6equ7XNziYXzvS4rgeEGwwUEEqPK+fuo=' https://www.googletagmanager.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://www.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://www.googletagmanager.com https://www.google.com https://www.google.ca https://googleads.g.doubleclick.net https://www.googleadservices.com; connect-src 'self' https://bi-server-cse0apamgkheb9d5.canadacentral-01.azurewebsites.net https://www.googletagmanager.com https://www.google.com https://www.google.ca https://googleads.g.doubleclick.net https://www.googleadservices.com https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://region1.analytics.google.com https://stats.g.doubleclick.net; frame-src https://www.googletagmanager.com https://td.doubleclick.net https://bid.g.doubleclick.net; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()",
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "Referrer-Policy": "strict-origin-when-cross-origin"
   },
   "responseOverrides": {
     "404": {
-      "rewrite": "/index.html",
-      "statusCode": 200
+      "rewrite": "/404.html",
+      "statusCode": 404
     }
   }
 }
