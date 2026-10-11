@@ -10,6 +10,7 @@ import Footer from "./components/Footer";
 import QuoteModal from "./components/QuoteModal";
 // BI_WEBSITE_BLOCK_v346_MOBILE_FIRST_LAUNCH_v1
 import ScrollToTop from "./components/ScrollToTop";
+import LegacyReferrerRedirect from "./components/LegacyReferrerRedirect"; // BI_WEBSITE_BLOCK_v784_OCT11_AUDIT_v1
 import RouteTracker from "./components/RouteTracker";
 import ConsentBanner from "./components/ConsentBanner";
 import FaqModal, { FaqPage } from "./components/Faq";
@@ -109,7 +110,7 @@ export default function App() {
             {/* BI_WEBSITE_REFERRAL_LANDING_v1 - referral system unified in BF; PGI landing only */}
             <Route path="/r/:code" element={<ReferralLandingPgi />} />
             <Route path="/application" element={<Navigate to="/applications/new" replace />} />
-            <Route path="/referrer/*" element={<Navigate to="/r/x" replace />} />
+            <Route path="/referrer/*" element={<LegacyReferrerRedirect />} /> {/* BI_WEBSITE_BLOCK_v784_OCT11_AUDIT_v1 */}
             <Route path="/referral" element={<Navigate to="/" replace />} />
             {/* BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — mount marketing pages */}
             <Route path="/contact" element={<Contact />} />
