@@ -15,9 +15,14 @@ export default function Country() {
         <span>Canada</span>
         <span aria-hidden="true">🇨🇦</span>
       </button>
-      <button type="button" className="bi-country disabled" disabled>
+      {/* BI_WEBSITE_v792_US_APPLICATIONS */}
+      <button
+        type="button"
+        className="bi-country"
+        onClick={() => nav("/applications/new/score?country=US")}
+      >
         <span>United States</span>
-        <span aria-hidden="true">🇺🇸 — coming soon</span>
+        <span aria-hidden="true">🇺🇸</span>
       </button>
     </div>
   );
