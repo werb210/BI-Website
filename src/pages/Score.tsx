@@ -154,9 +154,10 @@ export default function Score() {
           <span className="bi-field-label">Country of business</span>
           <select value={country} onChange={(e) => setCountry(e.target.value as "CA" | "US")}>
             <option value="CA">🇨🇦 Canada</option>
-            <option value="US" disabled>🇺🇸 United States — coming soon</option>
+            <option value="US">🇺🇸 United States</option>
           </select>
-          <small className="bi-field-hint">Only Canadian businesses are supported at launch.</small>
+          {/* BI_WEBSITE_v792_US_APPLICATIONS - PGI writes US business; BI-Server accepts CA and US. */}
+          <small className="bi-field-hint">Canada (except Quebec) and the United States.</small>
         </label>
       </div>
       {/* BI_WEBSITE_BLOCK_v100_SCORE_LAYOUT_AND_BRAND_v2 — date paired with country. */}
