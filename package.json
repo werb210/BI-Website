@@ -33,8 +33,8 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.4.5",
-    "vite": "^8.0.0",
-    "vitest": "^4.1.7"
+    "vite": "^8.3.5",
+    "vitest": "^4.1.12"
   },
   "engines": {
     "node": ">=22.0.0 <23"
@@ -42,6 +42,8 @@
   "packageManager": "npm@10",
   "overrides": {
     "follow-redirects": "^1.16.1",
-    "form-data": "^4.0.6"
-  }
+    "form-data": "^4.0.6",
+    "postcss-selector-parser": "^7.1.6"
+  },
+  "x-v859": "BI_WEBSITE_v859_DEP_SECURITY"
 }
