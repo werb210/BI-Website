@@ -228,6 +228,8 @@ function AgreeButtons({ name, value, onChange }: { name: string; value: string; 
 }
 
 // Declarations array — order matches carrier schema. `adverse` marks which answer triggers a _reason field.
+// BI_WEBSITE_US_DECLARATION_v1 - a US applicant is asked about the US tax and border agencies, not the Canadian ones.
+export const US_SECTION_2_C = "Have you ever been a Director of a company that has been under investigation by the Internal Revenue Service (IRS) or U.S. Customs and Border Protection (CBP)?";
 const DECLARATIONS: { k: string; label: string; adverse: "yes" | null }[] = [
   { k: "section_1_a", label: "Does the business carry insurance coverage for all physical assets covered by the personal guarantee?", adverse: null },
   { k: "section_1_2", label: "Have you ever declared personal bankruptcy?", adverse: "yes" },
@@ -607,7 +609,8 @@ export default function Application() {
       <h2 className={SECTION_H_CLS}>Declarations</h2>
       <p className="text-xs text-white/75 mb-3">All 11 declarations must be answered. Any "yes" answer requires a brief explanation.</p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-        {DECLARATIONS.map(({ k, label, adverse }) => {
+        {DECLARATIONS.map(({ k, label: caLabel, adverse }) => {
+          const label = k === "section_2_c" && country === "US" ? US_SECTION_2_C : caLabel;
           const val = String(state.declarations?.[k] || "");
           const showReason = !!adverse && val === adverse;
           return (

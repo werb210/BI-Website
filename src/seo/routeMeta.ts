@@ -30,6 +30,7 @@ export const ROUTES: RouteEntry[] = [
   { path: "/how-it-works", title: `How PGI Works | ${SITE_NAME}`, description: "From quote to policy: how Personal Guarantee Insurance is arranged and how a claim is paid.", sitemap: true },
   { path: "/coverage", title: `Coverage | ${SITE_NAME}`, description: "What Personal Guarantee Insurance covers, coverage limits and the loans it can protect.", sitemap: true },
   { path: "/why-it-matters", title: `Why PGI Matters | ${SITE_NAME}`, description: "Why business owners insure their personal guarantee before signing for business financing.", sitemap: true },
+  { path: "/sba", title: `The Personal Guarantee on an SBA Loan | ${SITE_NAME}`, description: "SBA 7(a) and 504 loans require a personal guarantee from owners of 20% or more. How that guarantee works and how Personal Guarantee Insurance can cover part of it.", sitemap: true },
   { path: "/csbfp", title: `The Personal Guarantee on a CSBFP Loan | ${SITE_NAME}`, description: "How the personal guarantee on a Canada Small Business Financing Program loan works and how to insure it.", sitemap: true },
   { path: "/resources", title: `Knowledge Center | ${SITE_NAME}`, description: "Guides and answers about personal guarantees, business loans and Personal Guarantee Insurance.", sitemap: true },
   { path: "/faq", title: `Frequently Asked Questions | ${SITE_NAME}`, description: "Answers to common questions about Personal Guarantee Insurance, eligibility, pricing and claims.", sitemap: true },

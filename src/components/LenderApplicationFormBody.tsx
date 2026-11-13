@@ -63,7 +63,7 @@ export function LenderApplicationFormBody({ f, set, files, onPickFile, isDemoMod
         <Field label="Guarantor residential address *"><TextIn value={f.guarantor_address} onChange={(v) => set("guarantor_address", v)} /></Field>
       </div>
 
-      <h2 className={SECTION_H}>Co-guarantors (Canada only)</h2>
+      <h2 className={SECTION_H}>Co-guarantors</h2>
       <p className="text-xs text-sky-200/70 mb-2">Add other individuals on the personal guarantee. Our team will reach out to complete the co-guarantor intake separately.</p>
       <div className="grid grid-cols-1 gap-2 mb-2">
         {f.co_guarantors.map((cg, idx) => (
@@ -158,7 +158,8 @@ export function LenderApplicationFormBody({ f, set, files, onPickFile, isDemoMod
 
       <h2 className={SECTION_H}>Declarations (all 11 Purbeck-required)</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
-        {DECLARATIONS_WITH_REASON.map(({ k, label, needsReason }) => {
+        {DECLARATIONS_WITH_REASON.map(({ k, label: caLabel, needsReason }) => {
+          const label = k === "section_2_c" && f.country === "US" ? "Have you ever been a Director of a company that has been under investigation by the Internal Revenue Service (IRS) or U.S. Customs and Border Protection (CBP)?" : caLabel;
           const val = f.declarations[k] as YN;
           const reasonKey = `${String(k)}_reason` as keyof DeclarationsState;
           const showReason = needsReason && val === "yes";
