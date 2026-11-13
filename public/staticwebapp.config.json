@@ -61,6 +61,13 @@
       }
     },
     {
+      "route": "/us-lenders",
+      "rewrite": "/us-lenders/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
       "route": "/sba",
       "rewrite": "/sba/index.html",
       "headers": {
