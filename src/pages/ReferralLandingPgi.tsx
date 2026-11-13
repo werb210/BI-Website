@@ -35,7 +35,7 @@ export default function ReferralLandingPgi() {
         Protect the personal guarantee behind your financing
       </h1>
       <p className="mt-4 text-white/70">
-        Personal Guarantee coverage helps Canadian business owners respond to a
+        Personal Guarantee coverage helps business owners in the United States and Canada respond to a
         covered claim on the personal guarantees behind their business
         financing - so a business setback does not have to become a personal one.
       </p>

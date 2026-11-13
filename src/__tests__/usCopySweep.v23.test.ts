@@ -13,12 +13,12 @@ const files = {
 describe("no page claims Canada-only coverage", () => {
   it("the shared Markel badge names both countries", () => {
     expect(files.badge).not.toContain("9 provinces & 3 territories");
-    expect(files.badge).toContain("Canada & United States");
+    expect(files.badge).toContain("United States &amp; Canada");
   });
 
   it("the homepage stat is not a Canadian province count", () => {
     expect(files.home).not.toContain(">9 + 3<");
-    expect(files.home).toContain("CA & US");
+    expect(files.home).toContain("US &amp; Canada");
   });
 
   it("the homepage hero does not limit regulation to provinces", () => {
@@ -26,7 +26,7 @@ describe("no page claims Canada-only coverage", () => {
   });
 
   it("the footer strapline names both countries", () => {
-    expect(files.footer).toContain("Canadian and United States Business Owners");
+    expect(files.footer).toContain("United States and Canadian Business Owners");
   });
 
   it("the footer disclosure does not limit regulation to provinces", () => {

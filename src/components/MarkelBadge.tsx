@@ -9,5 +9,5 @@ export default function MarkelBadge({ variant = "compact", className = "" }: Pro
   if (variant === "stacked") return <div className={className}><img src={markelLogo} alt="Markel" className="h-10 w-auto"/></div>;
   // BI_WEBSITE_READABILITY_v3: the compact badge sits on dark sections, so its
   // text is light and the Markel logo is shown reversed (white).
-  return <div className={`inline-flex items-center gap-3 text-bf-textMuted ${className}`}><span>Underwritten by</span><img src={markelLogo} alt="Markel" className="h-6 w-auto brightness-0 invert"/><span>A-rated · Canada & United States</span></div>;
+  return <div className={`inline-flex items-center gap-3 text-bf-textMuted ${className}`}><span>Underwritten by</span><img src={markelLogo} alt="Markel" className="h-6 w-auto brightness-0 invert"/><span>A-rated · United States &amp; Canada</span></div>;
 }

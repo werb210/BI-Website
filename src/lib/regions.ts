@@ -2,8 +2,8 @@
 export type CountryCode = "CA" | "US";
 
 export const COUNTRY_OPTIONS: ReadonlyArray<{ value: CountryCode; label: string }> = [
-  { value: "CA", label: "Canada" },
   { value: "US", label: "United States" },
+  { value: "CA", label: "Canada" },
 ];
 
 /** Canada, less Quebec—the carrier does not write PGI there. */

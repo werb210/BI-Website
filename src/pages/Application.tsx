@@ -319,7 +319,7 @@ export default function Application() {
     declarations: {},
     consents: {},
     co_guarantors: [] as CoGuarantor[],
-    country: "CA" as CountryCode, // Canada remains the default; US is now selectable.
+    country: "US" as CountryCode, // BI_WEBSITE_US_FIRST_v1 - starts on the United States; the Score step's choice carries over.
     q_ca_id_type: "",
     q_ca_id_number: "",
   });
@@ -565,12 +565,12 @@ export default function Application() {
         <AddressFieldGroup country={country} label={country === "US" ? "Business operating address *" : "Business operating address * (Quebec not eligible)"} value={state.business_address || blankAddress} onChange={(v) => update("business_address", v)} error={fieldErr("business_address.postal_code") || fieldErr("business_address.province")} />
         <TextField label="Business website (optional)" value={String(state.business_website || "")} onChange={(v) => update("business_website", v)} />
         <div>
-          <label className={LABEL_CLS}>Business Number (BN) (optional)</label>
+          <label className={LABEL_CLS}>{country === "US" ? "Employer Identification Number (EIN) (optional)" : "Business Number (BN) (optional)"}</label>
           <div className="flex gap-2">
-            <input className={INPUT_CLS} value={String(state.business_number || "")} onChange={(e) => update("business_number", e.target.value)} placeholder="123456789RT0001" />
-            <button type="button" onClick={openBnLookup} className="whitespace-nowrap px-3 py-2 text-xs bg-white/10 border border-white/20 text-white rounded hover:bg-white/[0.14]">Look up by name</button>
+            <input className={INPUT_CLS} value={String(state.business_number || "")} onChange={(e) => update("business_number", e.target.value)} placeholder={country === "US" ? "12-3456789" : "123456789RT0001"} />
+            {country === "US" ? null : <button type="button" onClick={openBnLookup} className="whitespace-nowrap px-3 py-2 text-xs bg-white/10 border border-white/20 text-white rounded hover:bg-white/[0.14]">Look up by name</button>}
           </div>
-          <p className={HELP_CLS}>Don't know your BN? The button opens the federal Canada Business Registries search.</p>
+          <p className={HELP_CLS}>{country === "US" ? "The 9-digit number the IRS issued to the business. It is on your tax return." : "Don't know your BN? The button opens the federal Canada Business Registries search."}</p>
         </div>
       </div>
 
@@ -588,10 +588,11 @@ export default function Application() {
         <DateField label="What is the loan funding date? *" value={String(state.loan_funding_date || "")} onChange={(v) => update("loan_funding_date", v)} withTodayButton />
         <DateField label="What date do you need this policy to start? *" value={String(state.policy_start_date || "")} onChange={(v) => update("policy_start_date", v)} withTodayButton />
         <SelectField label="What is the purpose of the loan? *" value={String(state.loan_purpose || "")} onChange={(v) => update("loan_purpose", v)} options={LOAN_PURPOSES} help="Internal records only. Does not affect carrier eligibility." />
-        <div>
+        {/* BI_WEBSITE_US_FIRST_v1 - the Canada Small Business Financing Program question is for Canadian loans only. */}
+        {country === "US" ? null : <div>
           <label className={LABEL_CLS}>Is this a CSBFP backed loan?</label>
           <YesNoButtons name="csbfp_backed" value={typeof state.csbfp_backed === "boolean" ? state.csbfp_backed : null} onChange={(v) => update("csbfp_backed", v)} />
-        </div>
+        </div>}
         <div>
           <label className={LABEL_CLS}>Does this loan have a guaranteed cap amount?</label>
           <YesNoButtons name="loan_has_guaranteed_cap" value={typeof state.loan_has_guaranteed_cap === "boolean" ? state.loan_has_guaranteed_cap : null} onChange={(v) => update("loan_has_guaranteed_cap", v)} />

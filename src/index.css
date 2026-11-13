@@ -251,8 +251,12 @@ a {
 }
 .bi-card label > span,
 .bi-card .bi-field > span {
-  display: block; margin-bottom: 6px; text-transform: capitalize;
+  display: block; margin-bottom: 6px;
 }
+/* BI_WEBSITE_US_FIRST_v1 - the terms tick box sits beside its sentence, not on a line of its own above it. */
+.bi-card label.bi-terms { display: flex; align-items: flex-start; gap: 12px; }
+.bi-card label.bi-terms > input[type="checkbox"] { flex: none; margin-top: 2px; }
+.bi-card label.bi-terms > span { margin-bottom: 0; }
 .bi-card input[type="text"],
 .bi-card input[type="number"],
 .bi-card input[type="tel"],

@@ -8,14 +8,13 @@ vi.mock("../../lib/api", () => ({ api: { score: vi.fn(async () => ({ public_id: 
 import Score from "../Score";
 
 describe("quote page country", () => {
-  it("offers the United States as a selectable country", () => {
+  it("starts on the United States, listed first, with Canada selectable (BI_WEBSITE_US_FIRST_v1)", () => {
     render(<MemoryRouter><Score /></MemoryRouter>);
-    const select = screen.getByDisplayValue(/Canada/) as HTMLSelectElement;
-    const us = Array.from(select.options).find((o) => o.value === "US");
-    expect(us).toBeTruthy();
-    expect(us!.disabled).toBe(false);
-    fireEvent.change(select, { target: { value: "US" } });
+    const select = screen.getByDisplayValue(/United States/) as HTMLSelectElement;
     expect(select.value).toBe("US");
+    expect(Array.from(select.options).map((o) => o.value)).toEqual(["US", "CA"]);
+    fireEvent.change(select, { target: { value: "CA" } });
+    expect(select.value).toBe("CA");
     expect(screen.queryByText(/coming soon/i)).toBeNull();
     expect(screen.queryByText(/Only Canadian businesses/i)).toBeNull();
   });

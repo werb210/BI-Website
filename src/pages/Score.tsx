@@ -43,7 +43,7 @@ export default function Score() {
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   // BI_WEBSITE_BLOCK_v97_OTP_GATE_AND_FLOW_v1 — country state replaces the prior URL search param.
-  const [country, setCountry] = useState<"CA" | "US">("CA");
+  const [country, setCountry] = useState<"CA" | "US">("US"); // BI_WEBSITE_US_FIRST_v1 - the United States is the larger market, so it is the starting choice
   // BI_WEBSITE_BLOCK_v107_SCORE_PGI_EBITDA_AUTOSAVE_v1
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [ebitdaCalcOpen, setEbitdaCalcOpen] = useState(false);
@@ -153,11 +153,11 @@ export default function Score() {
         <label className="bi-field">
           <span className="bi-field-label">Country of business</span>
           <select value={country} onChange={(e) => setCountry(e.target.value as "CA" | "US")}>
-            <option value="CA">🇨🇦 Canada</option>
             <option value="US">🇺🇸 United States</option>
+            <option value="CA">🇨🇦 Canada</option>
           </select>
           {/* BI_WEBSITE_v792_US_APPLICATIONS - PGI writes US business; BI-Server accepts CA and US. */}
-          <small className="bi-field-hint">Canada (except Quebec) and the United States.</small>
+          <small className="bi-field-hint">The United States and Canada (except Quebec).</small>
         </label>
       </div>
       {/* BI_WEBSITE_BLOCK_v100_SCORE_LAYOUT_AND_BRAND_v2 — date paired with country. */}
@@ -203,7 +203,7 @@ export default function Score() {
 
       <h3 className="bi-section-divider">LOAN & GUARANTEE DETAILS</h3>
 
-      <Field label="Loan Amount from Bank">
+      <Field label="Loan amount from your lender">
         {/* BI_WEBSITE_BLOCK_v342_SCORE_INLINE_GUARDRAILS_v1 */}
         <input
           type="text"

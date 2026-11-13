@@ -12,7 +12,7 @@ describe("LenderApiDocs v340 — v2 carrier-aligned content", () => {
 
   it("includes Eligibility rules call-out at the top", () => {
     expect(src).toMatch(/Eligibility rules \(carrier-enforced\)/);
-    expect(src).toMatch(/Canada only/);
+    expect(src).toMatch(/United States and Canada\./);
     expect(src).toMatch(/Quebec excluded/);
     expect(src).toMatch(/80% of/);
     expect(src).toMatch(/\$50,000/);

@@ -19,7 +19,7 @@ export type RouteEntry = {
 };
 
 const DEFAULT_DESCRIPTION =
-  "Personal Guarantee Insurance for Canadian and United States business owners. Protect your personal assets when securing business financing. Get a quote in minutes.";
+  "Personal Guarantee Insurance for United States and Canadian business owners. Protect your personal assets when securing business financing. Get a quote in minutes.";
 
 // Every App.tsx route without a URL parameter. src/__tests__/seo.v789.test.ts
 // fails if App.tsx gains a route this list does not cover.
@@ -31,7 +31,7 @@ export const ROUTES: RouteEntry[] = [
   { path: "/coverage", title: `Coverage | ${SITE_NAME}`, description: "What Personal Guarantee Insurance covers, coverage limits and the loans it can protect.", sitemap: true },
   { path: "/why-it-matters", title: `Why PGI Matters | ${SITE_NAME}`, description: "Why business owners insure their personal guarantee before signing for business financing.", sitemap: true },
   { path: "/csbfp", title: `The Personal Guarantee on a CSBFP Loan | ${SITE_NAME}`, description: "How the personal guarantee on a Canada Small Business Financing Program loan works and how to insure it.", sitemap: true },
-  { path: "/resources", title: `Knowledge Centre | ${SITE_NAME}`, description: "Guides and answers about personal guarantees, business loans and Personal Guarantee Insurance.", sitemap: true },
+  { path: "/resources", title: `Knowledge Center | ${SITE_NAME}`, description: "Guides and answers about personal guarantees, business loans and Personal Guarantee Insurance.", sitemap: true },
   { path: "/faq", title: `Frequently Asked Questions | ${SITE_NAME}`, description: "Answers to common questions about Personal Guarantee Insurance, eligibility, pricing and claims.", sitemap: true },
   { path: "/contact", title: `Contact Us | ${SITE_NAME}`, description: "Talk to Boreal Insurance about Personal Guarantee Insurance. Call (866) 631-8939 or send us a message.", sitemap: true },
   { path: "/privacy", title: `Privacy Policy | ${SITE_NAME}`, description: "How 2630108 Alberta Ltd. (Boreal Insurance) collects, uses and protects personal information, including cookies.", sitemap: true },

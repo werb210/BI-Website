@@ -16,7 +16,7 @@ export default function HowItWorks() {
         </Link>
       </div>
       <div className="mx-auto max-w-4xl rounded-xl border border-white/10 bg-bf-surface p-8">
-        <h1 className="mb-6 text-3xl font-bold">How PGI Works in Canada</h1>
+        <h1 className="mb-6 text-3xl font-bold">How PGI Works</h1>
 
         <ol className="list-decimal space-y-4 pl-5 text-bf-textMuted">
           <li>

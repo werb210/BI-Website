@@ -6,7 +6,7 @@ export default function WhyItMatters() {
         <h1 className="mb-6 text-3xl font-bold">Why It Matters</h1>
 
         <p className="mb-4 text-bf-textMuted">
-          Canadian lenders often require personal guarantees, which can put household assets at risk.
+          Lenders in the United States and Canada often require personal guarantees, which can put household assets at risk.
         </p>
         <p className="mb-4 text-bf-textMuted">
           PGI helps separate business financing risk from personal finances and improves confidence when seeking

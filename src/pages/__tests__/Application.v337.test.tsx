@@ -72,8 +72,8 @@ describe("Application.tsx v337 — feature corrections", () => {
     expect(src).toMatch(/The identifier on the government ID/);
   });
 
-  it("Country defaults to Canada but is selectable", () => {
-    expect(src).toMatch(/country:\s*"CA"/);
+  it("Country starts on the United States and is selectable", () => {
+    expect(src).toMatch(/country:\s*"US"/);
     expect(src).toContain("toCountryCode(app.country)");
     expect(src).toContain("COUNTRY_OPTIONS");
   });

@@ -6,7 +6,7 @@ export default function WhatIsPGI() {
         <h1 className="mb-6 text-3xl font-bold">What is Personal Guarantee Insurance (PGI)?</h1>
 
         <p className="mb-4 text-bf-textMuted">
-          Personal Guarantee Insurance (PGI) is designed for Canadian business owners and directors who sign
+          Personal Guarantee Insurance (PGI) is designed for business owners and directors in the United States and Canada who sign
           personal guarantees to secure financing.
         </p>
 
@@ -16,7 +16,7 @@ export default function WhatIsPGI() {
         </p>
 
         <p className="text-bf-textMuted">
-          In Canada, PGI helps entrepreneurs access funding while reducing personal downside risk tied to growth
+          PGI helps entrepreneurs access funding while reducing personal downside risk tied to growth
           borrowing.
         </p>
       </div>
