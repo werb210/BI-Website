@@ -8,7 +8,7 @@ const h = vi.hoisted(() => ({ apiRequest: vi.fn(async () => ({ ok: true })) }));
 vi.mock("../api/request", () => ({ apiRequest: h.apiRequest }));
 vi.mock("../lib/analytics", () => ({ track: vi.fn() }));
 
-import USLenders, { OCC_LETTER_URL, usLendersErrors } from "../pages/USLenders";
+import USLenders, { OCC_LETTER_URL, quickContact, usLendersErrors } from "../pages/USLenders";
 
 describe("the United States banks and brokers page", () => {
   beforeEach(() => h.apiRequest.mockClear());
@@ -50,5 +50,35 @@ describe("the United States banks and brokers page", () => {
     expect(path).toBe("/api/v1/crm/lead");
     expect(JSON.parse(init.body)).toMatchObject({ name: "Pat Lee", company: "First Sample Bank (Bank) - US lender page", email: "pat@firstsample.example", casl_consent: true });
     await screen.findByRole("status");
+  });
+
+  // BI_WEBSITE_US_LENDERS_EVENT - opened from a QR code at an event: nothing to fill in, or one box.
+  it("offers a contact card to save and a number to call before asking for anything", () => {
+    render(<MemoryRouter><USLenders /></MemoryRouter>);
+    const save = screen.getByRole("link", { name: "Save our contact" });
+    expect(save.getAttribute("href")).toBe("/boreal-pgi.vcf");
+    const card = readFileSync("public/boreal-pgi.vcf", "utf8");
+    expect(card).toMatch(/^BEGIN:VCARD/);
+    expect(card).toContain("TEL;TYPE=WORK,VOICE:+18666318939");
+    expect(card).toContain("URL:https://www.boreal.insure/us-lenders");
+    expect(JSON.parse(readFileSync("public/staticwebapp.config.json", "utf8")).mimeTypes[".vcf"]).toBe("text/vcard");
+    expect(screen.getByRole("link", { name: /^Call \(866\)/ }).getAttribute("href")).toBe("tel:+18666318939");
+  });
+
+  it("takes an email or a mobile in one box", async () => {
+    expect(quickContact("pat@firstsample.example")).toEqual({ email: "pat@firstsample.example" });
+    expect(quickContact(" (512) 555-0142 ")).toEqual({ phone: "(512) 555-0142" });
+    expect(quickContact("pat@")).toBeNull();
+    expect(quickContact("12")).toBeNull();
+    render(<MemoryRouter><USLenders /></MemoryRouter>);
+    fireEvent.click(screen.getByRole("button", { name: "Send me the details" }));
+    expect(h.apiRequest).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText(/leave an email or mobile/), { target: { value: "pat@firstsample.example" } });
+    fireEvent.click(screen.getByRole("button", { name: "Send me the details" }));
+    await waitFor(() => expect(h.apiRequest).toHaveBeenCalledTimes(1));
+    const [path, init] = h.apiRequest.mock.calls[0] as unknown as [string, { body: string }];
+    expect(path).toBe("/api/v1/crm/lead");
+    expect(JSON.parse(init.body)).toMatchObject({ source: "us_lenders_quick", email: "pat@firstsample.example" });
+    expect(JSON.parse(init.body).phone).toBeUndefined();
   });
 });

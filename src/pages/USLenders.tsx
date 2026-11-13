@@ -11,6 +11,14 @@ import { OPERATOR_PHONE_DISPLAY, OPERATOR_PHONE_HREF } from "../lib/operator";
 
 export const OCC_LETTER_URL = "https://www.occ.gov/topics/charters-and-licensing/interpretations-and-decisions/2026/int1194.pdf";
 export const US_LENDERS_CONSENT = "I agree that Boreal Risk Management may contact me by phone, email or text about this inquiry.";
+export const US_LENDERS_QUICK_CONSENT = "By sending this you agree that Boreal Risk Management may contact you about Personal Guarantee Insurance.";
+/** One box takes an email address or a mobile number; null when it is neither. */
+export function quickContact(raw: string): { email: string } | { phone: string } | null {
+  const v = raw.trim();
+  if (emailValid(v)) return { email: v };
+  const digits = v.replace(/[^\d+]/g, "");
+  return !v.includes("@") && phoneValid(digits) ? { phone: v } : null;
+}
 const ROLES = ["Bank", "Credit union", "Commercial loan broker", "Other lender"];
 
 type Form = { name: string; institution: string; role: string; email: string; phone: string; consent: boolean };
@@ -36,6 +44,25 @@ export default function USLenders() {
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<{ ok: boolean; text: string } | null>(null);
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setForm((f) => ({ ...f, [k]: v }));
+  // BI_WEBSITE_US_LENDERS_EVENT - the page is opened from a QR code at events, on a phone, by someone with a minute to
+  // spare. The first screen therefore asks for nothing (save our contact) or for one thing (an email or a mobile).
+  const [quick, setQuick] = useState("");
+  const [quickBusy, setQuickBusy] = useState(false);
+  const [quickStatus, setQuickStatus] = useState<{ ok: boolean; text: string } | null>(null);
+  async function sendQuick(ev: React.FormEvent) {
+    ev.preventDefault();
+    const c = quickContact(quick);
+    if (!c) { setQuickStatus({ ok: false, text: "Enter an email address or a mobile number." }); return; }
+    setQuickBusy(true); setQuickStatus(null);
+    try {
+      await apiRequest("/api/v1/crm/lead", { method: "POST", body: JSON.stringify({ source: "us_lenders_quick", company: "US lender page (event)", ...c, casl_consent: true, casl_consent_text: US_LENDERS_QUICK_CONSENT }) });
+      track("us_lenders_quick");
+      setQuick("");
+      setQuickStatus({ ok: true, text: "Got it. We will send you the details and follow up within one business day." });
+    } catch {
+      setQuickStatus({ ok: false, text: `We could not send that. Please try again, or call us at ${OPERATOR_PHONE_DISPLAY}.` });
+    } finally { setQuickBusy(false); }
+  }
 
   async function submit(ev: React.FormEvent) {
     ev.preventDefault();
@@ -62,14 +89,24 @@ export default function USLenders() {
   return (
     <main className="min-h-screen bg-white text-[#0B1F3A]" data-testid="us-lenders">
       <section className="bg-bf-bg">
-        <div className="mx-auto max-w-5xl px-5 py-16 text-center">
+        <div className="mx-auto max-w-5xl px-5 py-8 text-center sm:py-16">
           <p className="text-sm font-semibold uppercase tracking-widest text-bf-cta">For United States banks and commercial loan brokers</p>
           <h1 className="mt-3 text-3xl font-bold leading-tight text-white sm:text-4xl md:text-5xl">Give your borrowers a way to insure the personal guarantee.</h1>
           <p className="mx-auto mt-4 max-w-3xl text-base text-bf-textMuted sm:text-lg">Personal Guarantee Insurance (PGI) covers the person who signs the guarantee on a business loan. You introduce the borrower. We take it from there, and we are your contact from first question to policy.</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <a href="#talk" className="bf-btn bf-btn--primary">Talk to us</a>
-            <a href="#how" className="bf-btn bf-btn--secondary">How it works</a>
+            <a href="/boreal-pgi.vcf" download="Boreal-PGI.vcf" className="bf-btn bf-btn--primary" onClick={() => track("us_lenders_save_contact")}>Save our contact</a>
+            <a href={OPERATOR_PHONE_HREF} className="bf-btn bf-btn--secondary">Call {OPERATOR_PHONE_DISPLAY}</a>
           </div>
+          <form onSubmit={sendQuick} noValidate aria-label="Send me the details" className="mx-auto mt-6 max-w-xl rounded-2xl bg-white p-4 text-left">
+            <label className={LABEL} htmlFor="us-quick">Or leave an email or mobile and we will send you the details</label>
+            <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+              <input id="us-quick" className={`${INPUT} !mt-0 flex-1`} inputMode="email" autoComplete="email" placeholder="you@yourbank.com or (512) 555-0142" value={quick} onChange={(e) => setQuick(e.target.value)} />
+              <button type="submit" disabled={quickBusy} className="bf-btn bf-btn--primary flex-none">{quickBusy ? "Sending..." : "Send me the details"}</button>
+            </div>
+            {quickStatus ? <p role={quickStatus.ok ? "status" : "alert"} className={`mt-2 text-sm font-semibold ${quickStatus.ok ? "text-green-700" : "text-red-700"}`}>{quickStatus.text}</p> : null}
+            <p className="mt-2 text-xs text-slate-600">{US_LENDERS_QUICK_CONSENT}</p>
+          </form>
+          <p className="mt-4 text-sm"><a href="#how" className="text-white underline">How it works</a><span className="mx-2 text-bf-textMuted">|</span><a href="#talk" className="text-white underline">Request a call back</a></p>
         </div>
       </section>
 
