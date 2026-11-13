@@ -34,6 +34,7 @@ import WhyItMatters from "./pages/WhyItMatters";
 // BI_WEBSITE_BLOCK_v99_MARKETING_HOME_v1
 import CSBFP from "./pages/CSBFP";
 import SBA from "./pages/SBA";
+import USLenders from "./pages/USLenders";
 import Resources from "./pages/Resources";
 import Intro from "./pages/Intro";
 import NewApplication from "./pages/NewApplication";
@@ -123,6 +124,7 @@ export default function App() {
             <Route path="/why-it-matters" element={<WhyItMatters />} />
             {/* BI_WEBSITE_BLOCK_v99_MARKETING_HOME_v1 */}
             <Route path="/sba" element={<SBA />} />
+            <Route path="/us-lenders" element={<USLenders />} />
             <Route path="/csbfp" element={<CSBFP />} />
             <Route path="/resources" element={<Resources />} />
             <Route path="/privacy" element={<Privacy />} />
