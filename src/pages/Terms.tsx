@@ -30,7 +30,7 @@ export default function Terms() {
             <p className="text-slate-300">
               The Service is a referral platform operated by {OPERATOR_NAME}, {OPERATOR_ADDRESS}. We are not
               a licensed insurance broker, agent, adviser, or carrier. We introduce
-              Canadian businesses to licensed brokers who arrange Personal Guarantee
+              businesses in the United States and Canada to licensed brokers who arrange Personal Guarantee
               Insurance ("PGI") underwritten by Markel Canada Limited. Coverage,
               eligibility, pricing, and policy terms are determined exclusively by the
               licensed broker and the insurer.
@@ -40,9 +40,9 @@ export default function Terms() {
           <section>
             <h2 className="mb-3 text-xl font-semibold text-white">Eligibility</h2>
             <p className="text-slate-300">
-              The Service is intended for Canadian incorporated businesses, partnerships,
-              and sole proprietors with operations in Canada. You must be at least the
-              age of majority in your province or territory, legally authorized to bind
+              The Service is intended for incorporated businesses, partnerships, and sole
+              proprietors with operations in the United States or Canada (other than Quebec).
+              You must be at least the age of majority in your state, province or territory, legally authorized to bind
               the business you represent, and provide accurate information. We may
               refuse, suspend, or terminate access at our discretion where eligibility,
               compliance, or fraud concerns exist.

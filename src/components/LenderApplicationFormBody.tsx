@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import { regionsFor } from "@/lib/regions";
 import {
   ACCEPT_PARTNER_DOCS,
   AgreeRadio,
@@ -95,13 +96,13 @@ export function LenderApplicationFormBody({ f, set, files, onPickFile, isDemoMod
             {["Corporation","Partnership","Sole Proprietorship","LLC","Other"].map((v) => <option key={v} value={v} className="text-slate-900">{v}</option>)}
           </select>
         </Field>
-        <Field label="Business number (BN) *"><TextIn value={f.business_number} onChange={(v) => set("business_number", v)} /></Field>
+        <Field label={f.country === "US" ? "Employer Identification Number (EIN) *" : "Business number (BN) *"}><TextIn value={f.business_number} onChange={(v) => set("business_number", v)} /></Field>
         <Field label="NAICS code *"><TextIn value={f.naics} onChange={(v) => set("naics", v)} placeholder="541511" /></Field>
         <Field label="Business operating address *"><TextIn value={f.business_address} onChange={(v) => set("business_address", v)} /></Field>
-        <Field label="Business province *">
+        <Field label={f.country === "US" ? "Business state *" : "Business province *"}>
           <select className={INPUT} value={f.business_province} onChange={(e) => set("business_province", e.target.value)}>
             <option value="">Select…</option>
-            {PROVINCES_NO_QC.map((p) => <option key={p.value} value={p.value} className="text-slate-900">{p.label}</option>)}
+            {(f.country === "US" ? regionsFor("US") : PROVINCES_NO_QC).map((p) => <option key={p.value} value={p.value} className="text-slate-900">{p.label}</option>)}
           </select>
         </Field>
         <Field label="Business start date *"><TextIn type="date" value={f.business_start_date} onChange={(v) => set("business_start_date", v)} /></Field>
@@ -111,23 +112,23 @@ export function LenderApplicationFormBody({ f, set, files, onPickFile, isDemoMod
             <option value="">Select…</option>
             <option value="Passport" className="text-slate-900">Passport</option>
             <option value="National ID" className="text-slate-900">National ID</option>
-            <option value="Driving Licence" className="text-slate-900">Driving Licence</option>
+            <option value="Driving Licence" className="text-slate-900">{f.country === "US" ? "Driver's license" : "Driver's licence"}</option>
             <option value="Other" className="text-slate-900">Other</option>
           </select>
         </Field>
         <Field label="Government ID number *"><TextIn value={f.q_ca_id_number} onChange={(v) => set("q_ca_id_number", v)} /></Field>
         <Field label="Country">
           <select className={INPUT} value={f.country} onChange={(e) => set("country", e.target.value as LenderFormState["country"])}>
-            <option value="CA" className="text-slate-900">Canada</option>
             <option value="US" className="text-slate-900">United States</option>
+            <option value="CA" className="text-slate-900">Canada</option>
           </select>
         </Field>
       </div>
 
       <h2 className={SECTION_H}>Loan & Guarantee</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-2">
-        <Field label="Loan amount (CAD) *"><TextIn type="number" value={f.loan_amount} onChange={(v) => set("loan_amount", v)} /></Field>
-        <Field label="Requested PGI limit (CAD) *"><TextIn type="number" value={f.pgi_limit} onChange={(v) => set("pgi_limit", v)} /></Field>
+        <Field label={`Loan amount (${f.country === "US" ? "USD" : "CAD"}) *`}><TextIn type="number" value={f.loan_amount} onChange={(v) => set("loan_amount", v)} /></Field>
+        <Field label={`Requested PGI limit (${f.country === "US" ? "USD" : "CAD"}) *`}><TextIn type="number" value={f.pgi_limit} onChange={(v) => set("pgi_limit", v)} /></Field>
         <Field label="Carrier loan type *">
           <select className={INPUT} value={f.q_ca_loan_type} onChange={(e) => set("q_ca_loan_type", e.target.value as LenderFormState["q_ca_loan_type"])}>
             <option value="">Select…</option>
@@ -150,7 +151,7 @@ export function LenderApplicationFormBody({ f, set, files, onPickFile, isDemoMod
             <option value="refinance" className="text-slate-900">Refinance</option>
           </select>
         </Field>
-        <Field label="CSBFP backed? *"><YesNoRadio name="csbfp_backed" value={f.csbfp_backed} onChange={(v) => set("csbfp_backed", v)} /></Field>
+        <Field label="CSBFP backed? (Canadian program) *"><YesNoRadio name="csbfp_backed" value={f.csbfp_backed} onChange={(v) => set("csbfp_backed", v)} /></Field>
         <Field label="Guaranteed cap? *"><YesNoRadio name="loan_has_guaranteed_cap" value={f.loan_has_guaranteed_cap} onChange={(v) => set("loan_has_guaranteed_cap", v)} /></Field>
         <Field label="Personally guaranteeing? *"><YesNoRadio name="personally_guaranteeing" value={f.personally_guaranteeing} onChange={(v) => set("personally_guaranteeing", v)} /></Field>
       </div>

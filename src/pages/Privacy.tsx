@@ -132,7 +132,7 @@ export default function Privacy() {
           <section>
             <h2 className="mb-3 text-xl font-semibold text-white">Children</h2>
             <p className="text-slate-300">
-              The service is for adult Canadian business owners and guarantors. We do not
+              The service is for adult business owners and guarantors in the United States and Canada. We do not
               knowingly collect personal information from anyone under the age of majority.
             </p>
           </section>

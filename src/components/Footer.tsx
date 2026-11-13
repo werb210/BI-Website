@@ -28,7 +28,7 @@ export default function Footer() {
               <span className="font-semibold text-white">Boreal Risk Management</span>
             </div>
             <p className="text-sm leading-relaxed text-white/75">
-              Personal Guarantee Insurance for Canadian and United States Business Owners.
+              Personal Guarantee Insurance for United States and Canadian Business Owners.
             </p>
           </div>
           <div>
@@ -57,11 +57,11 @@ export default function Footer() {
               {SUPPORT_EMAIL}
             </a>
             <div className="mt-1 text-sm text-white/75">
-              Mon-Fri 8am-6pm MT
+              Mon-Fri 10am-8pm ET (8am-6pm MT)
             </div>
             <div className="mt-4">
               <div className="text-[11px] text-white/75 mb-1.5 tracking-[1px]">UNDERWRITTEN BY</div>
-              <img src={markelUrl} alt="Markel Canada" className="h-7 w-auto" />
+              <img src={markelUrl} alt="Markel" className="h-7 w-auto brightness-0 invert opacity-90" />
             </div>
           </div>
         </div>
@@ -70,7 +70,7 @@ export default function Footer() {
         <p className="text-xs leading-relaxed text-white/75 mt-6 mb-2">
           Boreal Risk Management is a referral and risk advisory partner. Insurance is arranged only
           through appropriately licensed insurance entities. We are not a licensed insurance broker,
-          agent, or adviser. We introduce Canadian and United States business owners to licensed brokers
+          agent, or adviser. We introduce United States and Canadian business owners to licensed brokers
           who arrange
           Personal Guarantee Insurance underwritten by Markel Canada Limited (A-rated by AM Best,
           S&amp;P, and Fitch). Coverage is subject to underwriting, eligibility, policy terms,
@@ -86,8 +86,8 @@ export default function Footer() {
         {/* v131 compliance: Quebec exclusion, compensation disclosure, no-cost disclosure, complaints routing. */}
         <p className="text-xs leading-relaxed text-white/75 mb-2">
           <strong className="text-white/70">Geographic availability:</strong> This
-          referral service is available in 9 Canadian provinces and 3 territories, and in the United
-          States. <strong>Not available to Quebec residents.</strong>
+          referral service is available in the United States, and in 9 Canadian provinces and 3
+          territories. <strong>Not available to Quebec residents.</strong>
         </p>
         <p className="text-xs leading-relaxed text-white/75 mb-2">
           <strong className="text-white/70">Cost and compensation:</strong> There

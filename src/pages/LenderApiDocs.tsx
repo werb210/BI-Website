@@ -204,9 +204,9 @@ export default function LenderApiDocs() {
       <div className="mb-6 p-4 rounded border border-amber-300/40 bg-amber-500/10">
         <div className="text-xs uppercase tracking-wider text-amber-100/80 mb-2">Eligibility rules (carrier-enforced)</div>
         <ul className="text-sm text-amber-50 space-y-1 list-disc pl-5">
-          <li><strong>Canada only.</strong> <code>business.country</code> must be <code>"CA"</code>.</li>
-          <li><strong>Quebec excluded.</strong> <code>business.province</code> may not be <code>QC</code>.</li>
-          <li><strong>Loan amount:</strong> <code>$50,000</code> ≤ <code>loan.amount</code> ≤ <code>$1,000,000</code> CAD.</li>
+          <li><strong>United States and Canada.</strong> <code>business.country</code> is <code>"US"</code> or <code>"CA"</code> (<code>"CA"</code> when left out).</li>
+          <li><strong>Quebec excluded.</strong> For a Canadian business, <code>business.province</code> may not be <code>QC</code>. For a US business, send the two-letter state.</li>
+          <li><strong>Loan amount:</strong> <code>$50,000</code> ≤ <code>loan.amount</code> ≤ <code>$1,000,000</code>, in the loan's own currency (USD for a US business, CAD for a Canadian one).</li>
           <li><strong>PGI limit:</strong> <code>loan.pgi_limit</code> ≤ 80% of <code>loan.amount</code>; never above <code>$1,000,000</code>.</li>
           <li><strong>Loan type:</strong> <code>loan.q_ca_loan_type</code> ∈ {`{`}<code>"Commercial Mortgage"</code>, <code>"Other Secured Loan"</code>{`}`} only.</li>
           <li><strong>Government ID:</strong> <code>guarantor.q_ca_id_type</code> ∈ {`{`}<code>"Passport"</code>, <code>"National ID"</code>, <code>"Driving Licence"</code>, <code>"Other"</code>{`}`}.</li>
