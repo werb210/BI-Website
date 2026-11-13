@@ -8,6 +8,7 @@ const ITEMS = [
   {q:"What does it cost?",a:"Premiums depend on loan size, business financials, and coverage limit. A $500K loan with $400K coverage is typically in the low thousands per year."},
   {q:"Can I add coverage to a loan I already have?",a:"Yes. Existing personal guarantees are eligible as long as the loan is in good standing."},
   {q:"What if the business is sold or refinanced?",a:"Coverage ends when the underlying loan is repaid or the personal guarantee is released. Premiums stop accordingly."},
+  {q:"Can I insure the guarantee on an SBA loan?",a:"Yes. SBA 7(a) and 504 loans generally require a personal guarantee from every owner of 20% or more. The SBA's guarantee protects the lender, not you, so PGI can be placed on your personal guarantee, subject to underwriting and policy terms."},
   {q:"Where is this available?",a:"Available in the United States, and in 9 Canadian provinces and 3 territories. Not available to Quebec residents."},
   {q:"Will this affect my credit?",a:"No. Applying for PGI does not pull credit. Only Markel underwriting reviews your financial documents — no credit bureau involvement."},
   {q:"How fast does the lender accept this policy?",a:"Most lenders accept the coverage immediately. We provide a certificate of insurance you can forward to your loan officer the same day."},
