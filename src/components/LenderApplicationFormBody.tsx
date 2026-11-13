@@ -112,7 +112,7 @@ export function LenderApplicationFormBody({ f, set, files, onPickFile, isDemoMod
             <option value="">Select…</option>
             <option value="Passport" className="text-slate-900">Passport</option>
             <option value="National ID" className="text-slate-900">National ID</option>
-            <option value="Driving Licence" className="text-slate-900">Driving Licence</option>
+            <option value="Driving Licence" className="text-slate-900">{f.country === "US" ? "Driver's license" : "Driver's licence"}</option>
             <option value="Other" className="text-slate-900">Other</option>
           </select>
         </Field>

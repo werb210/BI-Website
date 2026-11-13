@@ -505,8 +505,8 @@ export default function Application() {
       {/* Government ID */}
       <h2 className={SECTION_H_CLS}>Government ID</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-        <SelectField label="Government ID type *" value={String(state.q_ca_id_type || "")} onChange={(v) => update("q_ca_id_type", v)} options={ID_TYPES.map((t) => ({ value: t, label: t }))} help="As shown on your photo ID (used for KYC by PGI)." error={fieldErr("q_ca_id_type")} />
-        <TextField label="Government ID number *" value={String(state.q_ca_id_number || "")} onChange={(v) => update("q_ca_id_number", v)} placeholder="Exactly as shown on the document" help="The identifier on the government ID (passport number, driver's licence number, etc.)." error={fieldErr("q_ca_id_number")} />
+        <SelectField label="Government ID type *" value={String(state.q_ca_id_type || "")} onChange={(v) => update("q_ca_id_type", v)} options={ID_TYPES.map((t) => ({ value: t, label: t === "Driving Licence" ? (country === "US" ? "Driver's license" : "Driver's licence") : t }))} help="As shown on your photo ID (used for KYC by PGI)." error={fieldErr("q_ca_id_type")} />
+        <TextField label="Government ID number *" value={String(state.q_ca_id_number || "")} onChange={(v) => update("q_ca_id_number", v)} placeholder="Exactly as shown on the document" help="The identifier on the government ID (passport number, driver's license number, etc.)." error={fieldErr("q_ca_id_number")} />
       </div>
 
       {/* Co-guarantors */}

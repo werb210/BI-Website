@@ -18,7 +18,7 @@ export const DELETED_ITEMS = [
 
 export const KEPT_ITEMS = [
   "Commission and accounting records about a policy that was issued. These are kept without the link to your application, only for as long as the law requires, and then deleted.",
-  "A basic contact record (name, phone number and email) and your opt-out choices, so we can keep honouring an unsubscribe or STOP request.",
+  "A basic contact record (name, phone number and email) and your opt-out choices, so we can keep honoring an unsubscribe or STOP request.",
 ];
 
 export default function DeleteAccount() {
