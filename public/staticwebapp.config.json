@@ -245,7 +245,8 @@
   ],
   "mimeTypes": {
     ".json": "application/json",
-    ".webmanifest": "application/manifest+json"
+    ".webmanifest": "application/manifest+json",
+    ".vcf": "text/vcard"
   },
   "globalHeaders": {
     "Content-Security-Policy": "default-src 'self'; script-src 'self' 'sha256-TD2YkiApSAiRbFyTklLMEYZtl6vZf6OWNGfZFWfFhjU=' 'sha256-CtsphLSJCwO6equ7XNziYXzvS4rgeEGwwUEEqPK+fuo=' https://www.googletagmanager.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://www.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://www.googletagmanager.com https://www.google.com https://www.google.ca https://googleads.g.doubleclick.net https://www.googleadservices.com; connect-src 'self' https://bi-server-cse0apamgkheb9d5.canadacentral-01.azurewebsites.net https://www.googletagmanager.com https://www.google.com https://www.google.ca https://googleads.g.doubleclick.net https://www.googleadservices.com https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://region1.analytics.google.com https://stats.g.doubleclick.net; frame-src https://www.googletagmanager.com https://td.doubleclick.net https://bid.g.doubleclick.net; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests",
