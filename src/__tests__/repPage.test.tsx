@@ -69,6 +69,8 @@ describe("the rep's page", () => {
     fireEvent.change(screen.getByLabelText("PIN"), { target: { value: "123456" } });
     fireEvent.click(screen.getByRole("button", { name: "Open my page" }));
     expect(await screen.findByText("Hi Sam")).toBeTruthy();
+    expect(screen.queryByText(/credited to you/)).toBeNull();
+    expect(screen.queryByText(/contacts? so far/)).toBeNull();
     expect(JSON.parse(calls("/api/v1/field/login")[0]![1].body)).toEqual({ code: "ab12cd", pin: "123456" });
     expect(screen.getByRole("img", { name: /QR code/ })).toBeTruthy();
     expect(screen.getByText("https://www.boreal.insure/us-lenders?rep=ab12cd")).toBeTruthy();

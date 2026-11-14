@@ -134,7 +134,7 @@ export default function RepPage() {
           <h1 className="text-2xl font-bold">{me ? `Hi ${me.rep.full_name.split(" ")[0]}` : "Your contact page"}</h1>
           <button type="button" onClick={signOut} className="text-sm text-bf-textMuted underline">Lock</button>
         </div>
-        {me ? <p className="mt-1 text-sm text-bf-textMuted">{me.counts.total} {me.counts.total === 1 ? "contact" : "contacts"} so far, {me.counts.opened} opened the information. Everyone here is credited to you.</p> : null}
+        {/* The rep may hand the phone to the person they are talking to: nothing about counts or credit is shown here. */}
 
         <div className="mt-5" role="group" aria-label="Who are you talking to?">
           <p className="text-sm font-semibold">You are talking to a</p>
@@ -186,7 +186,7 @@ export default function RepPage() {
 
         <section className="mt-5 rounded-2xl bg-white p-5 text-center text-[#0B1F3A]" aria-label="Your QR code">
           <h2 className="text-lg font-bold">Let them scan this</h2>
-          <p className="mt-1 text-sm text-slate-700">It opens the {audience === "broker" ? "broker" : "bank and lender"} page. Anyone who leaves their details there is credited to you.</p>
+          <p className="mt-1 text-sm text-slate-700">It opens the {audience === "broker" ? "broker" : "bank and lender"} page.</p>
           {qr ? (
             <svg role="img" aria-label="QR code for your information page" viewBox={`-2 -2 ${qr.size + 4} ${qr.size + 4}`} className="mx-auto mt-4 h-auto w-full max-w-[18rem]" shapeRendering="crispEdges">
               <rect x={-2} y={-2} width={qr.size + 4} height={qr.size + 4} fill="#ffffff" /><path d={qr.d} fill="#000000" />
