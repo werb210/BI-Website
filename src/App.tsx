@@ -35,6 +35,7 @@ import WhyItMatters from "./pages/WhyItMatters";
 import CSBFP from "./pages/CSBFP";
 import SBA from "./pages/SBA";
 import USLenders from "./pages/USLenders";
+import RepPage from "./pages/RepPage"; // BI_WEBSITE_FIELD_REPS_v1
 import Resources from "./pages/Resources";
 import Intro from "./pages/Intro";
 import NewApplication from "./pages/NewApplication";
@@ -125,6 +126,7 @@ export default function App() {
             {/* BI_WEBSITE_BLOCK_v99_MARKETING_HOME_v1 */}
             <Route path="/sba" element={<SBA />} />
             <Route path="/us-lenders" element={<USLenders />} />
+            <Route path="/rep/:code" element={<RepPage />} /> {/* BI_WEBSITE_FIELD_REPS_v1 - an outside rep's contact page (PIN) */}
             <Route path="/csbfp" element={<CSBFP />} />
             <Route path="/resources" element={<Resources />} />
             <Route path="/privacy" element={<Privacy />} />

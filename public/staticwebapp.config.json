@@ -229,6 +229,13 @@
       }
     },
     {
+      "route": "/rep/*",
+      "rewrite": "/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
       "route": "/r/*",
       "rewrite": "/index.html",
       "headers": {
