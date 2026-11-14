@@ -3,7 +3,7 @@
 // Adds the new Footer below <main> and wraps the whole tree in a
 // flex column so the footer hugs the viewport bottom on short pages.
 import { useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams, useLocation } from "react-router-dom";
 import RouteMeta from "./seo/RouteMeta"; // BI_WEBSITE_BLOCK_v789_AUDIT_ROUND2 [146]
 import NotFound from "./pages/NotFound"; // BI_WEBSITE_BLOCK_v789_AUDIT_ROUND2 [152]
 import Header from "./components/Header";
@@ -34,7 +34,7 @@ import WhyItMatters from "./pages/WhyItMatters";
 // BI_WEBSITE_BLOCK_v99_MARKETING_HOME_v1
 import CSBFP from "./pages/CSBFP";
 import SBA from "./pages/SBA";
-import USLenders, { USBrokers } from "./pages/USLenders";
+import USLenders, { USBrokers, USChooser } from "./pages/USLenders";
 import RepPage from "./pages/RepPage"; // BI_WEBSITE_FIELD_REPS_v1
 import Resources from "./pages/Resources";
 import Intro from "./pages/Intro";
@@ -63,6 +63,15 @@ function ApplicationIndexRedirect() {
   return <Navigate to={`/applications/${publicId}/form`} replace />;
 }
 
+// BI_WEBSITE_REP_PAGE_BARE - a rep's contact page (/rep/<code>) is a tool that gets handed to the person the rep is
+// talking to, so it carries none of the site's menus, footer or cookie banner.
+const isBare = (pathname: string) => pathname.startsWith("/rep/");
+function SiteFrame({ part }: { part: "header" | "consent" | "footer" }) {
+  const { pathname } = useLocation();
+  if (isBare(pathname)) return null;
+  return part === "header" ? <Header /> : part === "consent" ? <ConsentBanner /> : <Footer />;
+}
+
 export default function App() {
   // BI_WEBSITE_BLOCK_v344_REFERRER_WIRE_BRIDGE_v1
   // Captures ?ref=<value> where value is either:
@@ -86,9 +95,9 @@ export default function App() {
       {/* BI_WEBSITE_BLOCK_v168_CARRIER_RESKIN_v1 — aurora app shell */}
       <div className="bi-app-shell">
       <div className="flex min-h-screen flex-col">
-        <Header />
+        <SiteFrame part="header" />
         <RouteTracker />
-        <ConsentBanner />
+        <SiteFrame part="consent" />
         <QuoteModal />
         <FaqModal />
         <main className="bi-main flex-1">
@@ -126,6 +135,7 @@ export default function App() {
             {/* BI_WEBSITE_BLOCK_v99_MARKETING_HOME_v1 */}
             <Route path="/sba" element={<SBA />} />
             <Route path="/us-lenders" element={<USLenders />} />
+            <Route path="/us" element={<USChooser />} /> {/* BI_WEBSITE_REP_PAGE_BARE - the rep's QR code lands here: the visitor says lender or broker */}
             <Route path="/us-brokers" element={<USBrokers />} /> {/* BI_WEBSITE_US_AUDIENCE_v2 */}
             <Route path="/rep/:code" element={<RepPage />} /> {/* BI_WEBSITE_FIELD_REPS_v1 - an outside rep's contact page (PIN) */}
             <Route path="/csbfp" element={<CSBFP />} />
@@ -145,7 +155,7 @@ export default function App() {
             <Route path="*" element={<NotFound />} />
       </Routes>
         </main>
-        <Footer />
+        <SiteFrame part="footer" />
       </div>
     </div>
     </BrowserRouter>
