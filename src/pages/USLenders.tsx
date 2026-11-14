@@ -2,8 +2,9 @@
 // Insurance is, the OCC's interpretive letter on it, how to introduce a borrower, and how to reach us. Its QR code
 // (public/qr-us-lenders.svg) points back to this page, for handing out at events.
 // Nothing here names an underwriter or a compensation arrangement: those are added once the carrier confirms them.
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { bookUrlFor, contactToken, repCode } from "../lib/fieldRep";
 import { apiRequest } from "../api/request";
 import { track } from "../lib/analytics";
 import { emailValid, phoneValid, required } from "../lib/validation";
@@ -12,7 +13,7 @@ import { OPERATOR_PHONE_DISPLAY, OPERATOR_PHONE_HREF } from "../lib/operator";
 export const OCC_LETTER_URL = "https://www.occ.gov/topics/charters-and-licensing/interpretations-and-decisions/2026/int1194.pdf";
 export const US_LENDERS_CONSENT = "I agree that Boreal Risk Management may contact me by phone, email or text about this inquiry.";
 /** Boreal's booking page: pick a time for a phone call or a Teams meeting. */
-export const BOOK_A_CALL_URL = "https://www.boreal.financial/book";
+export const BOOK_A_CALL_URL = "https://www.boreal.financial/book-pgi";
 export const US_LENDERS_QUICK_CONSENT = "By sending this you agree that Boreal Risk Management may contact you about Personal Guarantee Insurance.";
 /** One box takes an email address or a mobile number; null when it is neither. */
 export function quickContact(raw: string): { email: string } | { phone: string } | null {
@@ -51,13 +52,22 @@ export default function USLenders() {
   const [quick, setQuick] = useState("");
   const [quickBusy, setQuickBusy] = useState(false);
   const [quickStatus, setQuickStatus] = useState<{ ok: boolean; text: string } | null>(null);
+  // BI_WEBSITE_FIELD_REPS_v1 - a rep's QR code or email link carries ?rep=<code> (who gets the credit) and, from the
+  // email, ?c=<token> (which contact followed the link). Both are optional; the page works without them.
+  const [params] = useSearchParams();
+  const rep = repCode(params.get("rep"));
+  const visitor = contactToken(params.get("c"));
+  const bookUrl = rep ? bookUrlFor(rep) : BOOK_A_CALL_URL;
+  useEffect(() => {
+    if (visitor) void apiRequest("/api/v1/field/visit", { method: "POST", body: JSON.stringify({ c: visitor }) }).catch(() => {});
+  }, [visitor]);
   async function sendQuick(ev: React.FormEvent) {
     ev.preventDefault();
     const c = quickContact(quick);
     if (!c) { setQuickStatus({ ok: false, text: "Enter an email address or a mobile number." }); return; }
     setQuickBusy(true); setQuickStatus(null);
     try {
-      await apiRequest("/api/v1/crm/lead", { method: "POST", body: JSON.stringify({ source: "us_lenders_quick", company: "US lender page (event)", ...c, casl_consent: true, casl_consent_text: US_LENDERS_QUICK_CONSENT }) });
+      await apiRequest("/api/v1/crm/lead", { method: "POST", body: JSON.stringify({ source: "us_lenders_quick", company: "US lender page (event)", ...c, ...(rep ? { rep } : {}), casl_consent: true, casl_consent_text: US_LENDERS_QUICK_CONSENT }) });
       track("us_lenders_quick");
       setQuick("");
       setQuickStatus({ ok: true, text: "Got it. We will send you the details and follow up within one business day." });
@@ -76,7 +86,7 @@ export default function USLenders() {
         method: "POST",
         body: JSON.stringify({
           company: `${form.institution.trim()} (${form.role}) - US lender page`,
-          name: form.name.trim(), email: form.email.trim(), phone: form.phone.trim(),
+          name: form.name.trim(), email: form.email.trim(), phone: form.phone.trim(), ...(rep ? { rep } : {}),
           casl_consent: true, casl_consent_text: US_LENDERS_CONSENT,
         }),
       });
@@ -97,7 +107,7 @@ export default function USLenders() {
           <p className="mx-auto mt-4 max-w-3xl text-base text-bf-textMuted sm:text-lg">Personal Guarantee Insurance (PGI) covers the person who signs the guarantee on a business loan. You introduce the borrower. We take it from there, and we are your contact from first question to policy.</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
             <a href="/boreal-pgi.vcf" download="Boreal-PGI.vcf" className="bf-btn bf-btn--primary" onClick={() => track("us_lenders_save_contact")}>Save our contact</a>
-            <a href={BOOK_A_CALL_URL} target="_blank" rel="noopener noreferrer" className="bf-btn bf-btn--secondary" onClick={() => track("us_lenders_book_call")}>Book a call</a>
+            <a href={bookUrl} target="_blank" rel="noopener noreferrer" className="bf-btn bf-btn--secondary" onClick={() => track("us_lenders_book_call")}>Book a call</a>
             <a href={OPERATOR_PHONE_HREF} className="bf-btn bf-btn--secondary">Call {OPERATOR_PHONE_DISPLAY}</a>
           </div>
           <form onSubmit={sendQuick} noValidate aria-label="Send me the details" className="mx-auto mt-6 max-w-xl rounded-2xl bg-white p-4 text-left">
