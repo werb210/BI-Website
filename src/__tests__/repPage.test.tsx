@@ -14,7 +14,7 @@ import { bookUrlFor, contactToken, qrPath, repCode } from "../lib/fieldRep";
 
 const ME = {
   ok: true, rep: { code: "ab12cd", full_name: "Sam Rep", company_name: null },
-  links: { share: "https://www.boreal.insure/us-lenders?rep=ab12cd", book: "https://www.boreal.financial/book-pgi?rep=ab12cd" },
+  links: { share: "https://www.boreal.insure/us-lenders?rep=ab12cd", share_lender: "https://www.boreal.insure/us-lenders?rep=ab12cd", share_broker: "https://www.boreal.insure/us-brokers?rep=ab12cd", book: "https://www.boreal.financial/book-pgi?rep=ab12cd" },
   counts: { total: 1, opened: 0 },
   contacts: [{ id: "1", full_name: "Pat Example", company_name: "First Bank", email: "pat@example.com", phone_e164: null, status: "Emailed", created_at: "2026-11-14" }],
 };
@@ -96,7 +96,7 @@ describe("the rep's page", () => {
     localStorage.setItem("bi.rep.ab12cd", "tok");
     page();
     await screen.findByText("Hi Sam");
-    fireEvent.click(screen.getByRole("button", { name: "Add by hand" }));
+    fireEvent.click(screen.getByRole("button", { name: "Add full details by hand" }));
     fireEvent.change(screen.getByLabelText("Name"), { target: { value: "No Details" } });
     fireEvent.click(screen.getByRole("button", { name: "Save and send the information" }));
     expect((await screen.findByRole("alert")).textContent).toBe("Enter an email address or a mobile number.");
@@ -105,6 +105,22 @@ describe("the rep's page", () => {
     fireEvent.click(screen.getByRole("button", { name: "Save and send the information" }));
     await waitFor(() => expect(calls("/api/v1/field/contacts")).toHaveLength(1));
     expect(JSON.parse(calls("/api/v1/field/contacts")[0]![1].body).source).toBe("manual");
+  });
+
+  it("the rep says who they are talking to: the QR code and the saved contact follow it", async () => {
+    localStorage.setItem("bi.rep.ab12cd", "tok");
+    page();
+    await screen.findByText("Hi Sam");
+    expect(screen.getByText("https://www.boreal.insure/us-lenders?rep=ab12cd")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Loan broker" }));
+    expect(screen.getByText("https://www.boreal.insure/us-brokers?rep=ab12cd")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Save and send them the information" }));
+    expect((await screen.findByRole("alert")).textContent).toBe("Enter an email address or a mobile number.");
+    fireEvent.change(screen.getByLabelText("Their email or mobile"), { target: { value: "bo@example.com" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save and send them the information" }));
+    await waitFor(() => expect(calls("/api/v1/field/contacts")).toHaveLength(1));
+    expect(JSON.parse(calls("/api/v1/field/contacts")[0]![1].body)).toEqual({ email: "bo@example.com", audience: "broker", source: "manual" });
+    expect((await screen.findByRole("status")).textContent).toBe("Saved. We emailed bo@example.com the information.");
   });
 
   it("goes back to the PIN when the sign-in has run out", async () => {
@@ -124,16 +140,16 @@ describe("the information page opened from a rep's QR code or email", () => {
     await waitFor(() => expect(calls("/api/v1/field/visit")).toHaveLength(1));
     expect(JSON.parse(calls("/api/v1/field/visit")[0]![1].body)).toEqual({ c: "abcDEF123456_-abcd" });
     expect(screen.getByRole("link", { name: "Book a call" }).getAttribute("href")).toBe("https://www.boreal.financial/book-pgi?rep=ab12cd");
-    fireEvent.change(screen.getByLabelText(/leave an email or mobile/), { target: { value: "pat@example.com" } });
+    fireEvent.change(screen.getByLabelText(/email or mobile/), { target: { value: "pat@example.com" } });
     fireEvent.click(screen.getByRole("button", { name: "Send me the details" }));
     await waitFor(() => expect(calls("/api/v1/crm/lead")).toHaveLength(1));
-    expect(JSON.parse(calls("/api/v1/crm/lead")[0]![1].body)).toMatchObject({ rep: "ab12cd", email: "pat@example.com" });
+    expect(JSON.parse(calls("/api/v1/crm/lead")[0]![1].body)).toMatchObject({ rep: "ab12cd", audience: "lender", email: "pat@example.com" });
   });
 
   it("without a rep link nothing extra is sent", async () => {
     page("/us-lenders");
     expect(screen.getByRole("link", { name: "Book a call" }).getAttribute("href")).toBe("https://www.boreal.financial/book-pgi");
-    fireEvent.change(screen.getByLabelText(/leave an email or mobile/), { target: { value: "pat@example.com" } });
+    fireEvent.change(screen.getByLabelText(/email or mobile/), { target: { value: "pat@example.com" } });
     fireEvent.click(screen.getByRole("button", { name: "Send me the details" }));
     await waitFor(() => expect(calls("/api/v1/crm/lead")).toHaveLength(1));
     expect(JSON.parse(calls("/api/v1/crm/lead")[0]![1].body).rep).toBeUndefined();

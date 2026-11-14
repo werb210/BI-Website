@@ -1,17 +1,17 @@
-// BI_WEBSITE_US_LENDERS_v1 - the United States page for banks and commercial loan brokers: what Personal Guarantee
-// Insurance is, the OCC's interpretive letter on it, how to introduce a borrower, and how to reach us. Its QR code
-// (public/qr-us-lenders.svg) points back to this page, for handing out at events.
+// BI_WEBSITE_US_AUDIENCE_v2 - two short United States pages, one for banks and lenders (/us-lenders) and one for
+// commercial loan brokers (/us-brokers). They are opened on a phone from a rep's QR code at an event, so each one
+// asks for one thing first (an email or a mobile), then says what Personal Guarantee Insurance is, what the OCC has
+// said about it, and how that reader can use it: in underwriting for a lender, to win and close business for a broker.
 // Nothing here names an underwriter or a compensation arrangement: those are added once the carrier confirms them.
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { bookUrlFor, contactToken, repCode } from "../lib/fieldRep";
 import { apiRequest } from "../api/request";
 import { track } from "../lib/analytics";
-import { emailValid, phoneValid, required } from "../lib/validation";
+import { emailValid, phoneValid } from "../lib/validation";
 import { OPERATOR_PHONE_DISPLAY, OPERATOR_PHONE_HREF } from "../lib/operator";
 
 export const OCC_LETTER_URL = "https://www.occ.gov/topics/charters-and-licensing/interpretations-and-decisions/2026/int1194.pdf";
-export const US_LENDERS_CONSENT = "I agree that Boreal Risk Management may contact me by phone, email or text about this inquiry.";
 /** Boreal's booking page: pick a time for a phone call or a Teams meeting. */
 export const BOOK_A_CALL_URL = "https://www.boreal.financial/book-pgi";
 export const US_LENDERS_QUICK_CONSENT = "By sending this you agree that Boreal Risk Management may contact you about Personal Guarantee Insurance.";
@@ -22,183 +22,165 @@ export function quickContact(raw: string): { email: string } | { phone: string }
   const digits = v.replace(/[^\d+]/g, "");
   return !v.includes("@") && phoneValid(digits) ? { phone: v } : null;
 }
-const ROLES = ["Bank", "Credit union", "Commercial loan broker", "Other lender"];
 
-type Form = { name: string; institution: string; role: string; email: string; phone: string; consent: boolean };
-const EMPTY: Form = { name: "", institution: "", role: ROLES[0]!, email: "", phone: "", consent: false };
-
-export function usLendersErrors(f: Form): string[] {
-  const e: string[] = [];
-  if (!required(f.name)) e.push("Enter your full name.");
-  if (!required(f.institution)) e.push("Enter your bank or brokerage.");
-  if (!emailValid(f.email.trim())) e.push("Enter a valid email address.");
-  if (!phoneValid(f.phone.replace(/[^\d+]/g, ""))) e.push("Enter a valid phone number.");
-  if (!f.consent) e.push("Tick the box so we can contact you.");
-  return e;
-}
+export type Audience = "lender" | "broker";
+type Copy = {
+  path: string; other: { path: string; label: string }; eyebrow: string; h1: string; lead: string; placeholder: string; leadCompany: string;
+  occNote: string; useTitle: string; uses: Array<[string, string]>; steps: Array<[string, string]>; links: Array<[string, string]>;
+};
+export const US_COPY: Record<Audience, Copy> = {
+  lender: {
+    path: "/us-lenders", other: { path: "/us-brokers", label: "I am a loan broker" },
+    eyebrow: "For United States banks and lenders",
+    h1: "Insurance for the personal guarantee behind your loans.",
+    lead: "Personal Guarantee Insurance (PGI) covers the owner who signs the guarantee on a business loan. You introduce the borrower. Your bank takes on no insurance work.",
+    placeholder: "you@yourbank.com or (512) 555-0142", leadCompany: "US lender page (event)",
+    occNote: "The letter also notes that a guarantor's financial strength is part of loan underwriting, and that a risk mitigant such as PGI supports the payment a guarantor would otherwise owe.",
+    useTitle: "How lenders use it in underwriting",
+    uses: [
+      ["A stronger guarantor behind the loan", "You already weigh the guarantor's financial strength. A guarantor with cover has a source of payment if the guarantee is ever called."],
+      ["Fewer approved loans lost at the guarantee", "The personal guarantee is where many approved loans stall. An insured guarantee is easier for an owner to sign."],
+      ["Your credit decision stays yours", "PGI is offered to the guarantor as a choice. It is never a condition of the loan and it does not replace your underwriting."],
+      ["Proof of cover for the file", "You see the status of every borrower you introduce, and the guarantor can share proof of cover with you."],
+    ],
+    steps: [
+      ["You introduce the borrower", "By link, in the lender portal, or through our API."],
+      ["The guarantor gets an indication", "A few questions, and an indicative premium in minutes."],
+      ["The insurer underwrites", "The guarantor applies and uploads documents. The insurer issues the policy."],
+    ],
+    links: [["/lender/login", "Lender portal"], ["/sba", "PGI on an SBA loan"]],
+  },
+  broker: {
+    path: "/us-brokers", other: { path: "/us-lenders", label: "I work at a bank or lender" },
+    eyebrow: "For United States commercial loan brokers",
+    h1: "Close more of the loans you get approved.",
+    lead: "Personal Guarantee Insurance (PGI) covers the owner who signs the guarantee on a business loan. You introduce your client. We take it from there and keep you informed.",
+    placeholder: "you@yourfirm.com or (512) 555-0142", leadCompany: "US broker page (event)",
+    occNote: "For a broker, it means the banks you place loans with have a federal regulator's written view on PGI to take to their own counsel.",
+    useTitle: "How it helps your brokerage",
+    uses: [
+      ["Fewer deals die at the guarantee", "Owners hesitate when their home and savings go on the line. With cover available, more of them sign and you close."],
+      ["Something most clients have never heard", "Most business owners do not know a personal guarantee can be insured. You are the one who tells them."],
+      ["No extra work for you", "Introduce the client by link. We handle the questions and the application, and you can see where each file stands."],
+      ["Fits the loans you already place", "Term loans, lines of credit, equipment and real estate loans, acquisitions, and SBA loans."],
+    ],
+    steps: [
+      ["You introduce your client", "Send your link, or tell us who to call."],
+      ["Your client gets an indication", "A few questions, and an indicative premium in minutes."],
+      ["The insurer underwrites", "Your client applies and uploads documents. The insurer issues the policy."],
+    ],
+    links: [["/sba", "PGI on an SBA loan"]],
+  },
+};
 
 const H2 = "text-2xl font-bold text-[#0B1F3A]";
 const BODY = "mt-3 text-bf-body";
-const INPUT = "mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-[#0B1F3A]";
-const LABEL = "block text-sm font-semibold text-[#0B1F3A]";
+const INPUT = "w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-[#0B1F3A]";
+const OUTLINE = "bf-btn bf-btn--secondary !border-[#0B1F3A] !text-[#0B1F3A]";
 
-export default function USLenders() {
-  const [form, setForm] = useState<Form>(EMPTY);
+export function USAudiencePage({ audience }: { audience: Audience }) {
+  const copy = US_COPY[audience];
+  const [quick, setQuick] = useState("");
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<{ ok: boolean; text: string } | null>(null);
-  const set = <K extends keyof Form>(k: K, v: Form[K]) => setForm((f) => ({ ...f, [k]: v }));
-  // BI_WEBSITE_US_LENDERS_EVENT - the page is opened from a QR code at events, on a phone, by someone with a minute to
-  // spare. The first screen therefore asks for nothing (save our contact) or for one thing (an email or a mobile).
-  const [quick, setQuick] = useState("");
-  const [quickBusy, setQuickBusy] = useState(false);
-  const [quickStatus, setQuickStatus] = useState<{ ok: boolean; text: string } | null>(null);
   // BI_WEBSITE_FIELD_REPS_v1 - a rep's QR code or email link carries ?rep=<code> (who gets the credit) and, from the
   // email, ?c=<token> (which contact followed the link). Both are optional; the page works without them.
   const [params] = useSearchParams();
   const rep = repCode(params.get("rep"));
   const visitor = contactToken(params.get("c"));
   const bookUrl = rep ? bookUrlFor(rep) : BOOK_A_CALL_URL;
+  const otherPath = copy.other.path + (rep ? `?rep=${rep}` : "");
   useEffect(() => {
     if (visitor) void apiRequest("/api/v1/field/visit", { method: "POST", body: JSON.stringify({ c: visitor }) }).catch(() => {});
   }, [visitor]);
-  async function sendQuick(ev: React.FormEvent) {
+
+  async function send(ev: React.FormEvent) {
     ev.preventDefault();
     const c = quickContact(quick);
-    if (!c) { setQuickStatus({ ok: false, text: "Enter an email address or a mobile number." }); return; }
-    setQuickBusy(true); setQuickStatus(null);
-    try {
-      await apiRequest("/api/v1/crm/lead", { method: "POST", body: JSON.stringify({ source: "us_lenders_quick", company: "US lender page (event)", ...c, ...(rep ? { rep } : {}), casl_consent: true, casl_consent_text: US_LENDERS_QUICK_CONSENT }) });
-      track("us_lenders_quick");
-      setQuick("");
-      setQuickStatus({ ok: true, text: "Got it. We will send you the details and follow up within one business day." });
-    } catch {
-      setQuickStatus({ ok: false, text: `We could not send that. Please try again, or call us at ${OPERATOR_PHONE_DISPLAY}.` });
-    } finally { setQuickBusy(false); }
-  }
-
-  async function submit(ev: React.FormEvent) {
-    ev.preventDefault();
-    const errors = usLendersErrors(form);
-    if (errors.length) { setStatus({ ok: false, text: errors.join(" ") }); return; }
+    if (!c) { setStatus({ ok: false, text: "Enter an email address or a mobile number." }); return; }
     setBusy(true); setStatus(null);
     try {
-      await apiRequest("/api/v1/crm/lead", {
-        method: "POST",
-        body: JSON.stringify({
-          company: `${form.institution.trim()} (${form.role}) - US lender page`,
-          name: form.name.trim(), email: form.email.trim(), phone: form.phone.trim(), ...(rep ? { rep } : {}),
-          casl_consent: true, casl_consent_text: US_LENDERS_CONSENT,
-        }),
-      });
-      track("us_lenders_inquiry");
-      setForm(EMPTY);
-      setStatus({ ok: true, text: "Thank you. We will be in touch within one business day." });
+      await apiRequest("/api/v1/crm/lead", { method: "POST", body: JSON.stringify({ source: "us_lenders_quick", company: copy.leadCompany, audience, ...c, ...(rep ? { rep } : {}), casl_consent: true, casl_consent_text: US_LENDERS_QUICK_CONSENT }) });
+      track(audience === "broker" ? "us_brokers_quick" : "us_lenders_quick");
+      setQuick("");
+      setStatus({ ok: true, text: "Got it. We will send you the details and follow up within one business day." });
     } catch {
       setStatus({ ok: false, text: `We could not send that. Please try again, or call us at ${OPERATOR_PHONE_DISPLAY}.` });
     } finally { setBusy(false); }
   }
 
   return (
-    <main className="min-h-screen bg-white text-[#0B1F3A]" data-testid="us-lenders">
+    <main className="min-h-screen bg-white text-[#0B1F3A]" data-testid={audience === "broker" ? "us-brokers" : "us-lenders"}>
       <section className="bg-bf-bg">
-        <div className="mx-auto max-w-5xl px-5 py-8 text-center sm:py-16">
-          <p className="text-sm font-semibold uppercase tracking-widest text-bf-cta">For United States banks and commercial loan brokers</p>
-          <h1 className="mt-3 text-3xl font-bold leading-tight text-white sm:text-4xl md:text-5xl">Give your borrowers a way to insure the personal guarantee.</h1>
-          <p className="mx-auto mt-4 max-w-3xl text-base text-bf-textMuted sm:text-lg">Personal Guarantee Insurance (PGI) covers the person who signs the guarantee on a business loan. You introduce the borrower. We take it from there, and we are your contact from first question to policy.</p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <a href="/boreal-pgi.vcf" download="Boreal-PGI.vcf" className="bf-btn bf-btn--primary" onClick={() => track("us_lenders_save_contact")}>Save our contact</a>
-            <a href={bookUrl} target="_blank" rel="noopener noreferrer" className="bf-btn bf-btn--secondary" onClick={() => track("us_lenders_book_call")}>Book a call</a>
-            <a href={OPERATOR_PHONE_HREF} className="bf-btn bf-btn--secondary">Call {OPERATOR_PHONE_DISPLAY}</a>
-          </div>
-          <form onSubmit={sendQuick} noValidate aria-label="Send me the details" className="mx-auto mt-6 max-w-xl rounded-2xl bg-white p-4 text-left">
-            <label className={LABEL} htmlFor="us-quick">Or leave an email or mobile and we will send you the details</label>
+        <div className="mx-auto max-w-3xl px-5 py-8 text-center sm:py-14">
+          <p className="text-sm font-semibold uppercase tracking-widest text-bf-cta">{copy.eyebrow}</p>
+          <h1 className="mt-3 text-3xl font-bold leading-tight text-white sm:text-4xl">{copy.h1}</h1>
+          <p className="mx-auto mt-4 max-w-2xl text-base text-bf-textMuted sm:text-lg">{copy.lead}</p>
+          <form onSubmit={send} noValidate aria-label="Send me the details" className="mx-auto mt-6 max-w-xl rounded-2xl bg-white p-4 text-left">
+            <label className="block text-sm font-semibold text-[#0B1F3A]" htmlFor="us-quick">Your email or mobile, and we will send you the details</label>
             <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-              <input id="us-quick" className={`${INPUT} !mt-0 flex-1`} inputMode="email" autoComplete="email" placeholder="you@yourbank.com or (512) 555-0142" value={quick} onChange={(e) => setQuick(e.target.value)} />
-              <button type="submit" disabled={quickBusy} className="bf-btn bf-btn--primary flex-none">{quickBusy ? "Sending..." : "Send me the details"}</button>
+              <input id="us-quick" className={`${INPUT} flex-1`} inputMode="email" autoComplete="email" placeholder={copy.placeholder} value={quick} onChange={(e) => setQuick(e.target.value)} />
+              <button type="submit" disabled={busy} className="bf-btn bf-btn--primary flex-none">{busy ? "Sending..." : "Send me the details"}</button>
             </div>
-            {quickStatus ? <p role={quickStatus.ok ? "status" : "alert"} className={`mt-2 text-sm font-semibold ${quickStatus.ok ? "text-green-700" : "text-red-700"}`}>{quickStatus.text}</p> : null}
+            {status ? <p role={status.ok ? "status" : "alert"} className={`mt-2 text-sm font-semibold ${status.ok ? "text-green-700" : "text-red-700"}`}>{status.text}</p> : null}
             <p className="mt-2 text-xs text-slate-600">{US_LENDERS_QUICK_CONSENT}</p>
           </form>
-          <p className="mt-4 text-sm"><a href="#how" className="text-white underline">How it works</a><span className="mx-2 text-bf-textMuted">|</span><a href="#talk" className="text-white underline">Request a call back</a></p>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <a href={bookUrl} target="_blank" rel="noopener noreferrer" className="bf-btn bf-btn--secondary" onClick={() => track("us_lenders_book_call")}>Book a call</a>
+            <a href="/boreal-pgi.vcf" download="Boreal-PGI.vcf" className="bf-btn bf-btn--secondary" onClick={() => track("us_lenders_save_contact")}>Save our contact</a>
+            <a href={OPERATOR_PHONE_HREF} className="bf-btn bf-btn--secondary">Call {OPERATOR_PHONE_DISPLAY}</a>
+          </div>
+          <p className="mt-4 text-sm"><Link to={otherPath} className="text-white underline">{copy.other.label}</Link></p>
         </div>
       </section>
 
-      <section className="mx-auto max-w-5xl px-5 py-14">
+      <section className="mx-auto max-w-3xl px-5 py-10">
         <h2 className={H2}>What PGI is</h2>
-        <p className={BODY}>When a business borrows, the lender usually asks the owners to guarantee the loan personally. If the business cannot repay, the guarantee is called and the owner&apos;s home and savings are on the line. PGI is insurance for that guarantor: if the guarantee is called and a covered claim is made, the policy pays most of it.</p>
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          {[["Up to 80%", "of the enforceable personal guarantee can be covered"], ["Up to $1,000,000", "policy limit for each guarantor"], ["Minutes", "to a preliminary indication, before any full application"]].map(([a, b]) => (
-            <div key={a} className="rounded-2xl border border-bf-line bg-bf-mist p-5"><div className="text-2xl font-bold">{a}</div><div className="mt-1 text-sm text-bf-body">{b}</div></div>
+        <p className={BODY}>When a business borrows, the owners usually guarantee the loan personally. If the business cannot repay, their home and savings are on the line. PGI insures the guarantor: if the guarantee is called and a covered claim is made, the policy pays most of it.</p>
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          {[["Up to 80%", "of the enforceable personal guarantee"], ["Up to $1,000,000", "policy limit for each guarantor"], ["Minutes", "to a preliminary indication"]].map(([a, b]) => (
+            <div key={a} className="rounded-2xl border border-bf-line bg-bf-mist p-4"><div className="text-xl font-bold">{a}</div><div className="mt-1 text-sm text-bf-body">{b}</div></div>
           ))}
         </div>
       </section>
 
       <section className="border-y border-bf-line bg-bf-mist">
-        <div className="mx-auto max-w-5xl px-5 py-14">
+        <div className="mx-auto max-w-3xl px-5 py-10">
           <h2 className={H2}>What the OCC has said</h2>
-          <p className={BODY}>On September 3, 2026 the Office of the Comptroller of the Currency published Interpretive Letter 1194. A national bank asked whether it could offer PGI, as an optional product, to its commercial loan customers. The OCC&apos;s Chief Counsel&apos;s Office concluded that PGI is credit-related insurance, an authorized product under section 302 of the Gramm-Leach-Bliley Act, and that offering it as proposed is permissible for a national bank under 12 U.S.C. 24(Seventh).</p>
-          <p className={BODY}>The letter also notes that a guarantor&apos;s financial strength is part of loan underwriting, and that a risk mitigant such as PGI supports the payment a guarantor would otherwise owe.</p>
+          <p className={BODY}>On September 3, 2026 the Office of the Comptroller of the Currency published Interpretive Letter 1194. A national bank asked whether it could offer PGI, as an optional product, to its commercial loan customers. The OCC concluded that PGI is credit-related insurance, an authorized product under section 302 of the Gramm-Leach-Bliley Act, and that offering it as proposed is permissible for a national bank.</p>
+          <p className={BODY}>{copy.occNote}</p>
           <p className="mt-4"><a href={OCC_LETTER_URL} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#1e3a8a] underline">Read OCC Interpretive Letter 1194 (PDF)</a></p>
-          <p className="mt-4 rounded-xl border border-bf-line bg-white p-4 text-sm text-bf-body">The letter is limited to the facts that bank presented, and the OCC says different facts could lead to a different conclusion. It speaks to national banks. Whether and how your institution may offer PGI depends on your charter, your state and your own counsel&apos;s advice. This page is information, not legal advice.</p>
+          <p className="mt-4 rounded-xl border border-bf-line bg-white p-4 text-sm text-bf-body">The letter is limited to the facts that bank presented, which included the bank reinsuring the policies through its own subsidiary, and the OCC says different facts could lead to a different conclusion. It speaks to national banks. How it applies to any institution is a question for that institution&apos;s own counsel. This page is information, not legal advice.</p>
         </div>
       </section>
 
-      <section className="mx-auto max-w-5xl px-5 py-14">
-        <h2 className={H2}>Why lenders and brokers bring it up</h2>
-        <ul className="mt-6 grid gap-4 sm:grid-cols-2">
-          {[
-            ["Fewer deals lost at the guarantee", "The personal guarantee is where many approved loans stall. An insured guarantee is easier to sign."],
-            ["A stronger guarantor behind the loan", "A guarantor with cover in place is better able to meet the guarantee if it is ever called."],
-            ["Optional for the borrower", "PGI is offered to the guarantor as a choice. It is never a condition of the loan."],
-            ["Works with the loans you already make", "Term loans, lines of credit, equipment and real estate loans, acquisitions, and SBA loans."],
-          ].map(([t, d]) => (<li key={t} className="rounded-2xl border border-bf-line p-5"><div className="font-semibold">{t}</div><div className="mt-1 text-sm text-bf-body">{d}</div></li>))}
+      <section className="mx-auto max-w-3xl px-5 py-10">
+        <h2 className={H2}>{copy.useTitle}</h2>
+        <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+          {copy.uses.map(([t, d]) => (<li key={t} className="rounded-2xl border border-bf-line p-4"><div className="font-semibold">{t}</div><div className="mt-1 text-sm text-bf-body">{d}</div></li>))}
         </ul>
       </section>
 
       <section id="how" className="border-y border-bf-line bg-bf-mist">
-        <div className="mx-auto max-w-5xl px-5 py-14">
-          <h2 className={H2}>How it works with Boreal</h2>
-          <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              ["1", "You introduce the borrower", "Share your link or QR code, enter the file in the lender portal, or send it through our API."],
-              ["2", "The guarantor gets an indication", "A few questions about the loan and the business, and an indicative premium in minutes."],
-              ["3", "Underwriting", "The guarantor completes the application and uploads documents. The insurer underwrites and issues the policy."],
-              ["4", "You are kept informed", "You see the status of every file you introduced, and the guarantor can share proof of cover with you."],
-            ].map(([n, t, d]) => (<li key={n} className="rounded-2xl border border-bf-line bg-white p-5"><div className="text-xl font-bold text-bf-ctaInk">{n}</div><div className="mt-1 font-semibold">{t}</div><div className="mt-1 text-sm text-bf-body">{d}</div></li>))}
+        <div className="mx-auto max-w-3xl px-5 py-10">
+          <h2 className={H2}>How it works</h2>
+          <ol className="mt-5 grid gap-3 sm:grid-cols-3">
+            {copy.steps.map(([t, d], i) => (<li key={t} className="rounded-2xl border border-bf-line bg-white p-4"><div className="text-xl font-bold text-bf-ctaInk">{i + 1}</div><div className="mt-1 font-semibold">{t}</div><div className="mt-1 text-sm text-bf-body">{d}</div></li>))}
           </ol>
-          <p className="mt-6 text-sm text-bf-body">Who qualifies: businesses with at least $50,000 of EBITDA and 12 months of revenue history. Each guarantor is underwritten and insured separately.</p>
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <Link to="/lender/login" className="bf-btn bf-btn--secondary !border-[#0B1F3A] !text-[#0B1F3A]">Lender portal</Link>
-            <Link to="/sba" className="bf-btn bf-btn--secondary !border-[#0B1F3A] !text-[#0B1F3A]">PGI on an SBA loan</Link>
+          <p className="mt-5 text-sm text-bf-body">Who qualifies: businesses with at least $50,000 of EBITDA and 12 months of revenue history. Each guarantor is underwritten and insured separately.</p>
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+            <a href={bookUrl} target="_blank" rel="noopener noreferrer" className="bf-btn bf-btn--primary">Book a call with us</a>
+            {copy.links.map(([to, label]) => <Link key={to} to={to} className={OUTLINE}>{label}</Link>)}
           </div>
         </div>
       </section>
 
-      <section id="talk" className="mx-auto max-w-5xl px-5 py-14">
-        <div className="grid gap-10 md:grid-cols-2">
-          <div>
-            <h2 className={H2}>Talk to us</h2>
-            <p className={BODY}>Tell us who you are and we will call you back within one business day to set you up and answer your questions.</p>
-            <p className="mt-4 text-lg font-semibold"><a href={OPERATOR_PHONE_HREF} className="underline" style={{ color: "#0B1F3A" }}>{OPERATOR_PHONE_DISPLAY}</a></p>
-            <p className="text-sm text-bf-body">Monday to Friday, 10am to 8pm Eastern</p>
-            <div className="mt-8 flex items-center gap-4 rounded-2xl border border-bf-line p-4">
-              <img src="/qr-us-lenders.svg" alt="QR code for this page" width={132} height={132} className="h-[132px] w-[132px] flex-none" />
-              <div><div className="font-semibold">Share this page</div><div className="mt-1 text-sm text-bf-body">Point a phone camera at the code to open boreal.insure/us-lenders.</div></div>
-            </div>
-          </div>
-          <form onSubmit={submit} noValidate className="rounded-2xl border border-bf-line bg-bf-mist p-6" aria-label="Talk to us">
-            <label className={LABEL}>Your name<input className={INPUT} name="name" autoComplete="name" value={form.name} onChange={(e) => set("name", e.target.value)} /></label>
-            <label className={`${LABEL} mt-4`}>Bank or brokerage<input className={INPUT} name="organization" autoComplete="organization" value={form.institution} onChange={(e) => set("institution", e.target.value)} /></label>
-            <label className={`${LABEL} mt-4`}>You are a<select className={INPUT} name="role" value={form.role} onChange={(e) => set("role", e.target.value)}>{ROLES.map((r) => <option key={r}>{r}</option>)}</select></label>
-            <label className={`${LABEL} mt-4`}>Email<input className={INPUT} type="email" name="email" autoComplete="email" value={form.email} onChange={(e) => set("email", e.target.value)} /></label>
-            <label className={`${LABEL} mt-4`}>Phone<input className={INPUT} type="tel" name="tel" autoComplete="tel" value={form.phone} onChange={(e) => set("phone", e.target.value)} /></label>
-            <label className="mt-4 flex items-start gap-3 text-sm text-bf-body"><input type="checkbox" className="mt-1 h-5 w-5 flex-none" style={{ appearance: "auto", accentColor: "#0B1F3A", background: "#fff", border: "1px solid #64748b" }} checked={form.consent} onChange={(e) => set("consent", e.target.checked)} /><span>{US_LENDERS_CONSENT}</span></label>
-            <button type="submit" disabled={busy} className="bf-btn bf-btn--primary mt-5 w-full">{busy ? "Sending..." : "Request a call"}</button>
-            {status ? <p role={status.ok ? "status" : "alert"} className={`mt-3 text-sm font-semibold ${status.ok ? "text-green-700" : "text-red-700"}`}>{status.text}</p> : null}
-          </form>
-        </div>
-        <p className="mt-10 text-xs text-bf-body">Boreal Risk Management is a referral and risk advisory partner. We are not a licensed insurance broker, agent, or adviser. Insurance is arranged only through appropriately licensed insurance entities, and coverage is subject to underwriting, eligibility, policy terms, conditions and exclusions. Boreal Risk Management is not affiliated with the Office of the Comptroller of the Currency or the U.S. Small Business Administration.</p>
+      <section className="mx-auto max-w-3xl px-5 py-8">
+        <p className="text-xs text-bf-body">Boreal Risk Management is a referral and risk advisory partner. We are not a licensed insurance broker, agent, or adviser. Insurance is arranged only through appropriately licensed insurance entities, and coverage is subject to underwriting, eligibility, policy terms, conditions and exclusions. Boreal Risk Management is not affiliated with the Office of the Comptroller of the Currency or the U.S. Small Business Administration.</p>
       </section>
     </main>
   );
 }
+
+export default function USLenders() { return <USAudiencePage audience="lender" />; }
+export function USBrokers() { return <USAudiencePage audience="broker" />; }
