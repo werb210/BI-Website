@@ -63,6 +63,7 @@ describe("the United States banks and brokers page", () => {
     expect(card).toContain("URL:https://www.boreal.insure/us-lenders");
     expect(JSON.parse(readFileSync("public/staticwebapp.config.json", "utf8")).mimeTypes[".vcf"]).toBe("text/vcard");
     expect(screen.getByRole("link", { name: /^Call \(866\)/ }).getAttribute("href")).toBe("tel:+18666318939");
+    expect(screen.getByRole("link", { name: "Book a call" }).getAttribute("href")).toBe("https://www.boreal.financial/book");
   });
 
   it("takes an email or a mobile in one box", async () => {
