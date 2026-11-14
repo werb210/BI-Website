@@ -68,6 +68,13 @@
       }
     },
     {
+      "route": "/us",
+      "rewrite": "/us/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
       "route": "/us-brokers",
       "rewrite": "/us-brokers/index.html",
       "headers": {

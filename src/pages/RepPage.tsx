@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { apiRequest } from "../api/request";
 import { OPERATOR_PHONE_DISPLAY } from "../lib/operator";
-import { REP_TOKEN_KEY, bookUrlFor, qrPath, repCode, shareUrlFor, shrinkPhoto, type RepAudience } from "../lib/fieldRep";
+import { REP_TOKEN_KEY, bookUrlFor, qrPath, repCode, repQrUrl, shrinkPhoto } from "../lib/fieldRep";
 import { quickContact } from "./USLenders";
 
 type Contact = { id: string; full_name: string | null; company_name: string | null; email: string | null; phone_e164: string | null; status: string; created_at: string };
@@ -34,7 +34,7 @@ export default function RepPage() {
   const [copied, setCopied] = useState(false);
   // BI_WEBSITE_US_AUDIENCE_v2 - who the rep is talking to. It picks the page the QR code opens and the page the
   // information email links to.
-  const [audience, setAudience] = useState<RepAudience>("lender");
+  const [showContacts, setShowContacts] = useState(false);
   const [quick, setQuick] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const auth = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
@@ -78,7 +78,7 @@ export default function RepPage() {
     if (!form.email.trim() && !form.phone.trim()) { setNote({ ok: false, text: "Enter an email address or a mobile number." }); return; }
     setBusy("save"); setNote(null);
     try {
-      const r = await apiRequest<{ created: boolean; emailed: boolean }>("/api/v1/field/contacts", { method: "POST", headers: auth, body: JSON.stringify({ ...form, audience, source: fromCard ? "card" : "manual" }) });
+      const r = await apiRequest<{ created: boolean; emailed: boolean }>("/api/v1/field/contacts", { method: "POST", headers: auth, body: JSON.stringify({ ...form, source: fromCard ? "card" : "manual" }) });
       const who = form.full_name.trim() || form.email.trim() || form.phone.trim();
       setNote({ ok: true, text: r.emailed ? `Saved. We emailed ${who} the information.` : r.created ? `Saved ${who}.` : `${who} was already on your list. Details updated.` });
       setForm(EMPTY); setFromCard(false); setShowForm(false);
@@ -93,7 +93,7 @@ export default function RepPage() {
     if (!c) { setNote({ ok: false, text: "Enter an email address or a mobile number." }); return; }
     setBusy("save"); setNote(null);
     try {
-      const r = await apiRequest<{ created: boolean; emailed: boolean }>("/api/v1/field/contacts", { method: "POST", headers: auth, body: JSON.stringify({ ...c, audience, source: "manual" }) });
+      const r = await apiRequest<{ created: boolean; emailed: boolean }>("/api/v1/field/contacts", { method: "POST", headers: auth, body: JSON.stringify({ ...c, source: "manual" }) });
       setNote({ ok: true, text: r.emailed ? `Saved. We emailed ${quick.trim()} the information.` : r.created ? `Saved ${quick.trim()}.` : `${quick.trim()} was already on your list.` });
       setQuick("");
       void load();
@@ -101,8 +101,7 @@ export default function RepPage() {
     finally { setBusy(""); }
   }
 
-  const fromServer = audience === "broker" ? me?.links.share_broker : me?.links.share_lender ?? me?.links.share;
-  const shareUrl = fromServer || (code ? shareUrlFor(typeof window === "undefined" ? "" : window.location.origin, code, audience) : "");
+  const shareUrl = code ? repQrUrl(typeof window === "undefined" ? "" : window.location.origin.replace("//boreal.insure", "//www.boreal.insure"), code) : "";
   const qr = useMemo(() => (shareUrl ? qrPath(shareUrl) : null), [shareUrl]);
   async function share() {
     const data = { title: "Personal Guarantee Insurance for lenders and brokers", url: shareUrl };
@@ -136,17 +135,7 @@ export default function RepPage() {
         </div>
         {/* The rep may hand the phone to the person they are talking to: nothing about counts or credit is shown here. */}
 
-        <div className="mt-5" role="group" aria-label="Who are you talking to?">
-          <p className="text-sm font-semibold">You are talking to a</p>
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            {([["lender", "Bank or lender"], ["broker", "Loan broker"]] as Array<[RepAudience, string]>).map(([v, label]) => (
-              <button key={v} type="button" aria-pressed={audience === v} onClick={() => setAudience(v)}
-                className={`rounded-xl border px-3 py-3 text-base font-semibold ${audience === v ? "border-bf-cta bg-bf-cta text-[#0B1F3A]" : "border-white/40 text-white"}`}>{label}</button>
-            ))}
-          </div>
-        </div>
-
-        <form onSubmit={saveQuick} noValidate className="mt-4 rounded-2xl bg-white p-4 text-[#0B1F3A]" aria-label="Quick add">
+        <form onSubmit={saveQuick} noValidate className="mt-5 rounded-2xl bg-white p-4 text-[#0B1F3A]" aria-label="Quick add">
           <label className={LABEL} htmlFor="rep-quick">Their email or mobile</label>
           <input id="rep-quick" className={INPUT} inputMode="email" autoComplete="off" autoCapitalize="none" placeholder="name@bank.com or (512) 555-0142" value={quick} onChange={(e) => setQuick(e.target.value)} />
           <button type="submit" disabled={busy === "save"} className="bf-btn bf-btn--primary mt-3 w-full">Save and send them the information</button>
@@ -186,7 +175,7 @@ export default function RepPage() {
 
         <section className="mt-5 rounded-2xl bg-white p-5 text-center text-[#0B1F3A]" aria-label="Your QR code">
           <h2 className="text-lg font-bold">Let them scan this</h2>
-          <p className="mt-1 text-sm text-slate-700">It opens the {audience === "broker" ? "broker" : "bank and lender"} page.</p>
+          <p className="mt-1 text-sm text-slate-700">It opens the information on their own phone.</p>
           {qr ? (
             <svg role="img" aria-label="QR code for your information page" viewBox={`-2 -2 ${qr.size + 4} ${qr.size + 4}`} className="mx-auto mt-4 h-auto w-full max-w-[18rem]" shapeRendering="crispEdges">
               <rect x={-2} y={-2} width={qr.size + 4} height={qr.size + 4} fill="#ffffff" /><path d={qr.d} fill="#000000" />
@@ -198,8 +187,10 @@ export default function RepPage() {
         </section>
 
 
-        <section className="mt-8" aria-label="Your contacts">
-          <h2 className="text-lg font-bold">Your contacts</h2>
+        {/* Hidden until the rep asks: the phone may be in someone else's hands. */}
+        <section className="mt-10 text-center" aria-label="Your contacts">
+          <button type="button" onClick={() => setShowContacts((v) => !v)} aria-expanded={showContacts} className="text-sm text-bf-textMuted underline">{showContacts ? "Hide my contacts" : "Show my contacts"}</button>
+          {showContacts ? (<div className="text-left">
           {!me ? <p className="mt-2 text-sm text-bf-textMuted">Loading...</p> : me.contacts.length === 0 ? <p className="mt-2 text-sm text-bf-textMuted">Nobody yet. Scan a card or add someone by hand.</p> : (
             <ul className="mt-3 grid gap-2">
               {me.contacts.map((c) => (
@@ -212,6 +203,7 @@ export default function RepPage() {
               ))}
             </ul>
           )}
+          </div>) : null}
         </section>
       </div>
     </main>

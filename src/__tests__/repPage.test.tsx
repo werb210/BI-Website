@@ -9,7 +9,7 @@ vi.mock("../lib/analytics", () => ({ track: vi.fn() }));
 vi.mock("../lib/fieldRep", async (orig) => ({ ...(await orig<typeof import("../lib/fieldRep")>()), shrinkPhoto: vi.fn(async () => "data:image/jpeg;base64,AAAA") }));
 
 import RepPage from "../pages/RepPage";
-import USLenders from "../pages/USLenders";
+import USLenders, { USChooser } from "../pages/USLenders";
 import { bookUrlFor, contactToken, qrPath, repCode } from "../lib/fieldRep";
 
 const ME = {
@@ -73,10 +73,16 @@ describe("the rep's page", () => {
     expect(screen.queryByText(/contacts? so far/)).toBeNull();
     expect(JSON.parse(calls("/api/v1/field/login")[0]![1].body)).toEqual({ code: "ab12cd", pin: "123456" });
     expect(screen.getByRole("img", { name: /QR code/ })).toBeTruthy();
-    expect(screen.getByText("https://www.boreal.insure/us-lenders?rep=ab12cd")).toBeTruthy();
+    expect(screen.getByText(/\/us\?rep=ab12cd$/)).toBeTruthy();
     expect(screen.getByRole("link", { name: "Book a call with Boreal" }).getAttribute("href")).toBe("https://www.boreal.financial/book-pgi?rep=ab12cd");
+    // The phone may be handed over: contacts stay hidden until the rep asks, with no second PIN.
+    expect(screen.queryByText("Pat Example")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Show my contacts" }));
     expect(screen.getByText("Pat Example")).toBeTruthy();
     expect(screen.getByText("Emailed")).toBeTruthy();
+    expect(screen.queryByLabelText("PIN")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Hide my contacts" }));
+    expect(screen.queryByText("Pat Example")).toBeNull();
     expect(localStorage.getItem("bi.rep.ab12cd")).toBe("tok");
   });
 
@@ -109,20 +115,24 @@ describe("the rep's page", () => {
     expect(JSON.parse(calls("/api/v1/field/contacts")[0]![1].body).source).toBe("manual");
   });
 
-  it("the rep says who they are talking to: the QR code and the saved contact follow it", async () => {
+  it("one box saves an email or a mobile, and nothing asks the rep to pick lender or broker", async () => {
     localStorage.setItem("bi.rep.ab12cd", "tok");
     page();
     await screen.findByText("Hi Sam");
-    expect(screen.getByText("https://www.boreal.insure/us-lenders?rep=ab12cd")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Loan broker" }));
-    expect(screen.getByText("https://www.boreal.insure/us-brokers?rep=ab12cd")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Loan broker" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Save and send them the information" }));
     expect((await screen.findByRole("alert")).textContent).toBe("Enter an email address or a mobile number.");
     fireEvent.change(screen.getByLabelText("Their email or mobile"), { target: { value: "bo@example.com" } });
     fireEvent.click(screen.getByRole("button", { name: "Save and send them the information" }));
     await waitFor(() => expect(calls("/api/v1/field/contacts")).toHaveLength(1));
-    expect(JSON.parse(calls("/api/v1/field/contacts")[0]![1].body)).toEqual({ email: "bo@example.com", audience: "broker", source: "manual" });
+    expect(JSON.parse(calls("/api/v1/field/contacts")[0]![1].body)).toEqual({ email: "bo@example.com", source: "manual" });
     expect((await screen.findByRole("status")).textContent).toBe("Saved. We emailed bo@example.com the information.");
+  });
+
+  it("the QR code opens a page where the visitor says lender or broker, and the rep's code and email token carry through", () => {
+    render(<MemoryRouter initialEntries={["/us?rep=AB12cd&c=abcDEF123456_-abcd"]}><USChooser /></MemoryRouter>);
+    expect(screen.getByRole("link", { name: "I work at a bank or lender" }).getAttribute("href")).toBe("/us-lenders?rep=ab12cd&c=abcDEF123456_-abcd");
+    expect(screen.getByRole("link", { name: "I am a loan broker" }).getAttribute("href")).toBe("/us-brokers?rep=ab12cd&c=abcDEF123456_-abcd");
   });
 
   it("goes back to the PIN when the sign-in has run out", async () => {

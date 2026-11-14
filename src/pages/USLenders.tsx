@@ -182,5 +182,29 @@ export function USAudiencePage({ audience }: { audience: Audience }) {
   );
 }
 
+/** Where a rep's QR code and the information email land when we do not know who the visitor is: they say so themselves. */
+export function USChooser() {
+  const [params] = useSearchParams();
+  const rep = repCode(params.get("rep"));
+  const visitor = contactToken(params.get("c"));
+  const query = [rep ? `rep=${rep}` : "", visitor ? `c=${visitor}` : ""].filter(Boolean).join("&");
+  const to = (path: string) => (query ? `${path}?${query}` : path);
+  const CHOICE = "bf-btn bf-btn--primary block w-full py-5 text-center text-lg";
+  return (
+    <main className="min-h-screen bg-bf-bg text-white" data-testid="us-chooser">
+      <div className="mx-auto max-w-xl px-5 py-12 text-center sm:py-20">
+        <p className="text-sm font-semibold uppercase tracking-widest text-bf-cta">Personal Guarantee Insurance</p>
+        <h1 className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">Insurance for the personal guarantee on a business loan.</h1>
+        <p className="mt-4 text-base text-bf-textMuted sm:text-lg">Tell us who you are and we will show you how it works for you.</p>
+        <div className="mt-8 grid gap-4">
+          <Link to={to("/us-lenders")} className={CHOICE}>I work at a bank or lender</Link>
+          <Link to={to("/us-brokers")} className={CHOICE}>I am a loan broker</Link>
+        </div>
+        <p className="mt-8 text-sm text-bf-textMuted">Or call us at <a href={OPERATOR_PHONE_HREF} className="text-white underline">{OPERATOR_PHONE_DISPLAY}</a></p>
+      </div>
+    </main>
+  );
+}
+
 export default function USLenders() { return <USAudiencePage audience="lender" />; }
 export function USBrokers() { return <USAudiencePage audience="broker" />; }
