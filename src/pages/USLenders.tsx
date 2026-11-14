@@ -11,6 +11,8 @@ import { OPERATOR_PHONE_DISPLAY, OPERATOR_PHONE_HREF } from "../lib/operator";
 
 export const OCC_LETTER_URL = "https://www.occ.gov/topics/charters-and-licensing/interpretations-and-decisions/2026/int1194.pdf";
 export const US_LENDERS_CONSENT = "I agree that Boreal Risk Management may contact me by phone, email or text about this inquiry.";
+/** Boreal's booking page: pick a time for a phone call or a Teams meeting. */
+export const BOOK_A_CALL_URL = "https://www.boreal.financial/book";
 export const US_LENDERS_QUICK_CONSENT = "By sending this you agree that Boreal Risk Management may contact you about Personal Guarantee Insurance.";
 /** One box takes an email address or a mobile number; null when it is neither. */
 export function quickContact(raw: string): { email: string } | { phone: string } | null {
@@ -95,6 +97,7 @@ export default function USLenders() {
           <p className="mx-auto mt-4 max-w-3xl text-base text-bf-textMuted sm:text-lg">Personal Guarantee Insurance (PGI) covers the person who signs the guarantee on a business loan. You introduce the borrower. We take it from there, and we are your contact from first question to policy.</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
             <a href="/boreal-pgi.vcf" download="Boreal-PGI.vcf" className="bf-btn bf-btn--primary" onClick={() => track("us_lenders_save_contact")}>Save our contact</a>
+            <a href={BOOK_A_CALL_URL} target="_blank" rel="noopener noreferrer" className="bf-btn bf-btn--secondary" onClick={() => track("us_lenders_book_call")}>Book a call</a>
             <a href={OPERATOR_PHONE_HREF} className="bf-btn bf-btn--secondary">Call {OPERATOR_PHONE_DISPLAY}</a>
           </div>
           <form onSubmit={sendQuick} noValidate aria-label="Send me the details" className="mx-auto mt-6 max-w-xl rounded-2xl bg-white p-4 text-left">
