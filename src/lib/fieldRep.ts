@@ -15,7 +15,8 @@ export function contactToken(raw: unknown): string {
   return /^[A-Za-z0-9_-]{16,40}$/.test(s) ? s : "";
 }
 export const bookUrlFor = (rep: string) => (rep ? `${REP_BOOK_URL}?rep=${encodeURIComponent(rep)}` : REP_BOOK_URL);
-export const shareUrlFor = (origin: string, rep: string) => `${origin}/us-lenders?rep=${encodeURIComponent(rep)}`;
+export type RepAudience = "lender" | "broker";
+export const shareUrlFor = (origin: string, rep: string, audience: RepAudience = "lender") => `${origin}/${audience === "broker" ? "us-brokers" : "us-lenders"}?rep=${encodeURIComponent(rep)}`;
 
 /** The QR code for a link, as an SVG path on a square grid (drawn by the page; nothing is fetched). */
 export function qrPath(text: string): { size: number; d: string } {
