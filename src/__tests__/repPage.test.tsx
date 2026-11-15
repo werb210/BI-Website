@@ -56,6 +56,15 @@ describe("the rep's page", () => {
     expect(calls("/api/v1/field/me")).toHaveLength(0);
   });
 
+  it("a forgotten PIN can be sent again from the sign-in screen", async () => {
+    h.apiRequest.mockImplementation(async (path: string) => (path === "/api/v1/field/pin-reset" ? { ok: true, message: "If we have your email or mobile on file, a new PIN is on its way. It can take a minute." } : { ok: true }));
+    page();
+    fireEvent.click(screen.getByRole("button", { name: "Forgot your PIN? Send me a new one" }));
+    expect((await screen.findByRole("status")).textContent).toContain("a new PIN is on its way");
+    expect(JSON.parse(calls("/api/v1/field/pin-reset")[0]![1].body)).toEqual({ code: "ab12cd" });
+    expect(screen.getByLabelText("PIN")).toBeTruthy();
+  });
+
   it("says so when the PIN is wrong", async () => {
     h.apiRequest.mockImplementationOnce(async () => { throw Object.assign(new Error("x"), { status: 401, detail: { message: "That PIN is not right." } }); });
     page();
