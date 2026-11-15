@@ -25,6 +25,8 @@ export default function RepPage() {
   const [token, setToken] = useState(() => (code ? readToken(code) : ""));
   const [pin, setPin] = useState("");
   const [pinError, setPinError] = useState("");
+  const [pinSent, setPinSent] = useState("");
+  const [sendingPin, setSendingPin] = useState(false);
   const [me, setMe] = useState<Me | null>(null);
   const [form, setForm] = useState<Form>(EMPTY);
   const [fromCard, setFromCard] = useState(false);
@@ -55,6 +57,16 @@ export default function RepPage() {
       saveToken(code, r.token); setToken(r.token); setPin("");
     } catch (err) { setPinError(message(err, "That PIN is not right.")); }
     finally { setBusy(""); }
+  }
+
+  // A rep who has forgotten the PIN is sent a new one, to the email address and mobile number we hold for them.
+  async function forgotPin() {
+    setSendingPin(true); setPinError(""); setPinSent("");
+    try {
+      const r = await apiRequest<{ message?: string }>("/api/v1/field/pin-reset", { method: "POST", headers: { Authorization: "" }, body: JSON.stringify({ code }) });
+      setPinSent(r?.message || "If we have your email or mobile on file, a new PIN is on its way.");
+    } catch { setPinError(`We could not send a new PIN just now. Call us at ${OPERATOR_PHONE_DISPLAY}.`); }
+    finally { setSendingPin(false); }
   }
 
   async function onPhoto(ev: React.ChangeEvent<HTMLInputElement>) {
@@ -120,7 +132,9 @@ export default function RepPage() {
         <input id="rep-pin" className={`${INPUT} text-center text-2xl tracking-[0.4em]`} inputMode="numeric" autoComplete="one-time-code" maxLength={8} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))} />
         {pinError ? <p role="alert" className="mt-2 text-sm font-semibold text-red-700">{pinError}</p> : null}
         <button type="submit" disabled={busy === "pin" || pin.length < 4} className="bf-btn bf-btn--primary mt-4 w-full">{busy === "pin" ? "Checking..." : "Open my page"}</button>
-        <p className="mt-4 text-xs text-slate-600">Lost your PIN? Call us at {OPERATOR_PHONE_DISPLAY}.</p>
+        {pinSent ? <p role="status" className="mt-3 rounded-lg bg-green-100 px-3 py-2 text-sm font-semibold text-green-900">{pinSent}</p> : null}
+        <button type="button" onClick={forgotPin} disabled={sendingPin} className="mt-4 block w-full text-center text-sm font-semibold text-[#1e3a8a] underline">{sendingPin ? "Sending..." : "Forgot your PIN? Send me a new one"}</button>
+        <p className="mt-3 text-center text-xs text-slate-600">It goes to the email and mobile we have for you. Still stuck? Call {OPERATOR_PHONE_DISPLAY}.</p>
       </form>
     </main>
   );
