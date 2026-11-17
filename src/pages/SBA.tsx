@@ -20,7 +20,7 @@ export default function SBA() {
           </div>
           <div>
             <h2 className="text-xl font-semibold text-white">Where Personal Guarantee Insurance fits</h2>
-            <p className="mt-2">PGI is placed on your personal guarantee. If the guarantee is called and a covered claim is made, the policy can pay up to 80% of the enforceable guarantee, to a limit of $1,000,000. Each guarantor is underwritten and insured separately.</p>
+            <p className="mt-2">PGI is placed on your personal guarantee. If the guarantee is called and a covered claim is made, the policy can pay up to 90% of the enforceable guarantee on a secured loan (up to 70% on an unsecured loan), on guarantees up to $5,000,000, after a deductible from 10%. Each guarantor is underwritten and insured separately.</p>
           </div>
           <div>
             <h2 className="text-xl font-semibold text-white">What you need to start</h2>

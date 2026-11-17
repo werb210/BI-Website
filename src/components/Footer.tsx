@@ -6,6 +6,7 @@
 // The compliance paragraphs below are regulatory text. Do not reword them to
 // fit a layout. If BF-Website's footer geometry changes, change it here too -
 // the two are compared by src/__tests__/chromeParity.v100.test.tsx.
+import { MarketSwitch, useMarket } from "../lib/market";
 import { Link } from "react-router-dom";
 import markelUrl from "../assets/logo-markel.svg";
 import logoUrl from "../assets/logo-boreal-mountains-white.svg";
@@ -18,6 +19,8 @@ const PHONE_DISPLAY = OPERATOR_PHONE_DISPLAY;
 const PHONE_HREF = OPERATOR_PHONE_HREF;
 
 export default function Footer() {
+  const { market, terms } = useMarket(); // BI_WEBSITE_US_FIRST_SITE_v1
+  const us = market === "US";
   return (
     <footer className="bg-[#0a1120] border-t border-[#1c2538] text-white/80 px-6 py-8">
       <div className="max-w-[1200px] mx-auto">
@@ -28,7 +31,7 @@ export default function Footer() {
               <span className="font-semibold text-white">Boreal Risk Management</span>
             </div>
             <p className="text-sm leading-relaxed text-white/75">
-              Personal Guarantee Insurance for United States and Canadian Business Owners.
+              Personal Guarantee Insurance for {us ? "United States" : "Canadian"} Business Owners.
             </p>
           </div>
           <div>
@@ -59,10 +62,14 @@ export default function Footer() {
             <div className="mt-1 text-sm text-white/75">
               Mon-Fri 10am-8pm ET (8am-6pm MT)
             </div>
+            {us ? (
+              <div className="mt-4 text-[11px] tracking-[1px] text-white/75">INSURER RATED A (EXCELLENT) BY AM BEST</div>
+            ) : (
             <div className="mt-4">
               <div className="text-[11px] text-white/75 mb-1.5 tracking-[1px]">UNDERWRITTEN BY</div>
               <img src={markelUrl} alt="Markel" className="h-7 w-auto brightness-0 invert opacity-90" />
             </div>
+            )}
           </div>
         </div>
 
@@ -70,10 +77,9 @@ export default function Footer() {
         <p className="text-xs leading-relaxed text-white/75 mt-6 mb-2">
           Boreal Risk Management is a referral and risk advisory partner. Insurance is arranged only
           through appropriately licensed insurance entities. We are not a licensed insurance broker,
-          agent, or adviser. We introduce United States and Canadian business owners to licensed brokers
-          who arrange
-          Personal Guarantee Insurance underwritten by Markel Canada Limited (A-rated by AM Best,
-          S&amp;P, and Fitch). Coverage is subject to underwriting, eligibility, policy terms,
+          agent, or adviser. We introduce {us ? "United States" : "Canadian"} business owners to licensed {us ? "insurance entities" : "brokers"}
+          {us ? " that arrange" : " who arrange"}{" "}
+          Personal Guarantee Insurance underwritten by {us ? "an insurer rated A (Excellent) by AM Best" : "Markel Canada Limited (A-rated by AM Best, S&P, and Fitch)"}. Coverage is subject to underwriting, eligibility, policy terms,
           conditions, exclusions, and applicable insurance regulation. Premium estimates
           shown here are illustrative and non-binding; final terms are set when a licensed broker
           binds a policy. Questions about this referral service: {SUPPORT_EMAIL}.
@@ -85,9 +91,9 @@ export default function Footer() {
         </p>
         {/* v131 compliance: Quebec exclusion, compensation disclosure, no-cost disclosure, complaints routing. */}
         <p className="text-xs leading-relaxed text-white/75 mb-2">
-          <strong className="text-white/70">Geographic availability:</strong> This
-          referral service is available in the United States, and in 9 Canadian provinces and 3
-          territories. <strong>Not available to Quebec residents.</strong>
+          <strong className="text-white/70">Geographic availability:</strong> This{" "}
+          {us ? "service is for businesses in the United States. " + (terms.timeline ?? []).slice(1).join(" ") : "referral service is available in 9 Canadian provinces and 3 territories."}{" "}
+          {us ? null : <strong>Not available to Quebec residents.</strong>}
         </p>
         <p className="text-xs leading-relaxed text-white/75 mb-2">
           <strong className="text-white/70">Cost and compensation:</strong> There
@@ -98,10 +104,11 @@ export default function Footer() {
         <p className="text-xs leading-relaxed text-white/75 mb-4">
           <strong className="text-white/70">Policy questions:</strong> Questions
           about an existing policy, coverage, or a claim should be directed to the licensed broker
-          named on your policy documents or to Markel Canada Limited. Questions about this referral
+          named on your policy documents{us ? " or to the insurer named there" : " or to Markel Canada Limited"}. Questions about this referral
           service: <a href={`mailto:${SUPPORT_EMAIL}`} className="text-white/75">{SUPPORT_EMAIL}</a>.
         </p>
 
+        <div className="mb-4"><MarketSwitch /></div>
         <div className="border-t border-[#1c2538] pt-4 flex justify-between text-xs text-white/75">
           <div className="flex gap-4">
             <Link to="/privacy" className="text-inherit no-underline">Privacy Policy</Link>

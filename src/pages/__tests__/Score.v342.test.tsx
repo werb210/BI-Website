@@ -13,7 +13,7 @@ describe("v342 — Stage 1 inline guardrails on Score.tsx", () => {
 
   it("computes pgiMaxAllowed = floor(min(loan, $1M) × 0.80)", () => {
     expect(src).toMatch(/loanForCap\s*=\s*Math\.max\(0,\s*Math\.min\(/);
-    expect(src).toMatch(/pgiMaxAllowed\s*=\s*Math\.floor\(loanForCap\s*\*\s*PGI_COVERAGE_RATIO_V342\)/);
+    expect(src).toMatch(/pgiMaxAllowed\s*=\s*Math\.min\(lim\.limit,\s*Math\.floor\(loanForCap\s*\*\s*lim\.share\)\)/);
   });
 
   it("renders inline error 'below the $50,000 minimum' below the loan amount input", () => {
@@ -21,7 +21,7 @@ describe("v342 — Stage 1 inline guardrails on Score.tsx", () => {
   });
 
   it("renders inline error 'cannot exceed $1,000,000' below the loan amount input", () => {
-    expect(src).toMatch(/cannot exceed \$1,000,000/);
+    expect(src).toMatch(/Loan amount cannot exceed \{marketMoney\(lim, lim\.loanMax\)\}/);
   });
 
   it("renders inline error 'cannot exceed 80% of loan amount' below the PGI slider", () => {

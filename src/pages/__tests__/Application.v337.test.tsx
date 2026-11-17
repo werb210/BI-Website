@@ -56,7 +56,7 @@ describe("Application.tsx v337 — feature corrections", () => {
 
   it("80% PGI cap enforced", () => {
     expect(src).toMatch(/PGI_COVERAGE_RATIO\s*=\s*0\.80/);
-    expect(src).toMatch(/loan \* PGI_COVERAGE_RATIO/);
+    expect(src).toMatch(/loan \* lim\.share/); // the share comes from the country of the business (80% CA, 90% US)
   });
 
   it("Declarations are buttons, not <select>", () => {

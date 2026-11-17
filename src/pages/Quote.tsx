@@ -4,22 +4,12 @@
 // Monthly is the annual premium divided by 12; the annual number is deliberately
 // not shown. The carrier underwrites and can come in lower, so every surface
 // states plainly that this is a non-binding estimate, not a quote.
+import { money, useMarket } from "../lib/market";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const MAX_LOAN = 1_000_000;
 const MIN_LOAN = 10_000;
-const RATE = 0.026;
 const MONTHS_PER_YEAR = 12;
-
-function fmtCurrency(n: number) {
-  return n.toLocaleString("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 });
-}
-
-// Monthly keeps cents: rounding $541.67 to $542 makes a small number look invented.
-function fmtMonthly(n: number) {
-  return n.toLocaleString("en-CA", { style: "currency", currency: "CAD", minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
 
 function StepLabel({ n, children }: { n: number; children: React.ReactNode }) {
   return (
@@ -34,16 +24,21 @@ function StepLabel({ n, children }: { n: number; children: React.ReactNode }) {
 
 export default function Quote() {
   const nav = useNavigate();
-  const [loan, setLoan] = useState(500_000);
+  // BI_WEBSITE_US_FIRST_SITE_v1 - currency, rate, largest amount and largest covered share follow the visitor's market.
+  const { terms } = useMarket();
+  const MAX_LOAN = terms.limit, RATE = terms.rate, MAX_PCT = Math.round(terms.share * 100);
+  const fmtCurrency = (n: number) => money(terms, n);
+  const fmtMonthly = (n: number) => money(terms, n, true);
+  const [loan, setLoan] = useState(terms.quoteDefaultLoan);
   const [coveragePct, setCoveragePct] = useState(0.5);
 
   const coverageAmount = useMemo(
     () => Math.round(Math.min(Math.max(loan, 0), MAX_LOAN) * coveragePct),
-    [loan, coveragePct]
+    [loan, coveragePct, MAX_LOAN]
   );
   const annualPremium = useMemo(
     () => Math.round(coverageAmount * RATE),
-    [coverageAmount]
+    [coverageAmount, RATE]
   );
   const monthlyPremium = useMemo(
     () => annualPremium / MONTHS_PER_YEAR,
@@ -106,7 +101,7 @@ export default function Quote() {
             <input
               type="range"
               min={5}
-              max={80}
+              max={MAX_PCT}
               step={5}
               value={Math.round(coveragePct * 100)}
               onChange={(e) => setCoveragePct(Number(e.target.value) / 100)}
@@ -115,10 +110,10 @@ export default function Quote() {
             />
             <div className="mt-1 flex justify-between text-xs text-slate-400">
               <span>5%</span>
-              <span>Max 80%</span>
+              <span>Max {MAX_PCT}%</span>
             </div>
             <p className="mt-2 text-xs text-slate-400">
-              Estimate based on {(RATE * 100).toFixed(2)}% of the covered amount per year.
+              Estimate based on {+(RATE * 100).toFixed(2)}% of the covered amount per year.
             </p>
           </div>
 

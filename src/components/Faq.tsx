@@ -1,24 +1,29 @@
 // BI_WEBSITE_BLOCK_v109_HEADER_LOGO_DIAGRAM_FAQ_v1
+import { money, useMarket, type MarketTerms } from "../lib/market";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-const ITEMS = [
-  {q:"What does PGI actually cover?",a:"PGI covers your personal guarantee. If your business defaults and the lender calls the guarantee, the insurance pays the lender up to your declared limit."},
+// BI_WEBSITE_US_FIRST_SITE_v1 - the answers that differ by country are filled in from the visitor's market.
+const items = (t: MarketTerms) => [
+  {q:"What does PGI actually cover?",a:`PGI covers your personal guarantee. If your business defaults and the lender calls the guarantee, the insurance pays the lender up to your declared limit. Cover is available on guarantees up to ${money(t, t.limit)}, for ${t.shareText} of the guarantee.`},
   {q:"How is this different from credit insurance?",a:"Credit insurance protects the lender. PGI protects you, the guarantor. Different policy, different beneficiary."},
-  {q:"What does it cost?",a:"Premiums depend on loan size, business financials, and coverage limit. A $500K loan with $400K coverage is typically in the low thousands per year."},
+  {q:"What does it cost?",a:`Premiums depend on loan size, business financials, and coverage limit. As a guide, the annual premium is about ${+(t.rate * 100).toFixed(1)}% of the insured amount: roughly ${money(t, Math.round(400_000 * t.rate))} a year on ${money(t, 400_000)} of cover. The insurer sets the final premium.`},
   {q:"Can I add coverage to a loan I already have?",a:"Yes. Existing personal guarantees are eligible as long as the loan is in good standing."},
   {q:"What if the business is sold or refinanced?",a:"Coverage ends when the underlying loan is repaid or the personal guarantee is released. Premiums stop accordingly."},
   {q:"Can I insure the guarantee on an SBA loan?",a:"Yes. SBA 7(a) and 504 loans generally require a personal guarantee from every owner of 20% or more. The SBA's guarantee protects the lender, not you, so PGI can be placed on your personal guarantee, subject to underwriting and policy terms."},
-  {q:"Where is this available?",a:"Available in the United States, and in 9 Canadian provinces and 3 territories. Not available to Quebec residents."},
-  {q:"Will this affect my credit?",a:"No. Applying for PGI does not pull credit. Only Markel underwriting reviews your financial documents — no credit bureau involvement."},
+  {q:"Where is this available?",a: t.market === "US" ? `In the United States. ${(t.timeline ?? []).slice(1).join(" ")} In Canada, visit the Canadian site (link at the bottom of the page).` : "In 9 Canadian provinces and 3 territories. Not available to Quebec residents."},
+  {q:"Will this affect my credit?",a:"No. Applying for PGI does not pull credit. Only the insurer's underwriting team reviews your financial documents — no credit bureau involvement."},
   {q:"How fast does the lender accept this policy?",a:"Most lenders accept the coverage immediately. We provide a certificate of insurance you can forward to your loan officer the same day."},
   {q:"What happens if my business closes?",a:"If the underlying loan is paid off through dissolution, the policy ends with the loan. If the lender calls the guarantee, the policy pays — that is exactly what it is for."},
-  {q:"What documents do I need?",a:"Your most recent business tax return (in Canada, the T2 with its CRA Notice of Assessment), 6 months of business bank statements, current year-to-date financials, and your loan agreement or term sheet."},
+  {q:"What documents do I need?",a:`${t.taxReturn}, 6 months of business bank statements, current year-to-date financials, and your loan agreement or term sheet.`},
   {q:"Can a co-guarantor be covered too?",a:"Yes. Each guarantor is underwritten and insured separately. Apply once and we coordinate the joint policy."},
 ];
+export const faqItems = items;
 
 function List() {
   const [open, setOpen] = useState<number | null>(null);
+  const { terms } = useMarket();
+  const ITEMS = items(terms);
   return (
     <div className="space-y-2">
       {ITEMS.map((f, i) => (

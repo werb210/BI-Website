@@ -68,6 +68,20 @@
       }
     },
     {
+      "route": "/ca",
+      "rewrite": "/ca/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/usa",
+      "rewrite": "/usa/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
       "route": "/us",
       "rewrite": "/us/index.html",
       "headers": {

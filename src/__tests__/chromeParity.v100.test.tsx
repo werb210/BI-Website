@@ -37,7 +37,7 @@ describe("footer geometry matches BF-Website", () => {
 describe("compliance copy is preserved verbatim", () => {
   for (const phrase of [
     "We are not a licensed insurance broker",
-    "underwritten by Markel Canada Limited",
+    "Markel Canada Limited (A-rated by AM Best", // v_us_first: named for Canada only; the US site names no underwriter
     "Not available to Quebec residents",
     "no cost to the policyholder",
     "may receive referral compensation",

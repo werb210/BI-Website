@@ -19,7 +19,7 @@ export type RouteEntry = {
 };
 
 const DEFAULT_DESCRIPTION =
-  "Personal Guarantee Insurance for United States and Canadian business owners. Protect your personal assets when securing business financing. Get a quote in minutes.";
+  "Personal Guarantee Insurance for United States business owners: guarantees up to $5 million, up to 90% covered on secured loans. Protect your personal assets when securing business financing.";
 
 // Every App.tsx route without a URL parameter. src/__tests__/seo.v789.test.ts
 // fails if App.tsx gains a route this list does not cover.
@@ -31,6 +31,8 @@ export const ROUTES: RouteEntry[] = [
   { path: "/coverage", title: `Coverage | ${SITE_NAME}`, description: "What Personal Guarantee Insurance covers, coverage limits and the loans it can protect.", sitemap: true },
   { path: "/why-it-matters", title: `Why PGI Matters | ${SITE_NAME}`, description: "Why business owners insure their personal guarantee before signing for business financing.", sitemap: true },
   { path: "/us-lenders", title: `Personal Guarantee Insurance for US Banks and Lenders | ${SITE_NAME}`, description: "For United States banks and lenders: what Personal Guarantee Insurance is, what the OCC has said about it, and how lenders use it in underwriting.", sitemap: false, noindex: true },
+  { path: "/ca", title: `${SITE_NAME} - Personal Guarantee Insurance for Canadian Business Owners`, description: "Personal Guarantee Insurance for Canadian business owners: cover up to $1,000,000 and 80% of the guarantee. Not available in Quebec.", sitemap: true },
+  { path: "/usa", title: `${SITE_NAME} - Personal Guarantee Insurance for United States Business Owners`, description: "Personal Guarantee Insurance for United States business owners: guarantees up to $5 million, up to 90% covered on secured loans.", sitemap: false },
   { path: "/us", title: `Personal Guarantee Insurance for US Lenders and Brokers | ${SITE_NAME}`, description: "Personal Guarantee Insurance for United States banks, lenders and commercial loan brokers.", sitemap: false, noindex: true },
   { path: "/us-brokers", title: `Personal Guarantee Insurance for US Commercial Loan Brokers | ${SITE_NAME}`, description: "For United States commercial loan brokers: what Personal Guarantee Insurance is, what the OCC has said about it, and how it helps you close more loans.", sitemap: false, noindex: true },
   { path: "/sba", title: `The Personal Guarantee on an SBA Loan | ${SITE_NAME}`, description: "SBA 7(a) and 504 loans require a personal guarantee from owners of 20% or more. How that guarantee works and how Personal Guarantee Insurance can cover part of it.", sitemap: true },

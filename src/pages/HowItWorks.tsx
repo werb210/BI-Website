@@ -1,9 +1,11 @@
 // BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — palette parity
 // v131: explicit back-to-home link. Navbar logo is also a Link to /
 // but the affordance isn't obvious on a child page.
+import { money, useMarket } from "../lib/market";
 import { Link } from "react-router-dom";
 
 export default function HowItWorks() {
+  const { terms } = useMarket();
   return (
     <main className="min-h-screen bg-bf-bg px-6 py-12 text-white">
       <div className="mx-auto max-w-4xl">
@@ -25,7 +27,7 @@ export default function HowItWorks() {
           </li>
           <li>
             <span className="font-semibold text-white">Coverage is selected.</span> A PGI policy is placed against the guarantee
-            amount with coverage up to 80% and a policy limit up to $1,000,000.
+            amount with coverage {terms.shareText} and a policy limit up to {money(terms, terms.limit)}.
           </li>
           <li>
             <span className="font-semibold text-white">Policy responds after enforcement.</span> If the business defaults and a valid
