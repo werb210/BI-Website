@@ -49,3 +49,26 @@ export async function shrinkPhoto(file: File, max = 1600): Promise<string> {
     return canvas.toDataURL("image/jpeg", 0.85);
   } finally { URL.revokeObjectURL(url); }
 }
+
+// BI_WEBSITE_REP_FIELD_FORMATS_v1 - fields on the rep's page tidy themselves as they are typed.
+/** A North American number as it is typed: "(512) 555-0142". Extra digits are ignored; a leading 1 is dropped. */
+export function typedPhone(value: string): string {
+  let d = String(value ?? "").replace(/\D/g, "");
+  if (d.length > 10 && d.startsWith("1")) d = d.slice(1);
+  d = d.slice(0, 10);
+  if (d.length < 4) return d;
+  if (d.length < 7) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
+  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
+}
+/** "+15125550142" -> "(512) 555-0142"; anything else is shown as it is. */
+export function shownPhone(value: string | null | undefined): string {
+  const m = /^\+?1?(\d{10})$/.exec(String(value ?? "").replace(/[\s().-]/g, ""));
+  return m ? typedPhone(m[1]!) : String(value ?? "");
+}
+/** An email address as it is typed: no spaces, lower case. */
+export const typedEmail = (value: string): string => String(value ?? "").replace(/\s+/g, "").toLowerCase();
+/** The one-box "email or mobile" field: digits become a phone number, anything with a letter or @ is an email. */
+export function typedEmailOrPhone(value: string): string {
+  const v = String(value ?? "");
+  return /[a-z@]/i.test(v) ? typedEmail(v) : typedPhone(v);
+}
