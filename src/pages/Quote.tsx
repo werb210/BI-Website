@@ -5,7 +5,7 @@
 // not shown. The carrier underwrites and can come in lower, so every surface
 // states plainly that this is a non-binding estimate, not a quote.
 import { money, useMarket } from "../lib/market";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const MIN_LOAN = 10_000;
@@ -26,15 +26,16 @@ export default function Quote() {
   const nav = useNavigate();
   // BI_WEBSITE_US_FIRST_SITE_v1 - currency, rate, largest amount and largest covered share follow the visitor's market.
   const { terms } = useMarket();
-  const MAX_LOAN = terms.limit, RATE = terms.rate, MAX_PCT = Math.round(terms.share * 100);
+  // The debt may be larger than the most cover available: the cover is capped, not the debt.
+  const MAX_LOAN = terms.loanMax, MAX_COVER = terms.limit, RATE = terms.rate, MAX_PCT = Math.round(terms.share * 100);
   const fmtCurrency = (n: number) => money(terms, n);
   const fmtMonthly = (n: number) => money(terms, n, true);
   const [loan, setLoan] = useState(terms.quoteDefaultLoan);
   const [coveragePct, setCoveragePct] = useState(0.5);
 
   const coverageAmount = useMemo(
-    () => Math.round(Math.min(Math.max(loan, 0), MAX_LOAN) * coveragePct),
-    [loan, coveragePct, MAX_LOAN]
+    () => Math.min(MAX_COVER, Math.round(Math.min(Math.max(loan, 0), MAX_LOAN) * coveragePct)),
+    [loan, coveragePct, MAX_LOAN, MAX_COVER]
   );
   const annualPremium = useMemo(
     () => Math.round(coverageAmount * RATE),
@@ -54,6 +55,12 @@ export default function Quote() {
     );
     nav("/applications/new");
   }
+
+  // Switching country keeps the numbers inside that country's limits.
+  useEffect(() => {
+    setLoan((n) => Math.min(n, MAX_LOAN));
+    setCoveragePct((p) => Math.min(p, MAX_PCT / 100));
+  }, [MAX_LOAN, MAX_PCT]);
 
   const canApply = loan >= MIN_LOAN && coveragePct > 0;
 
@@ -114,6 +121,7 @@ export default function Quote() {
             </div>
             <p className="mt-2 text-xs text-slate-400">
               Estimate based on {+(RATE * 100).toFixed(2)}% of the covered amount per year.
+              {coverageAmount >= MAX_COVER ? ` The most cover available is ${fmtCurrency(MAX_COVER)}, so this estimate is for ${fmtCurrency(MAX_COVER)} of cover.` : ""}
             </p>
           </div>
 

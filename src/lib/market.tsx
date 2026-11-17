@@ -140,7 +140,8 @@ export function MarketSwitch() {
 
 /** /ca and /usa: open that country's site, then show the home page. */
 export function MarketEntry({ to, children }: { to: Market; children: ReactNode }) {
-  const { market, setMarket } = useMarket();
-  useEffect(() => { if (market !== to) setMarket(to); }, [market, to, setMarket]);
+  const { setMarket } = useMarket();
+  // On arrival only: the footer's switch must still work on these addresses.
+  useEffect(() => { setMarket(to); }, [to, setMarket]);
   return <>{children}</>;
 }

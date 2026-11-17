@@ -14,14 +14,16 @@ export default function QuoteModal() {
   const [params, setParams] = useSearchParams();
   // BI_WEBSITE_US_FIRST_SITE_v1
   const { terms } = useMarket();
-  const MAX_LOAN = terms.limit, RATE = terms.rate, MAX_PCT = Math.round(terms.share * 100);
+  // The debt may be larger than the most cover available: the cover is capped, not the debt.
+  const MAX_LOAN = terms.loanMax, MAX_COVER = terms.limit, RATE = terms.rate, MAX_PCT = Math.round(terms.share * 100);
   const fmt = (n: number) => money(terms, n);
   const fmtMonthly = (n: number) => money(terms, n, true);
   const open = params.get("quote") === "1";
   const nav = useNavigate();
   const [loan, setLoan] = useState(terms.quoteDefaultLoan);
   const [pct, setPct] = useState(0.5);
-  const cov = useMemo(() => Math.round(Math.min(Math.max(loan, 0), MAX_LOAN) * pct), [loan, pct, MAX_LOAN]);
+  const cov = useMemo(() => Math.min(MAX_COVER, Math.round(Math.min(Math.max(loan, 0), MAX_LOAN) * pct)), [loan, pct, MAX_LOAN, MAX_COVER]);
+  useEffect(() => { setLoan((n) => Math.min(n, MAX_LOAN)); setPct((p) => Math.min(p, MAX_PCT / 100)); }, [MAX_LOAN, MAX_PCT]);
   const prem = useMemo(() => Math.round(cov * RATE), [cov, RATE]);
   const monthly = useMemo(() => prem / MONTHS_PER_YEAR, [prem]);
 
@@ -69,7 +71,7 @@ export default function QuoteModal() {
               <div className="flex items-center justify-between text-sm text-white mb-2"><span>2. Coverage</span><span className="text-lg font-semibold">{Math.round(pct * 100)}%</span></div>
               <input type="range" min={5} max={MAX_PCT} step={5} value={Math.round(pct * 100)} onChange={(e) => setPct(Number(e.target.value) / 100)} className="w-full accent-blue-600" />
               <div className="flex justify-between text-xs text-slate-400"><span>5%</span><span>Max {MAX_PCT}%</span></div>
-              <p className="mt-2 text-xs text-slate-400">Estimate based on {+(RATE * 100).toFixed(2)}% of the covered amount per year.</p>
+              <p className="mt-2 text-xs text-slate-400">Estimate based on {+(RATE * 100).toFixed(2)}% of the covered amount per year.{cov >= MAX_COVER ? ` The most cover available is ${fmt(MAX_COVER)}, so this estimate is for ${fmt(MAX_COVER)} of cover.` : ""}</p>
             </div>
             <div className="rounded-xl border border-blue-500/30 bg-blue-600/10 p-5 text-center">
               <p className="text-sm text-slate-300">To cover <span className="font-semibold text-white">{Math.round(pct * 100)}%</span> of <span className="font-semibold text-white">{fmt(loan)}</span>, the estimated monthly cost is</p>
