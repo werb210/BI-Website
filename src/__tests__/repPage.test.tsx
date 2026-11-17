@@ -73,6 +73,28 @@ describe("the rep's page", () => {
     expect((await screen.findByRole("alert")).textContent).toBe("That PIN is not right.");
   });
 
+  // BI_WEBSITE_REP_AGREEMENT_v1
+  it("a rep who has not signed the agreement sees only that; once signed, the page opens", async () => {
+    let signed = false;
+    h.apiRequest.mockImplementation(async (path: string) => {
+      if (path === "/api/v1/field/login") return { ok: true, token: "tok" };
+      if (path === "/api/v1/field/me") { if (signed) return ME; throw Object.assign(new Error("agreement_required"), { status: 403 }); }
+      if (path === "/api/v1/field/agreement") return { ok: true, signed, url: signed ? null : "https://sign.example/fresh" };
+      return { ok: true };
+    });
+    page();
+    fireEvent.change(screen.getByLabelText("PIN"), { target: { value: "123456" } });
+    fireEvent.click(screen.getByRole("button", { name: "Open my page" }));
+    expect(await screen.findByTestId("rep-agreement")).toBeTruthy();
+    expect(screen.getByText(/20% of the commission/)).toBeTruthy();
+    expect(screen.queryByTestId("rep-page")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "I have signed. Open my page" }));
+    expect((await screen.findByRole("alert")).textContent).toMatch(/do not have your signature yet/);
+    signed = true;
+    fireEvent.click(screen.getByRole("button", { name: "I have signed. Open my page" }));
+    expect(await screen.findByText("Hi Sam")).toBeTruthy();
+  });
+
   it("after the PIN: the QR code, the share link, booking, and the rep's contacts with their status", async () => {
     page();
     fireEvent.change(screen.getByLabelText("PIN"), { target: { value: "123456" } });
