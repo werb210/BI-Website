@@ -1,12 +1,14 @@
 // BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — palette parity
+import { useMarket } from "../lib/market";
 export default function WhatIsPGI() {
+  const { terms } = useMarket();
   return (
     <main className="min-h-screen bg-bf-bg px-6 py-12 text-white">
       <div className="mx-auto max-w-4xl rounded-xl border border-white/10 bg-bf-surface p-8">
         <h1 className="mb-6 text-3xl font-bold">What is Personal Guarantee Insurance (PGI)?</h1>
 
         <p className="mb-4 text-bf-textMuted">
-          Personal Guarantee Insurance (PGI) is designed for business owners and directors in the United States and Canada who sign
+          Personal Guarantee Insurance (PGI) is designed for business owners and directors in {terms.market === "US" ? "the United States" : "Canada"} who sign
           personal guarantees to secure financing.
         </p>
 

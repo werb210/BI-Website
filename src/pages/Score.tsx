@@ -1,3 +1,4 @@
+import { MARKETS, money as marketMoney, storedMarket } from "../lib/market";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
@@ -43,7 +44,7 @@ export default function Score() {
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   // BI_WEBSITE_BLOCK_v97_OTP_GATE_AND_FLOW_v1 — country state replaces the prior URL search param.
-  const [country, setCountry] = useState<"CA" | "US">("US"); // BI_WEBSITE_US_FIRST_v1 - the United States is the larger market, so it is the starting choice
+  const [country, setCountry] = useState<"CA" | "US">(() => storedMarket()); // BI_WEBSITE_US_FIRST_v1 - the United States is the larger market, so it is the starting choice
   // BI_WEBSITE_BLOCK_v107_SCORE_PGI_EBITDA_AUTOSAVE_v1
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [ebitdaCalcOpen, setEbitdaCalcOpen] = useState(false);
@@ -110,14 +111,18 @@ export default function Score() {
     }
   }
 
+  const lim = MARKETS[country];
   async function submit() {
     setErr(null);
     // BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — T&C is mandatory
     if (!terms) { setErr("Please accept the Terms & Conditions to continue."); return; }
     if (Number(v.ebitda) < EBITDA_MIN) { setErr(`Minimum EBITDA is $${EBITDA_MIN.toLocaleString()}`); return; }
-    if (Number(v.loan_amount) > LOAN_AMOUNT_MAX_V342) { setErr(`Loan amount cannot exceed $${LOAN_AMOUNT_MAX_V342.toLocaleString()}`); return; }
+    // BI_WEBSITE_US_FIRST_SITE_v1 - Canada: $1,000,000 and 80%. United States: guarantees up to $5,000,000 and 90%.
+    void LOAN_AMOUNT_MAX_V342; void PGI_COVERAGE_RATIO_V342;
+    if (Number(v.loan_amount) > lim.loanMax) { setErr(`Loan amount cannot exceed ${marketMoney(lim, lim.loanMax)}`); return; }
     if (Number(v.pgi_limit) > Number(v.loan_amount)) { setErr("PGI limit cannot exceed loan amount."); return; }
-    if (Number(v.pgi_limit) > Math.floor(Math.max(0, Math.min(Number(v.loan_amount) || 0, LOAN_AMOUNT_MAX_V342)) * PGI_COVERAGE_RATIO_V342)) { setErr("PGI limit cannot exceed 80% of loan."); return; }
+    if (Number(v.pgi_limit) > lim.limit) { setErr(`PGI limit cannot exceed ${marketMoney(lim, lim.limit)}.`); return; }
+    if (Number(v.pgi_limit) > Math.floor(Math.max(0, Math.min(Number(v.loan_amount) || 0, lim.loanMax)) * lim.share)) { setErr(`PGI limit cannot exceed ${Math.round(lim.share * 100)}% of loan.`); return; }
 
     setBusy(true);
     try {
@@ -157,7 +162,9 @@ export default function Score() {
             <option value="CA">🇨🇦 Canada</option>
           </select>
           {/* BI_WEBSITE_v792_US_APPLICATIONS - PGI writes US business; BI-Server accepts CA and US. */}
-          <small className="bi-field-hint">The United States and Canada (except Quebec).</small>
+          <small className="bi-field-hint" data-testid="score-country-hint">{country === "US"
+            ? `Guarantees up to ${marketMoney(lim, lim.limit)}, ${lim.shareText}. ${(lim.timeline ?? []).slice(1).join(" ")} You can apply now and we will hold your file ready.`
+            : "Canada, except Quebec. Cover up to $1,000,000 and 80% of the loan."}</small>
         </label>
       </div>
       {/* BI_WEBSITE_BLOCK_v100_SCORE_LAYOUT_AND_BRAND_v2 — date paired with country. */}
@@ -213,7 +220,7 @@ export default function Score() {
           placeholder="$0"
           aria-invalid={
             v.loan_amount !== "" && v.loan_amount !== null && v.loan_amount !== undefined
-              ? (Number(v.loan_amount) < 50_000 || Number(v.loan_amount) > LOAN_AMOUNT_MAX_V342)
+              ? (Number(v.loan_amount) < 50_000 || Number(v.loan_amount) > lim.loanMax)
               : false
           }
         />
@@ -222,15 +229,15 @@ export default function Score() {
             Loan amount is below the $50,000 minimum.
           </span>
         )}
-        {v.loan_amount !== "" && v.loan_amount !== null && v.loan_amount !== undefined && Number(v.loan_amount) > LOAN_AMOUNT_MAX_V342 && (
+        {v.loan_amount !== "" && v.loan_amount !== null && v.loan_amount !== undefined && Number(v.loan_amount) > lim.loanMax && (
           <span className="bi-field-error" style={{ color: "#fca5a5", fontSize: "0.75rem", marginTop: "0.25rem", display: "block" }}>
-            Loan amount cannot exceed $1,000,000.
+            Loan amount cannot exceed {marketMoney(lim, lim.loanMax)}.
           </span>
         )}
       </Field>
 
       <Field label="Please declare your desired PGI limit.">
-        <PgiSlider loan={Number(v.loan_amount)} value={Number(v.pgi_limit)} onChange={(n) => set("pgi_limit", String(n))} />
+        <PgiSlider country={country} loan={Number(v.loan_amount)} value={Number(v.pgi_limit)} onChange={(n) => set("pgi_limit", String(n))} />
       </Field>
 
       <h3 className="bi-section-divider">FINANCIAL INFORMATION</h3>
@@ -293,15 +300,16 @@ export default function Score() {
   );
 }
 
-function PgiSlider({ loan, value, onChange }: { loan: number; value: number; onChange: (n: number) => void }) {
+function PgiSlider({ loan, value, onChange, country = "CA" }: { loan: number; value: number; onChange: (n: number) => void; country?: "CA" | "US" }) {
+  const lim = MARKETS[country];
   // BI_WEBSITE_BLOCK_v342_SCORE_INLINE_GUARDRAILS_v1
   // Effective max = min(80% × loan_amount, $1M absolute ceiling).
-  const loanForCap = Math.max(0, Math.min(loan || 0, LOAN_AMOUNT_MAX_V342));
-  const pgiMaxAllowed = Math.floor(loanForCap * PGI_COVERAGE_RATIO_V342);
+  const loanForCap = Math.max(0, Math.min(loan || 0, lim.loanMax));
+  const pgiMaxAllowed = Math.min(lim.limit, Math.floor(loanForCap * lim.share));
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-        <span style={{ fontSize: "0.85rem", opacity: 0.85 }}>{loan > 0 ? "80% of loan" : "Enter loan amount first"}</span>
+        <span style={{ fontSize: "0.85rem", opacity: 0.85 }}>{loan > 0 ? (pgiMaxAllowed === lim.limit ? `Up to ${marketMoney(lim, lim.limit)}` : `${Math.round(lim.share * 100)}% of loan`) : "Enter loan amount first"}</span>
         <strong>{fmtCurrency(String(value || 0))}</strong>
       </div>
       <input
@@ -316,11 +324,11 @@ function PgiSlider({ loan, value, onChange }: { loan: number; value: number; onC
       />
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", opacity: 0.6, marginTop: 4 }}>
         <span>0%</span>
-        <span>Max 80% = {fmtCurrency(String(pgiMaxAllowed))}</span>
+        <span>Max {Math.round(lim.share * 100)}% = {fmtCurrency(String(pgiMaxAllowed))}</span>
       </div>
       {Number(value) > 0 && Number(value) > pgiMaxAllowed && (
         <span className="bi-field-error" style={{ color: "#fca5a5", fontSize: "0.75rem", marginTop: "0.25rem", display: "block" }}>
-          PGI limit cannot exceed 80% of loan amount (max {fmtCurrency(String(pgiMaxAllowed))}).
+          PGI limit cannot exceed {Math.round(lim.share * 100)}% of loan amount (max {fmtCurrency(String(pgiMaxAllowed))}).
         </span>
       )}
     </div>

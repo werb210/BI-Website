@@ -4,22 +4,12 @@
 // Monthly is the annual premium divided by 12; the annual number is deliberately
 // not shown. The carrier underwrites and can come in lower, so every surface
 // states plainly that this is a non-binding estimate, not a quote.
-import { useMemo, useState } from "react";
+import { money, useMarket } from "../lib/market";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const MAX_LOAN = 1_000_000;
 const MIN_LOAN = 10_000;
-const RATE = 0.026;
 const MONTHS_PER_YEAR = 12;
-
-function fmtCurrency(n: number) {
-  return n.toLocaleString("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 });
-}
-
-// Monthly keeps cents: rounding $541.67 to $542 makes a small number look invented.
-function fmtMonthly(n: number) {
-  return n.toLocaleString("en-CA", { style: "currency", currency: "CAD", minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
 
 function StepLabel({ n, children }: { n: number; children: React.ReactNode }) {
   return (
@@ -34,16 +24,22 @@ function StepLabel({ n, children }: { n: number; children: React.ReactNode }) {
 
 export default function Quote() {
   const nav = useNavigate();
-  const [loan, setLoan] = useState(500_000);
+  // BI_WEBSITE_US_FIRST_SITE_v1 - currency, rate, largest amount and largest covered share follow the visitor's market.
+  const { terms } = useMarket();
+  // The debt may be larger than the most cover available: the cover is capped, not the debt.
+  const MAX_LOAN = terms.loanMax, MAX_COVER = terms.limit, RATE = terms.rate, MAX_PCT = Math.round(terms.share * 100);
+  const fmtCurrency = (n: number) => money(terms, n);
+  const fmtMonthly = (n: number) => money(terms, n, true);
+  const [loan, setLoan] = useState(terms.quoteDefaultLoan);
   const [coveragePct, setCoveragePct] = useState(0.5);
 
   const coverageAmount = useMemo(
-    () => Math.round(Math.min(Math.max(loan, 0), MAX_LOAN) * coveragePct),
-    [loan, coveragePct]
+    () => Math.min(MAX_COVER, Math.round(Math.min(Math.max(loan, 0), MAX_LOAN) * coveragePct)),
+    [loan, coveragePct, MAX_LOAN, MAX_COVER]
   );
   const annualPremium = useMemo(
     () => Math.round(coverageAmount * RATE),
-    [coverageAmount]
+    [coverageAmount, RATE]
   );
   const monthlyPremium = useMemo(
     () => annualPremium / MONTHS_PER_YEAR,
@@ -59,6 +55,12 @@ export default function Quote() {
     );
     nav("/applications/new");
   }
+
+  // Switching country keeps the numbers inside that country's limits.
+  useEffect(() => {
+    setLoan((n) => Math.min(n, MAX_LOAN));
+    setCoveragePct((p) => Math.min(p, MAX_PCT / 100));
+  }, [MAX_LOAN, MAX_PCT]);
 
   const canApply = loan >= MIN_LOAN && coveragePct > 0;
 
@@ -106,7 +108,7 @@ export default function Quote() {
             <input
               type="range"
               min={5}
-              max={80}
+              max={MAX_PCT}
               step={5}
               value={Math.round(coveragePct * 100)}
               onChange={(e) => setCoveragePct(Number(e.target.value) / 100)}
@@ -115,10 +117,11 @@ export default function Quote() {
             />
             <div className="mt-1 flex justify-between text-xs text-slate-400">
               <span>5%</span>
-              <span>Max 80%</span>
+              <span>Max {MAX_PCT}%</span>
             </div>
             <p className="mt-2 text-xs text-slate-400">
-              Estimate based on {(RATE * 100).toFixed(2)}% of the covered amount per year.
+              Estimate based on {+(RATE * 100).toFixed(2)}% of the covered amount per year.
+              {coverageAmount >= MAX_COVER ? ` The most cover available is ${fmtCurrency(MAX_COVER)}, so this estimate is for ${fmtCurrency(MAX_COVER)} of cover.` : ""}
             </p>
           </div>
 

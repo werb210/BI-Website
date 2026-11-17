@@ -4,24 +4,27 @@
 // Monthly is the annual premium divided by 12; the annual number is deliberately
 // not shown. The carrier underwrites and can come in lower, so every surface
 // states plainly that this is a non-binding estimate, not a quote.
+import { money, useMarket } from "../lib/market";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-const MAX_LOAN = 1_000_000, MIN_LOAN = 10_000;
-const RATE = 0.026;
+const MIN_LOAN = 10_000;
 const MONTHS_PER_YEAR = 12;
-const fmt = (n: number) => n.toLocaleString("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 });
-// Monthly keeps cents: rounding $541.67 to $542 makes a small number look invented.
-const fmtMonthly = (n: number) => n.toLocaleString("en-CA", { style: "currency", currency: "CAD", minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
 export default function QuoteModal() {
   const [params, setParams] = useSearchParams();
+  // BI_WEBSITE_US_FIRST_SITE_v1
+  const { terms } = useMarket();
+  // The debt may be larger than the most cover available: the cover is capped, not the debt.
+  const MAX_LOAN = terms.loanMax, MAX_COVER = terms.limit, RATE = terms.rate, MAX_PCT = Math.round(terms.share * 100);
+  const fmt = (n: number) => money(terms, n);
+  const fmtMonthly = (n: number) => money(terms, n, true);
   const open = params.get("quote") === "1";
   const nav = useNavigate();
-  const [loan, setLoan] = useState(500_000);
+  const [loan, setLoan] = useState(terms.quoteDefaultLoan);
   const [pct, setPct] = useState(0.5);
-  const cov = useMemo(() => Math.round(Math.min(Math.max(loan, 0), MAX_LOAN) * pct), [loan, pct]);
-  const prem = useMemo(() => Math.round(cov * RATE), [cov]);
+  const cov = useMemo(() => Math.min(MAX_COVER, Math.round(Math.min(Math.max(loan, 0), MAX_LOAN) * pct)), [loan, pct, MAX_LOAN, MAX_COVER]);
+  useEffect(() => { setLoan((n) => Math.min(n, MAX_LOAN)); setPct((p) => Math.min(p, MAX_PCT / 100)); }, [MAX_LOAN, MAX_PCT]);
+  const prem = useMemo(() => Math.round(cov * RATE), [cov, RATE]);
   const monthly = useMemo(() => prem / MONTHS_PER_YEAR, [prem]);
 
   function close() {
@@ -66,9 +69,9 @@ export default function QuoteModal() {
             </div>
             <div>
               <div className="flex items-center justify-between text-sm text-white mb-2"><span>2. Coverage</span><span className="text-lg font-semibold">{Math.round(pct * 100)}%</span></div>
-              <input type="range" min={5} max={80} step={5} value={Math.round(pct * 100)} onChange={(e) => setPct(Number(e.target.value) / 100)} className="w-full accent-blue-600" />
-              <div className="flex justify-between text-xs text-slate-400"><span>5%</span><span>Max 80%</span></div>
-              <p className="mt-2 text-xs text-slate-400">Estimate based on {(RATE * 100).toFixed(2)}% of the covered amount per year.</p>
+              <input type="range" min={5} max={MAX_PCT} step={5} value={Math.round(pct * 100)} onChange={(e) => setPct(Number(e.target.value) / 100)} className="w-full accent-blue-600" />
+              <div className="flex justify-between text-xs text-slate-400"><span>5%</span><span>Max {MAX_PCT}%</span></div>
+              <p className="mt-2 text-xs text-slate-400">Estimate based on {+(RATE * 100).toFixed(2)}% of the covered amount per year.{cov >= MAX_COVER ? ` The most cover available is ${fmt(MAX_COVER)}, so this estimate is for ${fmt(MAX_COVER)} of cover.` : ""}</p>
             </div>
             <div className="rounded-xl border border-blue-500/30 bg-blue-600/10 p-5 text-center">
               <p className="text-sm text-slate-300">To cover <span className="font-semibold text-white">{Math.round(pct * 100)}%</span> of <span className="font-semibold text-white">{fmt(loan)}</span>, the estimated monthly cost is</p>

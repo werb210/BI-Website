@@ -15,7 +15,7 @@ describe("United States applicants", () => {
   });
   it("have an SBA page, named on the home page and in the Knowledge Center", () => {
     expect(readFileSync("src/pages/SBA.tsx", "utf8")).toContain("owner of 20% or more");
-    expect(readFileSync("src/pages/Home.tsx", "utf8")).toContain("SBA and CSBFP loans");
+    expect(readFileSync("src/pages/Home.tsx", "utf8")).toContain("SBA and conventional loans");
     expect(readFileSync("src/pages/Resources.tsx", "utf8")).toContain('to:"/sba"');
   });
 });

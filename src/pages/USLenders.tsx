@@ -73,6 +73,28 @@ export const US_COPY: Record<Audience, Copy> = {
   },
 };
 
+// BI_WEBSITE_US_FIRST_SITE_v1 - the United States terms, from PGicover's "US Lenders and Partners" one-pager (November 2026).
+export const US_KEY_TERMS: Array<[string, string]> = [
+  ["Up to $5,000,000", "personal guarantee cover for each guarantor"],
+  ["Up to 90%", "of the guarantee on secured loans, up to 70% on unsecured loans"],
+  ["From 10%", "deductible, shown in the policy schedule"],
+  ["A (Excellent)", "insurer rating from AM Best"],
+  ["SBA and conventional", "business loans are both eligible"],
+  ["Claims-made", "cover needs an active policy and timely reporting"],
+];
+export const US_LENDER_WHY: Array<[string, string]> = [
+  ["No insurance risk for the lender", "No captive, no capital and no new operations."],
+  ["You can be named on the policy", "The lender may be named as an additional insured and can open a claim through a demand notice."],
+  ["Optional for the borrower", "It is never a condition of the loan."],
+  ["Separate underwriting", "The insurer does its own underwriting, separate from your credit decision."],
+  ["A clear answer at signing", "Owners who hesitate at the guarantee have somewhere to go."],
+];
+export const US_TIMELINE: Array<[string, string]> = [
+  ["Today", "Live in Canada. US lenders and brokers can set up now."],
+  ["January 1, 2027", "US quotes open."],
+  ["March 1, 2027", "US policies can start."],
+];
+
 const H2 = "text-2xl font-bold text-[#0B1F3A]";
 const BODY = "mt-3 text-bf-body";
 const INPUT = "w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-[#0B1F3A]";
@@ -136,12 +158,32 @@ export function USAudiencePage({ audience }: { audience: Audience }) {
 
       <section className="mx-auto max-w-3xl px-5 py-10">
         <h2 className={H2}>What PGI is</h2>
-        <p className={BODY}>When a business borrows, the owners usually guarantee the loan personally. If the business cannot repay, their home and savings are on the line. PGI insures the guarantor: if the guarantee is called and a covered claim is made, the policy pays most of it.</p>
-        <div className="mt-6 grid gap-3 sm:grid-cols-3">
-          {[["Up to 80%", "of the enforceable personal guarantee"], ["Up to $1,000,000", "policy limit for each guarantor"], ["Minutes", "to a preliminary indication"]].map(([a, b]) => (
+        <p className={BODY}>When a business borrows, the owners usually guarantee the loan personally. If the business cannot repay, their home and savings are on the line. PGI is a claims-made policy held by the owner who signs the guarantee. If the guarantee is called and a covered claim is made, it caps the owner's personal loss. It does not prevent default or business failure, and the owner still signs the guarantee.</p>
+        <div className="mt-6 grid gap-3 sm:grid-cols-3" data-testid="us-key-terms">
+          {US_KEY_TERMS.map(([a, b]) => (
             <div key={a} className="rounded-2xl border border-bf-line bg-bf-mist p-4"><div className="text-xl font-bold">{a}</div><div className="mt-1 text-sm text-bf-body">{b}</div></div>
           ))}
         </div>
+      </section>
+
+      {audience === "lender" ? (
+        <section className="mx-auto max-w-3xl px-5 pb-10" data-testid="us-lender-why">
+          <h2 className={H2}>Why lenders partner on PGI</h2>
+          <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+            {US_LENDER_WHY.map(([t, d]) => (<li key={t} className="rounded-2xl border border-bf-line p-4"><div className="font-semibold">{t}</div><div className="mt-1 text-sm text-bf-body">{d}</div></li>))}
+          </ul>
+        </section>
+      ) : null}
+
+      <section className="mx-auto max-w-3xl px-5 pb-10" data-testid="us-timeline">
+        <h2 className={H2}>When it starts</h2>
+        <ol className="mt-5 grid gap-3 sm:grid-cols-3">
+          {US_TIMELINE.map(([t, d]) => (<li key={t} className="rounded-2xl border border-bf-line bg-bf-mist p-4"><div className="font-semibold">{t}</div><div className="mt-1 text-sm text-bf-body">{d}</div></li>))}
+        </ol>
+        <h2 className={`${H2} mt-10`}>Ways to work with us</h2>
+        <p className={BODY}>{audience === "lender"
+          ? "Referral partnerships, revenue share arrangements, technology integrations (our lender portal and API) and lender programs. Terms are agreed with each partner."
+          : "Referral partnerships and revenue share arrangements, with terms agreed with each partner. You introduce; you never sell, quote or negotiate insurance."}</p>
       </section>
 
       <section className="border-y border-bf-line bg-bf-mist">

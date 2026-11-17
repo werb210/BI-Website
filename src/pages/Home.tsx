@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import MarkelBadge from "../components/MarkelBadge";
+import USInterest from "../components/USInterest";
+import { limitWords, useMarket } from "../lib/market";
 // BI_WEBSITE_BLOCK_v105_MARKETING_TIER_2_v1 — inline SVG icon set (no extra deps).
 const ICN = {
   bolt:"M13 2L3 14h7l-1 8 10-12h-7l1-8z",
@@ -25,8 +27,8 @@ function Icon({ d, className = "h-6 w-6" }: { d: string; className?: string }) {
 type Row = { public_id: string };
 // v130 compliance: step 1 reframed from "quote" to indication; step 2 tightened to require complete submission.
 const STEPS = [{n:"1",i:ICN.bolt,t:"Preliminary indication in minutes",d:"Tell us about your loan and business. We show an indicative coverage range and premium before you submit a full application."},{n:"2",i:ICN.doc,t:"Underwriting decision",d:"Submit the required documents (business tax return, bank statements, financials). Most complete submissions are reviewed within 5 business days."},{n:"3",i:ICN.shield,t:"Coverage live at signature",d:"Sign the policy, pay the first premium. Your personal guarantee is insured up to your declared limit. Annual policy structure; renewal subject to policy terms."}];
-const COVERAGE = ["Covers the personal guarantee on your business loan — not the loan itself.","Pays the lender if your guarantee is called after the business is unable to repay.","Available for US and Canadian businesses with $50K+ EBITDA and 12+ months of revenue history."];
-const LOANS = [{i:ICN.bank,t:"Commercial lending",d:"Term loans, lines of credit, SBA and CSBFP loans, asset-based lending, mezzanine debt, factoring. Banks, credit unions, alternative lenders."},{i:ICN.shield,t:"Commercial real estate",d:"Purchase mortgages, refinances, construction loans, development financing, land acquisition, bridge loans. Owner-occupied and investment properties."},{i:ICN.tool,t:"Equipment & vehicles",d:"Equipment loans and leases, fleet financing, vehicle finance, aircraft and marine, specialty asset finance."},{i:ICN.doc,t:"Acquisitions & succession",d:"Business acquisitions, vendor-takeback notes, management buyouts, franchise purchases, partnership buyouts."}];
+const COVERAGE = ["Covers the personal guarantee on your business loan — not the loan itself.","Pays the lender if your guarantee is called after the business is unable to repay."];
+const LOANS = [{i:ICN.bank,t:"Commercial lending",d:"Term loans, lines of credit, SBA and conventional loans, asset-based lending, mezzanine debt, factoring. Banks, credit unions, alternative lenders."},{i:ICN.shield,t:"Commercial real estate",d:"Purchase mortgages, refinances, construction loans, development financing, land acquisition, bridge loans. Owner-occupied and investment properties."},{i:ICN.tool,t:"Equipment & vehicles",d:"Equipment loans and leases, fleet financing, vehicle finance, aircraft and marine, specialty asset finance."},{i:ICN.doc,t:"Acquisitions & succession",d:"Business acquisitions, vendor-takeback notes, management buyouts, franchise purchases, partnership buyouts."}];
 // v117-coverage-categories
 // v111-deals-expanded
 // v130 compliance: WHY cards replaced with carrier-audit-approved three-card set.
@@ -34,6 +36,18 @@ const WHY = [{i:ICN.bank,t:"Built for business financing",d:"For eligible commer
 
 export default function Home() {
   const nav = useNavigate();
+  // BI_WEBSITE_US_FIRST_SITE_v1 - every figure and country name below comes from the visitor's market.
+  const { market, terms } = useMarket();
+  const us = market === "US";
+  const coverage = [...COVERAGE, `Available for ${us ? "United States" : "Canadian"} businesses with $50K+ EBITDA and 12+ months of revenue history.`];
+  const keyTerms: Array<[string, string]> = [
+    ["Limit", `personal guarantees up to ${limitWords(terms)}`],
+    ["Covered share", terms.shareText],
+    ...(terms.deductibleText ? [["Deductible", terms.deductibleText] as [string, string]] : []),
+    ["Indicative premium", `about ${+(terms.rate * 100).toFixed(1)}% of the insured amount a year; the insurer sets the final premium`],
+    ["Insurer", us ? "rated A (Excellent) by AM Best" : "Markel Canada Limited, A-rated by AM Best, S&P and Fitch"],
+    ["Loans", terms.loansText],
+  ];
   const [rows, setRows] = useState<Row[]>([]);
   useEffect(() => {
     const ids: string[] = JSON.parse(localStorage.getItem("bi.my_apps") || "[]");
@@ -57,20 +71,23 @@ export default function Home() {
           <Link to="/how-it-works" className="bf-btn bf-btn--secondary">Learn how PGI works</Link>
         </div>
         <div className="mt-8 flex justify-center"><MarkelBadge /></div>
+        {terms.timeline ? <p className="mt-4 text-sm font-semibold text-white" data-testid="home-timeline">{terms.timeline.slice(1).join(" ")}</p> : null}
+        {us ? <USInterest className="mx-auto mt-5 max-w-xl" /> : null}
         {/* v131 compliance: referral-source disclosure on hero. */}
         <p className="mt-4 text-xs text-bf-textMuted max-w-2xl mx-auto">
           Boreal Risk Management is a referral and risk advisory partner — not a licensed
-          insurance broker, agent, or adviser. We introduce eligible United States and Canadian business
-          owners to licensed brokers who arrange Personal Guarantee Insurance. Not available to
-          Quebec residents.
+          insurance broker, agent, or adviser. We introduce eligible {us ? "United States" : "Canadian"} business
+          owners to licensed {us ? "insurance entities that" : "brokers who"} arrange Personal Guarantee Insurance.{us ? "" : " Not available to Quebec residents."}
         </p>
         </div>
       </section>
       <section className="border-y border-bf-line bg-bf-mist">
         <div className="mx-auto max-w-5xl px-5 py-8">
-        <div className="flex flex-col sm:flex-row sm:justify-center gap-12 text-center">
-          <div><div className="text-2xl font-bold text-[#0B1F3A]">A-rated</div><div className="mt-1 text-sm text-bf-body">Underwriter rated by AM Best, S&amp;P, Fitch</div></div>
-          <div><div className="text-2xl font-bold text-[#0B1F3A]">US &amp; Canada</div><div className="mt-1 text-sm text-bf-body">The United States and Canada (not available in Quebec)</div></div>
+        <div className="grid grid-cols-2 gap-8 text-center md:grid-cols-4">
+          <div><div className="text-2xl font-bold text-[#0B1F3A]">{us ? "A (Excellent)" : "A-rated"}</div><div className="mt-1 text-sm text-bf-body">{us ? "Insurer rated by AM Best" : "Underwriter rated by AM Best, S&P, Fitch"}</div></div>
+          <div><div className="text-2xl font-bold text-[#0B1F3A]">Up to {limitWords(terms)}</div><div className="mt-1 text-sm text-bf-body">Personal guarantee cover for each guarantor</div></div>
+          <div><div className="text-2xl font-bold text-[#0B1F3A]">{terms.shareShort}</div><div className="mt-1 text-sm text-bf-body">{us ? "of the guarantee on secured loans, 70% on unsecured" : "of the enforceable guarantee"}</div></div>
+          <div><div className="text-2xl font-bold text-[#0B1F3A]">{terms.countryName}</div><div className="mt-1 text-sm text-bf-body">{terms.availability}</div></div>
           {/* v111-trust-strip: Backed-by column removed */}
         </div>
         </div>
@@ -97,12 +114,28 @@ export default function Home() {
           {STEPS.map((s) => (<div key={s.n} className="rounded-2xl border border-bf-line bg-white p-6"><div className="flex items-start justify-between"><div className="text-bf-ctaInk text-2xl font-bold">{s.n}</div><div className="text-bf-cta opacity-80"><Icon d={s.i}/></div></div><h3 className="mt-2 text-lg font-semibold text-[#0B1F3A]">{s.t}</h3><p className="mt-2 text-sm text-bf-body">{s.d}</p></div>))}
         </div>
       </section>
-      <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
-        <h2 className="text-3xl font-bold text-[#0B1F3A] text-center">What your policy covers</h2>
-        <ul className="mt-8 mx-auto max-w-2xl space-y-4">{COVERAGE.map((c, i) => (<li key={i} className="flex gap-3"><span className="text-bf-ctaInk">●</span><span className="text-bf-body">{c}</span></li>))}</ul>
+      <section className="border-t border-bf-line bg-bf-mist" data-testid="home-key-terms">
+        <div className="mx-auto max-w-5xl px-5 py-16">
+          <h2 className="text-3xl font-bold text-[#0B1F3A] text-center">Key terms ({terms.countryName})</h2>
+          <dl className="mx-auto mt-8 grid max-w-3xl gap-3 sm:grid-cols-2">
+            {keyTerms.map(([k, v]) => (<div key={k} className="rounded-2xl border border-bf-line bg-white p-4"><dt className="text-sm font-semibold uppercase tracking-wide text-bf-ctaInk">{k}</dt><dd className="mt-1 text-bf-body">{v}</dd></div>))}
+          </dl>
+          <p className="mx-auto mt-4 max-w-3xl text-center text-xs text-bf-body">PGI is a claims-made policy held by the business owner who signs the guarantee. It does not prevent default or business failure, and the owner still signs the guarantee. Cover is subject to the policy wording and underwriting.</p>
+          {us ? (
+            <div className="mx-auto mt-8 flex max-w-3xl flex-col gap-3 sm:flex-row sm:justify-center">
+              <Link to="/us-lenders" className="bf-btn bf-btn--primary">For banks and lenders</Link>
+              <Link to="/us-brokers" className="bf-btn bf-btn--secondary !border-[#0B1F3A] !text-[#0B1F3A]">For loan brokers</Link>
+              <Link to="/sba" className="bf-btn bf-btn--secondary !border-[#0B1F3A] !text-[#0B1F3A]">PGI on an SBA loan</Link>
+            </div>
+          ) : null}
+        </div>
       </section>
       <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
-        {/* BI_WEBSITE_BLOCK_v129_MOBILE_DIAGRAM_AND_AFFORDANCES_v1 — desktop image, mobile stacked cards */}<img src="/pgi-diagram.svg" alt="How PGI protects you: sign loan and PGI, default happens, Markel pays the bank, you stay safe" className="hidden md:block w-full h-auto" /><div className="md:hidden pgi-steps-mobile grid grid-cols-1 gap-3 mt-4">{[{n:"1",t:"Sign loan + PGI",d:"Bank requires a personal guarantee. You insure it.",c:"#60a5fa"},{n:"2",t:"Default happens",d:"Bank moves to call your personal guarantee.",c:"#f59e0b"},{n:"3",t:"Markel pays the bank",d:"PGI policy pays the lender directly, up to your limit.",c:"#10b981"},{n:"4",t:"You stay safe",d:"House, retirement, savings \u2014 protected.",c:"#10b981"}].map((step) => (<div key={step.n} className="rounded-2xl border bg-bf-surface p-4" style={{ borderColor: step.c + "40" }}><div className="flex items-baseline gap-3 mb-1"><span className="text-xs font-semibold uppercase tracking-wide" style={{ color: step.c }}>Step {step.n}</span></div><h4 className="text-base font-semibold text-white">{step.t}</h4><p className="mt-1 text-sm text-bf-textMuted">{step.d}</p></div>))}</div>
+        <h2 className="text-3xl font-bold text-[#0B1F3A] text-center">What your policy covers</h2>
+        <ul className="mt-8 mx-auto max-w-2xl space-y-4">{coverage.map((c, i) => (<li key={i} className="flex gap-3"><span className="text-bf-ctaInk">●</span><span className="text-bf-body">{c}</span></li>))}</ul>
+      </section>
+      <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
+        {/* BI_WEBSITE_BLOCK_v129_MOBILE_DIAGRAM_AND_AFFORDANCES_v1 — desktop image, mobile stacked cards */}<img src={us ? "/pgi-diagram-us.svg" : "/pgi-diagram.svg"} alt={`How PGI protects you: sign loan and PGI, default happens, ${terms.payer} pays the bank, you stay safe`} className="hidden md:block w-full h-auto" /><div className="md:hidden pgi-steps-mobile grid grid-cols-1 gap-3 mt-4">{[{n:"1",t:"Sign loan + PGI",d:"Bank requires a personal guarantee. You insure it.",c:"#60a5fa"},{n:"2",t:"Default happens",d:"Bank moves to call your personal guarantee.",c:"#f59e0b"},{n:"3",t:`${terms.payer} pays the bank`,d:"PGI policy pays the lender directly, up to your limit.",c:"#10b981"},{n:"4",t:"You stay safe",d:"House, retirement, savings \u2014 protected.",c:"#10b981"}].map((step) => (<div key={step.n} className="rounded-2xl border bg-bf-surface p-4" style={{ borderColor: step.c + "40" }}><div className="flex items-baseline gap-3 mb-1"><span className="text-xs font-semibold uppercase tracking-wide" style={{ color: step.c }}>Step {step.n}</span></div><h4 className="text-base font-semibold text-white">{step.t}</h4><p className="mt-1 text-sm text-bf-textMuted">{step.d}</p></div>))}</div>
       </section>
       <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
         <h2 className="text-3xl font-bold text-[#0B1F3A] text-center">Deals that can be insured</h2>

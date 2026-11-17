@@ -7,6 +7,7 @@
 //   5. Declarations (radio buttons, 2-col grid)
 //   6. Required documents (5 base + 2 startup-conditional)
 // Financials section REMOVED entirely.
+import { MARKETS } from "../lib/market";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LenderApplicationFormBody } from "../components/LenderApplicationFormBody";
@@ -87,8 +88,12 @@ export default function LenderApplicationNew() {
   const pgiAmt = Number(String(f.pgi_limit).replace(/[,$\s]/g, "") || 0);
   const capErrors: string[] = [];
   if (loanAmt > 0 && loanAmt < LOAN_AMOUNT_MIN) capErrors.push("Loan amount is below the 50,000 minimum.");
-  if (loanAmt > LOAN_AMOUNT_MAX) capErrors.push("Loan amount exceeds the 1,000,000 maximum.");
-  if (pgiAmt > PGI_LIMIT_MAX) capErrors.push("PGI limit exceeds the 1,000,000 maximum.");
+  // BI_WEBSITE_US_FIRST_SITE_v1 - limits follow the country of the business (Canada $1,000,000; United States $5,000,000 cover).
+  const lim = MARKETS[f.country === "US" ? "US" : "CA"];
+  void LOAN_AMOUNT_MAX; void PGI_LIMIT_MAX;
+  if (loanAmt > lim.loanMax) capErrors.push(`Loan amount exceeds the ${lim.loanMax.toLocaleString("en-US")} maximum.`);
+  if (pgiAmt > lim.limit) capErrors.push(`PGI limit exceeds the ${lim.limit.toLocaleString("en-US")} maximum.`);
+  else if (loanAmt && pgiAmt && pgiAmt > Math.floor(loanAmt * lim.share)) capErrors.push(`PGI limit cannot exceed ${Math.round(lim.share * 100)}% of the loan amount.`);
   if (loanAmt && pgiAmt && pgiAmt > loanAmt) capErrors.push("PGI limit cannot exceed loan amount.");
   if (f.business_province.toUpperCase() === "QC") capErrors.push("PGI does not currently write business in Quebec.");
   const canSubmit = missingFields.length === 0 && missingDocs.length === 0 && declOk && capErrors.length === 0 && !busy && !!token;

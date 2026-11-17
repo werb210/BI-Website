@@ -2,6 +2,7 @@
 // All helper components live at MODULE LEVEL to fix the 1-char-per-field
 // bug (nested-component remounting on every state change).
 // Step-1 CORE Score fields are NOT asked again in Step 2.
+import { MARKETS, money as marketMoney } from "../lib/market";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../lib/api";
@@ -301,8 +302,8 @@ function humanizeSubmitError(payload: any): string {
       : "Some required fields are missing.";
   }
   if (code === "quebec_blocked") return "PGI does not currently write business in Quebec.";
-  if (code === "loan_amount_over_cap") return "Loan amount exceeds the $1,000,000 maximum.";
-  if (code === "pgi_limit_over_cap") return "PGI limit exceeds the $1,000,000 maximum.";
+  if (code === "loan_amount_over_cap") return "Loan amount is over the maximum for this country.";
+  if (code === "pgi_limit_over_cap") return "PGI limit is over the maximum for this country ($1,000,000 in Canada, $5,000,000 in the United States).";
   if (code === "pgi_limit_over_loan") return "PGI limit cannot exceed loan amount.";
   if (code === "loan_type_ineligible") return "The selected loan type is not eligible for PGI coverage.";
   return code;
@@ -330,6 +331,7 @@ export default function Application() {
   const [submitting, setSubmitting] = useState(false);
   const [step, setStep] = useState(1); // #31 — 2-step split; state stays in this component (no cutover)
   const country: CountryCode = toCountryCode(state.country);
+  const lim = MARKETS[country];
 
   // ---- Load on mount ----
   useEffect(() => {
@@ -438,9 +440,12 @@ export default function Application() {
       const limit = Number(state.pgi_limit) || 0;
       const local: Record<string, string> = {};
       if (loan && loan < LOAN_AMOUNT_MIN) local.loan_amount = `Loan amount is below the $50,000 minimum.`;
-      if (loan > LOAN_AMOUNT_MAX) local.loan_amount = `Loan amount exceeds the $1,000,000 maximum.`;
-      if (limit && loan && limit > loan * PGI_COVERAGE_RATIO) {
-        local.pgi_limit = `PGI limit cannot exceed 80% of loan amount (max $${Math.floor(loan * PGI_COVERAGE_RATIO).toLocaleString()}).`;
+      // BI_WEBSITE_US_FIRST_SITE_v1 - limits follow the country of the business.
+      void LOAN_AMOUNT_MAX; void PGI_COVERAGE_RATIO;
+      if (loan > lim.loanMax) local.loan_amount = `Loan amount exceeds the ${marketMoney(lim, lim.loanMax)} maximum.`;
+      if (limit > lim.limit) local.pgi_limit = `PGI limit exceeds the ${marketMoney(lim, lim.limit)} maximum.`;
+      else if (limit && loan && limit > loan * lim.share) {
+        local.pgi_limit = `PGI limit cannot exceed ${Math.round(lim.share * 100)}% of loan amount (max $${Math.floor(loan * lim.share).toLocaleString()}).`;
       }
       const ga = state.guarantor_address || blankAddress;
       const ba = state.business_address || blankAddress;
@@ -472,7 +477,7 @@ export default function Application() {
   const fieldErr = (k: string) => serverFieldErrors[k];
   const loanNum = Number(state.loan_amount) || 0;
   const pgiNum = Number(state.pgi_limit) || 0;
-  const maxAllowedPgi = Math.floor(loanNum * PGI_COVERAGE_RATIO);
+  const maxAllowedPgi = Math.min(lim.limit, Math.floor(loanNum * lim.share));
 
   // ---- Render ----
   return (
@@ -487,7 +492,7 @@ export default function Application() {
         <div className="text-xs uppercase tracking-wider text-white/75 mb-2">From your CORE Score</div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
           <div><div className="text-white/75 text-xs">Loan</div><div>${loanNum.toLocaleString()}</div></div>
-          <div><div className="text-white/75 text-xs">PGI limit</div><div>${pgiNum.toLocaleString()} <span className="text-white/75 text-xs">(max ${maxAllowedPgi.toLocaleString()} at 80%)</span></div></div>
+          <div><div className="text-white/75 text-xs">PGI limit</div><div>${pgiNum.toLocaleString()} <span className="text-white/75 text-xs">(max ${maxAllowedPgi.toLocaleString()} at {Math.round(lim.share * 100)}%)</span></div></div>
           <div><div className="text-white/75 text-xs">NAICS</div><div>{state.naics_code || "—"}</div></div>
           <div><div className="text-white/75 text-xs">Started</div><div>{formatStartedDate(state.formation_date)}</div></div>
         </div>

@@ -39,6 +39,7 @@ import RepPage from "./pages/RepPage"; // BI_WEBSITE_FIELD_REPS_v1
 import Resources from "./pages/Resources";
 import Intro from "./pages/Intro";
 import NewApplication from "./pages/NewApplication";
+import { MarketEntry, MarketPrompt, MarketProvider } from "./lib/market";
 import Country from "./pages/Country";
 import Score from "./pages/Score";
 import ScoreResult from "./pages/ScoreResult";
@@ -90,12 +91,14 @@ export default function App() {
   }, []);
   return (
     <BrowserRouter>
+      <MarketProvider>
       <ScrollToTop />
       <RouteMeta />
       {/* BI_WEBSITE_BLOCK_v168_CARRIER_RESKIN_v1 — aurora app shell */}
       <div className="bi-app-shell">
       <div className="flex min-h-screen flex-col">
         <SiteFrame part="header" />
+        <MarketPrompt />
         <RouteTracker />
         <SiteFrame part="consent" />
         <QuoteModal />
@@ -103,6 +106,9 @@ export default function App() {
         <main className="bi-main flex-1">
           <Routes>
             <Route path="/" element={<Home />} />
+            {/* BI_WEBSITE_US_FIRST_SITE_v1 - the root is the United States site; /ca opens the Canadian one. */}
+            <Route path="/ca" element={<MarketEntry to="CA"><Home /></MarketEntry>} />
+            <Route path="/usa" element={<MarketEntry to="US"><Home /></MarketEntry>} />
             <Route path="/faq" element={<FaqPage />} />
             <Route path="/quote" element={<Quote />} />
             <Route path="/applications/new" element={<NewApplication />} />
@@ -158,6 +164,7 @@ export default function App() {
         <SiteFrame part="footer" />
       </div>
     </div>
+      </MarketProvider>
     </BrowserRouter>
   );
 }
