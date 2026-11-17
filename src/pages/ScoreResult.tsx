@@ -20,9 +20,12 @@ export default function ScoreResult() {
       && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     if (reduce) return;
     const end = Date.now() + 1200;
+    // The site's security policy does not allow background workers made from a blob, which is what the
+    // default confetti uses; that logged an error on every approved score. Draw on the page instead.
+    const fire = confetti.create(undefined, { resize: true, useWorker: false });
     const tick = () => {
-      confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 } });
-      confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 } });
+      fire({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 } });
+      fire({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 } });
       if (Date.now() < end) requestAnimationFrame(tick);
     };
     tick();
