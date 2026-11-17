@@ -27,7 +27,7 @@ export default function Quote() {
   // BI_WEBSITE_US_FIRST_SITE_v1 - currency, rate, largest amount and largest covered share follow the visitor's market.
   const { terms } = useMarket();
   // The debt may be larger than the most cover available: the cover is capped, not the debt.
-  const MAX_LOAN = terms.loanMax, MAX_COVER = terms.limit, RATE = terms.rate, MAX_PCT = Math.round(terms.share * 100);
+  const MAX_LOAN = Math.min(terms.loanMax, terms.limit), MAX_COVER = terms.limit, RATE = terms.rate, MAX_PCT = Math.round(terms.share * 100);
   const fmtCurrency = (n: number) => money(terms, n);
   const fmtMonthly = (n: number) => money(terms, n, true);
   const [loan, setLoan] = useState(terms.quoteDefaultLoan);
@@ -80,14 +80,12 @@ export default function Quote() {
             <div className="relative">
               <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
               <input
-                type="number"
+                type="text"
                 inputMode="numeric"
-                min={MIN_LOAN}
-                max={MAX_LOAN}
-                step={1000}
-                value={loan}
+                autoComplete="off"
+                value={loan ? loan.toLocaleString("en-US") : ""}
                 onChange={(e) =>
-                  setLoan(Math.min(Math.max(Number(e.target.value || 0), 0), MAX_LOAN))
+                  setLoan(Math.min(Number(e.target.value.replace(/[^0-9]/g, "") || 0), MAX_LOAN))
                 }
                 className="w-full rounded-lg border border-white/15 bg-bf-bg px-9 py-3 text-lg text-white outline-none transition focus:border-blue-500"
                 placeholder="500,000"
