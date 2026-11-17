@@ -25,7 +25,7 @@ describe("v342 — Stage 1 inline guardrails on Score.tsx", () => {
   });
 
   it("renders inline error 'cannot exceed 80% of loan amount' below the PGI slider", () => {
-    expect(src).toMatch(/cannot exceed 80% of loan amount/);
+    expect(src).toMatch(/PGI limit cannot exceed \{Math\.round\(lim\.share \* 100\)\}% of loan amount/);
   });
 
   it("PGI slider's max attribute is bound to pgiMaxAllowed (NOT raw loan_amount × 0.80)", () => {

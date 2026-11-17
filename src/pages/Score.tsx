@@ -324,11 +324,11 @@ function PgiSlider({ loan, value, onChange, country = "CA" }: { loan: number; va
       />
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", opacity: 0.6, marginTop: 4 }}>
         <span>0%</span>
-        <span>Max 80% = {fmtCurrency(String(pgiMaxAllowed))}</span>
+        <span>Max {Math.round(lim.share * 100)}% = {fmtCurrency(String(pgiMaxAllowed))}</span>
       </div>
       {Number(value) > 0 && Number(value) > pgiMaxAllowed && (
         <span className="bi-field-error" style={{ color: "#fca5a5", fontSize: "0.75rem", marginTop: "0.25rem", display: "block" }}>
-          PGI limit cannot exceed 80% of loan amount (max {fmtCurrency(String(pgiMaxAllowed))}).
+          PGI limit cannot exceed {Math.round(lim.share * 100)}% of loan amount (max {fmtCurrency(String(pgiMaxAllowed))}).
         </span>
       )}
     </div>
