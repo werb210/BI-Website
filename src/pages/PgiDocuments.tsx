@@ -219,7 +219,8 @@ export default function PgiDocuments() {
     // any docs. The server places zero-doc apps in the
     // submitted_no_docs stage and starts SMS reminders. Staff can also
     // review the app even before docs land.
-    nav(`/applications/${publicId}/thanks`);
+    // BI_WEBSITE_THANKS_WORDING_v1 - tell the thank-you page how many documents are still to come.
+    nav(`/applications/${publicId}/thanks${summary.pending > 0 ? `?missing=${summary.pending}` : ""}`);
   }
 
   return (
