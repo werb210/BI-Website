@@ -82,7 +82,7 @@ describe("[147] contact form", () => {
     fill();
     fireEvent.click(screen.getByLabelText(CASL));
     fireEvent.click(screen.getByRole("button", { name: "Send message" }));
-    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("(866) 631-8939"));
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("(844) 797-6700"));
     expect(alertSpy).not.toHaveBeenCalled();
   });
 
@@ -93,11 +93,11 @@ describe("[147] contact form", () => {
 });
 
 describe("[141] operator identity", () => {
-  it("footer shows (c) <year> and the entity, and only the 866 number", () => {
+  it("footer shows (c) <year> and the entity, and only the Insurance number", () => {
     const { container } = inRouter(<Footer />);
     expect(container).toHaveTextContent(`(c) ${new Date().getFullYear()} ${ENTITY}`);
-    expect(container.textContent).toContain("(866) 631-8939");
-    expect(container.textContent).not.toContain("+1 (866)");
+    expect(container.textContent).toContain("(844) 797-6700");
+    expect(container.textContent).not.toContain("+1 (844)");
   });
 
   for (const [name, Page] of [["Privacy", Privacy], ["Terms", Terms]] as const) {
@@ -107,7 +107,7 @@ describe("[141] operator identity", () => {
       expect(text).toContain(ENTITY);
       expect(text).toContain("boreal.insure");
       expect(text).toContain(ADDRESS);
-      expect(text).toContain("(866) 631-8939");
+      expect(text).toContain("(844) 797-6700");
       expect(text).not.toContain("boreal.financial and");
       expect(text).not.toContain("Cochrane");
     });
