@@ -39,7 +39,7 @@ export const ROUTES: RouteEntry[] = [
   { path: "/csbfp", title: `The Personal Guarantee on a CSBFP Loan | ${SITE_NAME}`, description: "How the personal guarantee on a Canada Small Business Financing Program loan works and how to insure it.", sitemap: true },
   { path: "/resources", title: `Knowledge Center | ${SITE_NAME}`, description: "Guides and answers about personal guarantees, business loans and Personal Guarantee Insurance.", sitemap: true },
   { path: "/faq", title: `Frequently Asked Questions | ${SITE_NAME}`, description: "Answers to common questions about Personal Guarantee Insurance, eligibility, pricing and claims.", sitemap: true },
-  { path: "/contact", title: `Contact Us | ${SITE_NAME}`, description: "Talk to Boreal Insurance about Personal Guarantee Insurance. Call (866) 631-8939 or send us a message.", sitemap: true },
+  { path: "/contact", title: `Contact Us | ${SITE_NAME}`, description: "Talk to Boreal Insurance about Personal Guarantee Insurance. Call (844) 797-6700 or send us a message.", sitemap: true },
   { path: "/privacy", title: `Privacy Policy | ${SITE_NAME}`, description: "How 2630108 Alberta Ltd. (Boreal Insurance) collects, uses and protects personal information, including cookies.", sitemap: true },
   { path: "/terms", title: `Terms of Service | ${SITE_NAME}`, description: "The terms that govern your use of boreal.insure.", sitemap: true },
   { path: "/delete-account", title: `Delete Your Account | ${SITE_NAME}`, description: "How to delete your Boreal Risk account and the personal information attached to it.", sitemap: true },

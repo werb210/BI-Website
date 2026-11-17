@@ -80,9 +80,9 @@ describe("the United States lender and broker pages", () => {
     expect(screen.getByRole("link", { name: "Save our contact" }).getAttribute("href")).toBe("/boreal-pgi.vcf");
     const card = readFileSync("public/boreal-pgi.vcf", "utf8");
     expect(card).toMatch(/^BEGIN:VCARD/);
-    expect(card).toContain("TEL;TYPE=WORK,VOICE:+18666318939");
+    expect(card).toContain("TEL;TYPE=WORK,VOICE:+18447976700");
     expect(JSON.parse(readFileSync("public/staticwebapp.config.json", "utf8")).mimeTypes[".vcf"]).toBe("text/vcard");
-    expect(screen.getByRole("link", { name: /^Call \(866\)/ }).getAttribute("href")).toBe("tel:+18666318939");
+    expect(screen.getByRole("link", { name: /^Call \(844\)/ }).getAttribute("href")).toBe("tel:+18447976700");
     expect(screen.getByRole("link", { name: "Book a call" }).getAttribute("href")).toBe("https://www.boreal.financial/book-pgi");
   });
 
