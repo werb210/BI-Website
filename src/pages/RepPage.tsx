@@ -2,7 +2,7 @@
 // the people they meet (photo of a business card, or typed), a button to book a call, and the list of who they have
 // added and what has happened since. Signed in with the rep's PIN.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { apiRequest } from "../api/request";
 import { OPERATOR_PHONE_DISPLAY } from "../lib/operator";
 import { REP_TOKEN_KEY, bookUrlFor, qrPath, repCode, repQrUrl, shrinkPhoto } from "../lib/fieldRep";
@@ -20,7 +20,74 @@ const readToken = (code: string) => { try { return localStorage.getItem(REP_TOKE
 const saveToken = (code: string, t: string) => { try { if (t) localStorage.setItem(REP_TOKEN_KEY(code), t); else localStorage.removeItem(REP_TOKEN_KEY(code)); } catch { /* private window */ } };
 const message = (err: unknown, fallback: string) => { const d = (err as { detail?: { message?: string } })?.detail; return d?.message || fallback; };
 
+// BI_WEBSITE_REP_AGREEMENT_v2 - the link in the agreement email (/rep/<code>?sign=<token>). A new rep signs the
+// Introducer Agreement here before they have a page or a PIN; both are emailed to them once it is signed.
+export function RepSign({ code, token }: { code: string; token: string }) {
+  const [state, setState] = useState<"checking" | "ready" | "signed" | "expired">("checking");
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState("");
+  const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
+  const ask = useCallback(() => apiRequest<{ signed: boolean; url: string | null }>("/api/v1/field/agreement-link", { headers }), [headers]);
+  useEffect(() => {
+    let live = true;
+    ask().then((r) => { if (live) setState(r.signed ? "signed" : "ready"); })
+      .catch((err) => { if (live) setState((err as { status?: number })?.status === 401 ? "expired" : "ready"); });
+    return () => { live = false; };
+  }, [ask]);
+  async function open() {
+    setBusy(true); setNote("");
+    try {
+      const r = await ask();
+      if (r.signed) { setState("signed"); return; }
+      if (r.url) { window.location.assign(r.url); return; }
+      setNote(`The agreement could not be opened. Call us at ${OPERATOR_PHONE_DISPLAY}.`);
+    } catch (err) {
+      if ((err as { status?: number })?.status === 401) { setState("expired"); return; }
+      setNote(message(err, `The agreement could not be opened just now. Try again, or call us at ${OPERATOR_PHONE_DISPLAY}.`));
+    } finally { setBusy(false); }
+  }
+  async function check() {
+    setBusy(true); setNote("");
+    try { const r = await ask(); if (r.signed) setState("signed"); else setNote("We do not have your signature yet. If you just signed, give it a minute and try again."); }
+    catch { setNote("We could not check just now. Try again in a minute."); }
+    finally { setBusy(false); }
+  }
+  return (
+    <main className="min-h-screen bg-bf-bg px-4 py-10 text-white" data-testid="rep-sign">
+      <div className="mx-auto max-w-sm rounded-2xl bg-white p-6 text-[#0B1F3A]">
+        {state === "signed" ? (
+          <>
+            <h1 className="text-2xl font-bold">Thank you. It is signed.</h1>
+            <p className="mt-2 text-sm text-slate-700">We have emailed you your personal page and your PIN. It can take a couple of minutes to arrive.</p>
+            <a href={`/rep/${code}`} className="bf-btn bf-btn--primary mt-4 block w-full text-center">Open my page</a>
+          </>
+        ) : state === "expired" ? (
+          <>
+            <h1 className="text-2xl font-bold">This link no longer works</h1>
+            <p className="mt-2 text-sm text-slate-700">Ask us to send your agreement again, or call {OPERATOR_PHONE_DISPLAY}.</p>
+          </>
+        ) : (
+          <>
+            <h1 className="text-2xl font-bold">Your Introducer Agreement</h1>
+            <p className="mt-2 text-sm text-slate-700">Please read and sign our Introducer Agreement. It sets out how you are paid: 20% of the commission we receive on Personal Guarantee Insurance business from the banks, lenders and brokers you introduce.</p>
+            <p className="mt-2 text-sm text-slate-700">It takes about two minutes. You are paid for introductions only; you never sell or quote insurance. As soon as it is signed we email your personal page and your PIN.</p>
+            <button type="button" onClick={open} disabled={busy || state === "checking"} className="bf-btn bf-btn--primary mt-4 w-full">{busy ? "Opening..." : "Read and sign the agreement"}</button>
+            <button type="button" onClick={check} disabled={busy} className="mt-4 block w-full text-center text-sm font-semibold text-[#1e3a8a] underline">I have signed</button>
+            {note ? <p role="alert" className="mt-3 text-sm font-semibold text-red-700">{note}</p> : null}
+          </>
+        )}
+      </div>
+    </main>
+  );
+}
+
 export default function RepPage() {
+  const code = repCode(useParams().code);
+  const sign = new URLSearchParams(useLocation().search).get("sign");
+  return code && sign ? <RepSign code={code} token={sign} /> : <RepPageBody />;
+}
+
+function RepPageBody() {
   const code = repCode(useParams().code);
   const [token, setToken] = useState(() => (code ? readToken(code) : ""));
   const [pin, setPin] = useState("");
