@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { apiRequest } from "../api/request";
 import { OPERATOR_PHONE_DISPLAY } from "../lib/operator";
-import { REP_TOKEN_KEY, bookUrlFor, qrPath, repCode, repQrUrl, shrinkPhoto } from "../lib/fieldRep";
+import { REP_TOKEN_KEY, bookUrlFor, qrPath, repCode, repQrUrl, shrinkPhoto, shownPhone, typedEmail, typedEmailOrPhone, typedPhone } from "../lib/fieldRep";
 import { quickContact } from "./USLenders";
 
 type Contact = { id: string; full_name: string | null; company_name: string | null; email: string | null; phone_e164: string | null; status: string; created_at: string };
@@ -152,7 +152,7 @@ function RepPageBody() {
     try {
       const image = await shrinkPhoto(file);
       const r = await apiRequest<{ fields: Partial<Form>; found: boolean }>("/api/v1/field/scan", { method: "POST", headers: auth, body: JSON.stringify({ image }) });
-      setForm({ ...EMPTY, ...r.fields }); setFromCard(true); setShowForm(true);
+      { const f = { ...EMPTY, ...r.fields }; const tidy = typedPhone(f.phone); setForm({ ...f, email: typedEmail(f.email), phone: tidy.length === 14 ? tidy : f.phone }); } setFromCard(true); setShowForm(true);
       setNote(r.found ? { ok: true, text: "Check the details, fix anything that is wrong, then save." } : { ok: false, text: "We could not read that card. Type the details in, or try the photo again." });
     } catch (err) {
       setForm(EMPTY); setFromCard(false); setShowForm(true);
@@ -261,7 +261,7 @@ function RepPageBody() {
 
         <form onSubmit={saveQuick} noValidate className="mt-5 rounded-2xl bg-white p-4 text-[#0B1F3A]" aria-label="Quick add">
           <label className={LABEL} htmlFor="rep-quick">Their email or mobile</label>
-          <input id="rep-quick" className={INPUT} inputMode="email" autoComplete="off" autoCapitalize="none" placeholder="name@bank.com or (512) 555-0142" value={quick} onChange={(e) => setQuick(e.target.value)} />
+          <input id="rep-quick" className={INPUT} inputMode="email" autoComplete="off" autoCapitalize="none" placeholder="name@bank.com or (512) 555-0142" value={quick} onChange={(e) => setQuick(typedEmailOrPhone(e.target.value))} />
           <button type="submit" disabled={busy === "save"} className="bf-btn bf-btn--primary mt-3 w-full">Save and send them the information</button>
           <p className="mt-2 text-xs text-slate-600">{REP_CONSENT_NOTE}</p>
         </form>
@@ -284,9 +284,9 @@ function RepPageBody() {
             <label className={`${LABEL} mt-3`} htmlFor="rc-title">Title</label>
             <input id="rc-title" className={INPUT} autoComplete="off" value={form.title} onChange={(e) => set("title", e.target.value)} />
             <label className={`${LABEL} mt-3`} htmlFor="rc-email">Email</label>
-            <input id="rc-email" className={INPUT} type="email" inputMode="email" autoComplete="off" autoCapitalize="none" value={form.email} onChange={(e) => set("email", e.target.value)} />
+            <input id="rc-email" className={INPUT} type="email" inputMode="email" autoComplete="off" autoCapitalize="none" value={form.email} onChange={(e) => set("email", typedEmail(e.target.value))} />
             <label className={`${LABEL} mt-3`} htmlFor="rc-phone">Mobile</label>
-            <input id="rc-phone" className={INPUT} type="tel" inputMode="tel" autoComplete="off" value={form.phone} onChange={(e) => set("phone", e.target.value)} />
+            <input id="rc-phone" className={INPUT} type="tel" inputMode="tel" autoComplete="off" placeholder="(512) 555-0142" maxLength={14} value={form.phone} onChange={(e) => set("phone", typedPhone(e.target.value))} />
             <label className={`${LABEL} mt-3`} htmlFor="rc-notes">Notes for us</label>
             <textarea id="rc-notes" className={INPUT} rows={2} value={form.notes} onChange={(e) => set("notes", e.target.value)} />
             <p className="mt-3 text-xs text-slate-600">{REP_CONSENT_NOTE}</p>
@@ -319,9 +319,9 @@ function RepPageBody() {
             <ul className="mt-3 grid gap-2">
               {me.contacts.map((c) => (
                 <li key={c.id} className="rounded-xl bg-white px-4 py-3 text-[#0B1F3A]">
-                  <p className="font-semibold">{c.full_name || c.email || c.phone_e164}</p>
+                  <p className="font-semibold">{c.full_name || c.email || shownPhone(c.phone_e164)}</p>
                   {c.company_name ? <p className="text-sm text-slate-700">{c.company_name}</p> : null}
-                  <p className="text-sm text-slate-700">{[c.full_name ? c.email : null, c.phone_e164].filter(Boolean).join(" | ")}</p>
+                  <p className="text-sm text-slate-700">{[c.full_name ? c.email : null, c.phone_e164 ? shownPhone(c.phone_e164) : null].filter(Boolean).join(" | ")}</p>
                   <p className="mt-1 text-xs font-semibold text-[#1e3a8a]">{c.status}</p>
                 </li>
               ))}
