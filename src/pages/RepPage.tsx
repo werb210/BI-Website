@@ -41,11 +41,19 @@ export default function RepPage() {
   const fileRef = useRef<HTMLInputElement>(null);
   const auth = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
 
+  // BI_WEBSITE_REP_AGREEMENT_v1 - a new rep signs the Introducer Agreement before the page opens.
+  const [locked, setLocked] = useState(false);
+  const [agreeBusy, setAgreeBusy] = useState(false);
+  const [agreeNote, setAgreeNote] = useState("");
   const signOut = useCallback(() => { saveToken(code, ""); setToken(""); setMe(null); }, [code]);
   const load = useCallback(async () => {
     if (!token) return;
-    try { setMe(await apiRequest<Me & { ok: boolean }>("/api/v1/field/me", { headers: auth })); }
-    catch (err) { if ((err as { status?: number })?.status === 401) signOut(); }
+    try { setMe(await apiRequest<Me & { ok: boolean }>("/api/v1/field/me", { headers: auth })); setLocked(false); }
+    catch (err) {
+      const e = err as { status?: number; message?: string };
+      if (e?.status === 401) signOut();
+      else if (e?.status === 403 && e?.message === "agreement_required") setLocked(true); // BI_WEBSITE_REP_AGREEMENT_v1
+    }
   }, [token, auth, signOut]);
   useEffect(() => { void load(); }, [load]);
 
@@ -136,6 +144,41 @@ export default function RepPage() {
         <button type="button" onClick={forgotPin} disabled={sendingPin} className="mt-4 block w-full text-center text-sm font-semibold text-[#1e3a8a] underline">{sendingPin ? "Sending..." : "Forgot your PIN? Send me a new one"}</button>
         <p className="mt-3 text-center text-xs text-slate-600">It goes to the email and mobile we have for you. Still stuck? Call {OPERATOR_PHONE_DISPLAY}.</p>
       </form>
+    </main>
+  );
+
+  async function openAgreement() {
+    setAgreeBusy(true); setAgreeNote("");
+    try {
+      const r = await apiRequest<{ signed: boolean; url: string | null }>("/api/v1/field/agreement", { headers: auth });
+      if (r.signed) { await load(); return; }
+      if (r.url) { window.location.assign(r.url); return; }
+      setAgreeNote(`The agreement could not be opened. Call us at ${OPERATOR_PHONE_DISPLAY}.`);
+    } catch (err) {
+      const d = (err as { detail?: { message?: string } })?.detail;
+      setAgreeNote(d?.message || `The agreement could not be opened just now. Try again, or call us at ${OPERATOR_PHONE_DISPLAY}.`);
+    } finally { setAgreeBusy(false); }
+  }
+  async function checkSigned() {
+    setAgreeBusy(true); setAgreeNote("");
+    try {
+      const r = await apiRequest<{ signed: boolean }>("/api/v1/field/agreement", { headers: auth });
+      if (r.signed) await load(); else setAgreeNote("We do not have your signature yet. If you just signed, give it a minute and try again.");
+    } catch { setAgreeNote("We could not check just now. Try again in a minute."); }
+    finally { setAgreeBusy(false); }
+  }
+
+  if (locked) return (
+    <main className="min-h-screen bg-bf-bg px-4 py-10 text-white" data-testid="rep-agreement">
+      <div className="mx-auto max-w-sm rounded-2xl bg-white p-6 text-[#0B1F3A]">
+        <h1 className="text-2xl font-bold">One thing first</h1>
+        <p className="mt-2 text-sm text-slate-700">Before your page opens, please sign our Introducer Agreement. It sets out how you are paid: 20% of the commission we receive on Personal Guarantee Insurance business from the banks, lenders and brokers you introduce.</p>
+        <p className="mt-2 text-sm text-slate-700">It takes about two minutes. You are paid for introductions only; you never sell or quote insurance.</p>
+        <button type="button" onClick={openAgreement} disabled={agreeBusy} className="bf-btn bf-btn--primary mt-4 w-full">{agreeBusy ? "Opening..." : "Read and sign the agreement"}</button>
+        <button type="button" onClick={checkSigned} disabled={agreeBusy} className="mt-4 block w-full text-center text-sm font-semibold text-[#1e3a8a] underline">I have signed. Open my page</button>
+        {agreeNote ? <p role="alert" className="mt-3 text-sm font-semibold text-red-700">{agreeNote}</p> : null}
+        <button type="button" onClick={signOut} className="mt-4 block w-full text-center text-xs text-slate-600 underline">Lock this page</button>
+      </div>
     </main>
   );
 
