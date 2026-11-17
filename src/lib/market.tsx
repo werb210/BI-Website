@@ -7,7 +7,8 @@
 //
 // Every figure the site states comes from MARKETS below, so the two sites cannot drift apart page by page.
 // United States figures are from PGicover's "US Lenders and Partners" one-pager (November 2026); the premium rate is
-// the figure Todd confirmed with the carrier. Canadian figures are the ones the site has always shown.
+// the figure Todd confirmed with the carrier. Canadian figures are the ones the site has always shown, except the
+// rate: 2.7% is the current Canadian figure (the calculators had still been on 2.6% from August).
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 export type Market = "US" | "CA";
@@ -56,7 +57,7 @@ export const MARKETS: Record<Market, MarketTerms> = {
     limit: 1_000_000, share: 0.8,
     shareText: "up to 80%", shareShort: "Up to 80%",
     deductibleText: null,
-    rate: 0.026,
+    rate: 0.027,
     insurerText: "Markel Canada Limited (A-rated by AM Best, S&P, and Fitch)", payer: "Markel",
     loansText: "bank, credit union and alternative-lender business loans, including CSBFP loans",
     availability: "9 Canadian provinces and 3 territories (not available in Quebec)",

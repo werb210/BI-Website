@@ -65,7 +65,7 @@ describe("the figures each site states", () => {
   });
   it("Canada is as it was: $1 million, 80%, Markel", () => {
     const t = MARKETS.CA;
-    expect([limitWords(t), t.share, t.rate]).toEqual(["$1 million", 0.8, 0.026]);
+    expect([limitWords(t), t.share, t.rate]).toEqual(["$1 million", 0.8, 0.027]);
     expect(t.insurerText).toContain("Markel Canada Limited");
   });
   it("the United States home page shows US terms, the dates, the interest list and no Canadian underwriter", async () => {
@@ -89,7 +89,7 @@ describe("the figures each site states", () => {
     const terms = screen.getByTestId("home-key-terms").textContent ?? "";
     expect(terms).toContain("Key terms (Canada)");
     expect(terms).toContain("personal guarantees up to $1 million");
-    expect(terms).toContain("about 2.6% of the insured amount a year");
+    expect(terms).toContain("about 2.7% of the insured amount a year");
     expect(screen.queryByTestId("home-timeline")).toBeNull();
     expect(screen.queryByTestId("us-interest")).toBeNull();
     expect(document.body.textContent).toContain("Not available to Quebec residents");
