@@ -8,15 +8,15 @@ const items = (t: MarketTerms) => [
   {q:"What does PGI actually cover?",a:`PGI covers your personal guarantee. If your business defaults and the lender calls the guarantee, the insurance pays the lender up to your declared limit. Cover is available on guarantees up to ${money(t, t.limit)}, for ${t.shareText} of the guarantee.`},
   {q:"How is this different from credit insurance?",a:"Credit insurance protects the lender. PGI protects you, the guarantor. Different policy, different beneficiary."},
   {q:"What does it cost?",a:`Premiums depend on loan size, business financials, and coverage limit. As a guide, the annual premium is about ${+(t.rate * 100).toFixed(1)}% of the insured amount: roughly ${money(t, Math.round(400_000 * t.rate))} a year on ${money(t, 400_000)} of cover. The insurer sets the final premium.`},
-  {q:"Can I add coverage to a loan I already have?",a:"Yes. Existing personal guarantees are eligible as long as the loan is in good standing."},
+  {q:"Can I add coverage to a loan I already have?",a:"Often, yes. A guarantee on a loan you already have can be considered if the loan is in good standing. The insurer decides each case in underwriting."},
   {q:"What if the business is sold or refinanced?",a:"Coverage ends when the underlying loan is repaid or the personal guarantee is released. Premiums stop accordingly."},
   {q:"Can I insure the guarantee on an SBA loan?",a:"Yes. SBA 7(a) and 504 loans generally require a personal guarantee from every owner of 20% or more. The SBA's guarantee protects the lender, not you, so PGI can be placed on your personal guarantee, subject to underwriting and policy terms."},
   {q:"Where is this available?",a: t.market === "US" ? `In the United States. ${(t.timeline ?? []).slice(1).join(" ")} In Canada, visit the Canadian site (link at the bottom of the page).` : "In 9 Canadian provinces and 3 territories. Not available to Quebec residents."},
-  {q:"Will this affect my credit?",a:"No. Applying for PGI does not pull credit. Only the insurer's underwriting team reviews your financial documents — no credit bureau involvement."},
-  {q:"How fast does the lender accept this policy?",a:"Most lenders accept the coverage immediately. We provide a certificate of insurance you can forward to your loan officer the same day."},
-  {q:"What happens if my business closes?",a:"If the underlying loan is paid off through dissolution, the policy ends with the loan. If the lender calls the guarantee, the policy pays — that is exactly what it is for."},
-  {q:"What documents do I need?",a:`${t.taxReturn}, 6 months of business bank statements, current year-to-date financials, and your loan agreement or term sheet.`},
-  {q:"Can a co-guarantor be covered too?",a:"Yes. Each guarantor is underwritten and insured separately. Apply once and we coordinate the joint policy."},
+  {q:"Will this affect my credit?",a:"Asking for a quote does not involve a credit check by us. The insurer reviews your financial documents in underwriting and will tell you if it needs anything else."},
+  {q:"How fast does the lender accept this policy?",a:"PGI is between you and the insurer, so the lender does not need to approve it. Once the policy is issued you can share proof of cover with your loan officer."},
+  {q:"What happens if my business closes?",a:"If the underlying loan is paid off through dissolution, the policy ends with the loan. If the lender calls the guarantee, you can make a claim, and the policy responds to a covered claim under its terms, after the deductible."},
+  {q:"What documents do I need?",a:"Your loan agreement or term sheet, a 12-month profit and loss statement (monthly), your most recent month-end balance sheet, and accounts receivable and accounts payable aging summaries. A business under 3 years old also adds the founder's CV and a financial forecast."},
+  {q:"Can a co-guarantor be covered too?",a:"Yes. Each guarantor is underwritten and insured on their own policy. Add your co-guarantors to the application and we contact each of them."},
 ];
 export const faqItems = items;
 

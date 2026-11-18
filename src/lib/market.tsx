@@ -31,6 +31,8 @@ export type MarketTerms = {
   payer: string;
   loansText: string;
   availability: string;
+  /** Headline for the availability stat on the home page (BI_WEBSITE_US_READY_v1). */
+  availabilityTitle: string;
   timeline: string[] | null;
   /** Largest loan the calculators and forms accept. */
   loanMax: number;
@@ -47,7 +49,8 @@ export const MARKETS: Record<Market, MarketTerms> = {
     rate: 0.02,
     insurerText: "an insurer rated A (Excellent) by AM Best", payer: "The insurer",
     loansText: "SBA and conventional business loans",
-    availability: "The United States",
+    availability: "Quotes open January 1, 2027; policies start March 1, 2027",
+    availabilityTitle: "US businesses",
     timeline: ["Live in Canada today.", "US quotes open January 1, 2027.", "US policies can start from March 1, 2027."],
     loanMax: 50_000_000, quoteDefaultLoan: 1_000_000,
     taxReturn: "Your most recent business tax return",
@@ -61,6 +64,7 @@ export const MARKETS: Record<Market, MarketTerms> = {
     insurerText: "Markel Canada Limited (A-rated by AM Best, S&P, and Fitch)", payer: "Markel",
     loansText: "bank, credit union and alternative-lender business loans, including CSBFP loans",
     availability: "9 Canadian provinces and 3 territories (not available in Quebec)",
+    availabilityTitle: "Canada",
     timeline: null,
     loanMax: 1_000_000, quoteDefaultLoan: 500_000,
     taxReturn: "Your most recent business tax return (the T2 with its CRA Notice of Assessment)",

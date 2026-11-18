@@ -72,7 +72,11 @@ export const PROVINCES_NO_QC = [
 ] as const;
 
 export const ELIGIBLE_LOAN_TYPES = ["Commercial Mortgage", "Other Secured Loan"] as const;
-export type EligibleLoanType = typeof ELIGIBLE_LOAN_TYPES[number];
+// BI_WEBSITE_US_READY_v1 - US cover is up to 90% on secured loans and up to 70% on unsecured loans, so a US
+// lender can submit an unsecured loan; Canada stays secured-only.
+export const US_LOAN_TYPES = ["Commercial Mortgage", "Other Secured Loan", "Unsecured Loan"] as const;
+export type EligibleLoanType = typeof US_LOAN_TYPES[number];
+export const loanTypesFor = (country: string): readonly EligibleLoanType[] => (country === "US" ? US_LOAN_TYPES : ELIGIBLE_LOAN_TYPES);
 
 export const RELATIONSHIPS = ["Guarantor", "Co-borrower", "Spouse", "Business Partner", "Other"] as const;
 
@@ -339,7 +343,7 @@ export function buildLenderSubmitBody(f: LenderFormState) {
       loan_funding_date: f.loan_funding_date,
       estimated_close_date: f.loan_funding_date,
       policy_start_date: f.policy_start_date,
-      csbfp_backed: yn(f.csbfp_backed),
+      csbfp_backed: f.country === "US" ? false : yn(f.csbfp_backed),
       loan_has_guaranteed_cap: yn(f.loan_has_guaranteed_cap),
       personally_guaranteeing: yn(f.personally_guaranteeing),
       has_other_guarantors: f.co_guarantors.length > 0,

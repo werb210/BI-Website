@@ -591,7 +591,7 @@ export default function Application() {
       <h2 className={SECTION_H_CLS}>Loan Details</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
         <TextField label="Who is the lender? *" value={String(state.lender_name || "")} onChange={(v) => update("lender_name", v)} error={fieldErr("lender_name")} />
-        <SelectField label="What type of loan is this? *" value={String(state.q_ca_loan_type || "")} onChange={(v) => update("q_ca_loan_type", v)} options={ELIGIBLE_LOAN_TYPES.map((t) => ({ value: t, label: t }))} help="Only Commercial Mortgage and Other Secured Loan are eligible." />
+        <SelectField label="What type of loan is this? *" value={String(state.q_ca_loan_type || "")} onChange={(v) => update("q_ca_loan_type", v)} options={(country === "US" ? [...ELIGIBLE_LOAN_TYPES, "Unsecured Loan"] : ELIGIBLE_LOAN_TYPES).map((t) => ({ value: t, label: t }))} help={country === "US" ? "Secured loans: cover up to 90% of the guarantee. Unsecured loans: up to 70%." : "Only Commercial Mortgage and Other Secured Loan are eligible."} /> {/* BI_WEBSITE_US_READY_v1 */}
         <DateField label="What is the loan funding date? *" value={String(state.loan_funding_date || "")} onChange={(v) => update("loan_funding_date", v)} withTodayButton />
         <DateField label="What date do you need this policy to start? *" value={String(state.policy_start_date || "")} onChange={(v) => update("policy_start_date", v)} withTodayButton />
         <SelectField label="What is the purpose of the loan? *" value={String(state.loan_purpose || "")} onChange={(v) => update("loan_purpose", v)} options={LOAN_PURPOSES} help="Internal records only. Does not affect carrier eligibility." />

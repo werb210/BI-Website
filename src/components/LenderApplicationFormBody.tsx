@@ -4,7 +4,7 @@ import {
   ACCEPT_PARTNER_DOCS,
   AgreeRadio,
   docSlotsFor,
-  ELIGIBLE_LOAN_TYPES,
+  loanTypesFor,
   emptyCoGuarantor,
   Field,
   INPUT,
@@ -90,6 +90,13 @@ export function LenderApplicationFormBody({ f, set, files, onPickFile, isDemoMod
         </div>
       )}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-2">
+        {/* BI_WEBSITE_US_READY_v1 - country first: it changes the labels, the state/province list and the currency below. */}
+        <Field label="Country">
+          <select className={INPUT} value={f.country} onChange={(e) => set("country", e.target.value as LenderFormState["country"])}>
+            <option value="US" className="text-slate-900">United States</option>
+            <option value="CA" className="text-slate-900">Canada</option>
+          </select>
+        </Field>
         <Field label="Entity type *">
           <select className={INPUT} value={f.entity_type} onChange={(e) => set("entity_type", e.target.value as LenderFormState["entity_type"])}>
             <option value="">Select…</option>
@@ -117,27 +124,21 @@ export function LenderApplicationFormBody({ f, set, files, onPickFile, isDemoMod
           </select>
         </Field>
         <Field label="Government ID number *"><TextIn value={f.q_ca_id_number} onChange={(v) => set("q_ca_id_number", v)} /></Field>
-        <Field label="Country">
-          <select className={INPUT} value={f.country} onChange={(e) => set("country", e.target.value as LenderFormState["country"])}>
-            <option value="US" className="text-slate-900">United States</option>
-            <option value="CA" className="text-slate-900">Canada</option>
-          </select>
-        </Field>
       </div>
 
       <h2 className={SECTION_H}>Loan & Guarantee</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-2">
         <Field label={`Loan amount (${f.country === "US" ? "USD" : "CAD"}) *`}><TextIn type="number" value={f.loan_amount} onChange={(v) => set("loan_amount", v)} /></Field>
         <Field label={`Requested PGI limit (${f.country === "US" ? "USD" : "CAD"}) *`}><TextIn type="number" value={f.pgi_limit} onChange={(v) => set("pgi_limit", v)} /></Field>
-        <Field label="Carrier loan type *">
+        <Field label="Loan type *">
           <select className={INPUT} value={f.q_ca_loan_type} onChange={(e) => set("q_ca_loan_type", e.target.value as LenderFormState["q_ca_loan_type"])}>
             <option value="">Select…</option>
-            {ELIGIBLE_LOAN_TYPES.map((t) => <option key={t} value={t} className="text-slate-900">{t}</option>)}
+            {loanTypesFor(f.country).map((t) => <option key={t} value={t} className="text-slate-900">{t}</option>)}
           </select>
         </Field>
         <Field label="Loan funding date *"><TextIn type="date" value={f.loan_funding_date} onChange={(v) => set("loan_funding_date", v)} /></Field>
         <Field label="Policy start date *"><TextIn type="date" value={f.policy_start_date} onChange={(v) => set("policy_start_date", v)} /></Field>
-        <Field label="Use of proceeds (internal)">
+        <Field label="Use of proceeds">
           {/* BI_WEBSITE_BLOCK_v347_LAUNCH_BLOCKERS_v1 — empty placeholder
               option so a fresh/cleared form renders as unanswered instead
               of showing "Expansion" cropped to "nsion" on iPad portrait. */}
@@ -151,12 +152,12 @@ export function LenderApplicationFormBody({ f, set, files, onPickFile, isDemoMod
             <option value="refinance" className="text-slate-900">Refinance</option>
           </select>
         </Field>
-        <Field label="CSBFP backed? (Canadian program) *"><YesNoRadio name="csbfp_backed" value={f.csbfp_backed} onChange={(v) => set("csbfp_backed", v)} /></Field>
-        <Field label="Guaranteed cap? *"><YesNoRadio name="loan_has_guaranteed_cap" value={f.loan_has_guaranteed_cap} onChange={(v) => set("loan_has_guaranteed_cap", v)} /></Field>
+        {f.country !== "US" && <Field label="CSBFP backed? *"><YesNoRadio name="csbfp_backed" value={f.csbfp_backed} onChange={(v) => set("csbfp_backed", v)} /></Field>}
+        <Field label="Is the guarantee capped at a set amount? *"><YesNoRadio name="loan_has_guaranteed_cap" value={f.loan_has_guaranteed_cap} onChange={(v) => set("loan_has_guaranteed_cap", v)} /></Field>
         <Field label="Personally guaranteeing? *"><YesNoRadio name="personally_guaranteeing" value={f.personally_guaranteeing} onChange={(v) => set("personally_guaranteeing", v)} /></Field>
       </div>
 
-      <h2 className={SECTION_H}>Declarations (all 11 Purbeck-required)</h2>
+      <h2 className={SECTION_H}>Declarations</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
         {DECLARATIONS_WITH_REASON.map(({ k, label: caLabel, needsReason }) => {
           const label = k === "section_2_c" && f.country === "US" ? "Have you ever been a Director of a company that has been under investigation by the Internal Revenue Service (IRS) or U.S. Customs and Border Protection (CBP)?" : caLabel;

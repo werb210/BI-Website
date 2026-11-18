@@ -1,4 +1,5 @@
 // BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — palette parity
+import PageNextSteps from "../components/PageNextSteps"; // BI_WEBSITE_US_READY_v1
 import { money, useMarket } from "../lib/market";
 export default function Coverage() {
   const { terms } = useMarket();
@@ -12,6 +13,7 @@ export default function Coverage() {
         <p className="text-bf-textMuted">
           Final terms depend on loan structure, borrower profile, and lender underwriting requirements.
         </p>
+        <PageNextSteps />
       </div>
     </main>
   );

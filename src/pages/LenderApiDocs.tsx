@@ -10,33 +10,33 @@ import { API_BASE } from "@/config";
 type Lang = "curl" | "node" | "python";
 
 const V2_BODY_JSON = `{
-  "company_name": "Maple Leaf Technologies Inc.",
+  "company_name": "Lone Star Fabrication LLC",
   "lender_name": "Acme Bank",
   "guarantor": {
     "name": "Sarah Chen",
-    "phone": "+14165551234",
+    "phone": "+15125550142",
     "email": "sarah.chen@example.com",
     "dob": "1985-06-15",
-    "address": "456 Oak Avenue, Toronto, ON M4V 2P7",
+    "address": "456 Oak Avenue, Austin, TX 78704",
     "q_ca_id_type": "Driving Licence",
     "q_ca_id_number": "DL123456789"
   },
   "business": {
-    "country": "CA",
-    "naics": "541511",
+    "country": "US",
+    "naics": "332312",
     "start_date": "2019-03-15",
-    "address": "789 King Street West, Toronto, ON M5H 2A9",
-    "province": "ON",
+    "address": "789 Congress Avenue, Austin, TX 78701",
+    "province": "TX",
     "entity_type": "Corporation",
     "website": "https://example.com"
   },
   "loan": {
-    "amount": 500000,
-    "pgi_limit": 400000,
+    "amount": 2000000,
+    "pgi_limit": 1500000,
     "q_ca_loan_type": "Commercial Mortgage",
     "use_of_proceeds": "expansion",
-    "loan_funding_date": "2026-06-15",
-    "policy_start_date": "2026-06-15",
+    "loan_funding_date": "2027-03-01",
+    "policy_start_date": "2027-03-01",
     "csbfp_backed": false,
     "loan_has_guaranteed_cap": false,
     "personally_guaranteeing": true
@@ -204,11 +204,10 @@ export default function LenderApiDocs() {
       <div className="mb-6 p-4 rounded border border-amber-300/40 bg-amber-500/10">
         <div className="text-xs uppercase tracking-wider text-amber-100/80 mb-2">Eligibility rules (carrier-enforced)</div>
         <ul className="text-sm text-amber-50 space-y-1 list-disc pl-5">
-          <li><strong>United States and Canada.</strong> <code>business.country</code> is <code>"US"</code> or <code>"CA"</code> (<code>"CA"</code> when left out).</li>
-          <li><strong>Quebec excluded.</strong> For a Canadian business, <code>business.province</code> may not be <code>QC</code>. For a US business, send the two-letter state.</li>
-          <li><strong>Loan amount:</strong> <code>$50,000</code> ≤ <code>loan.amount</code> ≤ <code>$1,000,000</code>, in the loan's own currency (USD for a US business, CAD for a Canadian one).</li>
-          <li><strong>PGI limit:</strong> <code>loan.pgi_limit</code> ≤ 80% of <code>loan.amount</code>; never above <code>$1,000,000</code>.</li>
-          <li><strong>Loan type:</strong> <code>loan.q_ca_loan_type</code> ∈ {`{`}<code>"Commercial Mortgage"</code>, <code>"Other Secured Loan"</code>{`}`} only.</li>
+          {/* BI_WEBSITE_US_READY_v1 - United States first; figures match the server's market limits. */}
+          <li><strong>United States:</strong> <code>business.country</code> = <code>"US"</code> and <code>business.province</code> = the two-letter state. PGI limit up to <code>$5,000,000</code> per guarantor, at most 90% of <code>loan.amount</code> on a secured loan and 70% on an unsecured loan, in USD. Quotes open January 1, 2027; policies start from March 1, 2027.</li>
+          <li><strong>Loan type (US):</strong> <code>loan.q_ca_loan_type</code> ∈ {`{`}<code>"Commercial Mortgage"</code>, <code>"Other Secured Loan"</code>, <code>"Unsecured Loan"</code>{`}`}.</li>
+          <li><strong>Canada:</strong> <code>business.country</code> = <code>"CA"</code> (the default when left out); not Quebec. Loan from <code>$50,000</code> to <code>$1,000,000</code> CAD, PGI limit at most 80% of the loan; secured loans only (<code>"Commercial Mortgage"</code> or <code>"Other Secured Loan"</code>).</li>
           <li><strong>Government ID:</strong> <code>guarantor.q_ca_id_type</code> ∈ {`{`}<code>"Passport"</code>, <code>"National ID"</code>, <code>"Driving Licence"</code>, <code>"Other"</code>{`}`}.</li>
         </ul>
       </div>
