@@ -121,7 +121,7 @@ export default function LenderApplicationDemo() {
         <div>
           <div className="text-xs uppercase tracking-wider text-sky-300/60">Lender · Live demo</div>
           <h1 className="text-xl font-semibold">New Application</h1>
-          <p className="text-xs text-sky-200/70 mt-1">Demo data shown. Edit any field freely; reset returns to demo defaults. Submitting creates a real row in your pipeline (carrier call skipped).</p>
+          <p className="text-xs text-sky-200/70 mt-1">Sample application for a demo. Change any field; "Reset to demo data" puts the sample back. Submitting adds it to your demo pipeline. Nothing is sent to the insurer.</p>
         </div>
         <div className="flex gap-2">
           <button type="button" onClick={resetDemo} className="text-xs text-sky-200 underline">Reset to demo data</button>

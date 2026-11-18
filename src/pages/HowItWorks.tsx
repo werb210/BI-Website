@@ -1,4 +1,5 @@
 // BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — palette parity
+import PageNextSteps from "../components/PageNextSteps"; // BI_WEBSITE_US_READY_v1
 // v131: explicit back-to-home link. Navbar logo is also a Link to /
 // but the affordance isn't obvious on a child page.
 import { money, useMarket } from "../lib/market";
@@ -34,6 +35,7 @@ export default function HowItWorks() {
             claim is triggered, the policy can reimburse the covered portion of the enforceable guarantee.
           </li>
         </ol>
+        <PageNextSteps />
       </div>
     </main>
   );

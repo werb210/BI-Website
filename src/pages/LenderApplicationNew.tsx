@@ -81,7 +81,7 @@ export default function LenderApplicationNew() {
     setFiles((p) => ({ ...p, [slot]: file }));
   }
 
-  const missingFields = REQUIRED_KEYS.filter((k) => { const v = f[k]; return typeof v === "string" ? !v.trim() : v == null; });
+  const missingFields = REQUIRED_KEYS.filter((k) => f.country !== "US" || k !== "csbfp_backed").filter((k) => { /* BI_WEBSITE_US_READY_v1 - no CSBFP question for US loans */ const v = f[k]; return typeof v === "string" ? !v.trim() : v == null; });
   const missingDocs = docSlots.filter((d) => d.required && !files[d.key]);
   const declOk = declarationsComplete(f.declarations);
   const loanAmt = Number(String(f.loan_amount).replace(/[,$\s]/g, "") || 0);
@@ -135,7 +135,7 @@ export default function LenderApplicationNew() {
       <div className="flex justify-between items-center mb-3">
         <div>
           <h1 className="text-xl font-semibold">Lender — New Application</h1>
-          <p className="text-xs text-sky-200/70">Expert mode. All Purbeck-required fields below. {draftSavedAt && <span>Draft saved {new Date(draftSavedAt).toLocaleTimeString()}.</span>}</p>
+          <p className="text-xs text-sky-200/70">All fields marked * are required. {draftSavedAt && <span>Draft saved {new Date(draftSavedAt).toLocaleTimeString()}.</span>}</p>
         </div>
         <button onClick={() => { localStorage.removeItem(DRAFT_KEY_v345); setF(blankLenderForm); setFiles({}); }} className="text-xs text-sky-200 underline">Clear draft</button>
       </div>

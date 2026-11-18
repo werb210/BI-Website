@@ -1,4 +1,5 @@
 // BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — palette parity
+import PageNextSteps from "../components/PageNextSteps"; // BI_WEBSITE_US_READY_v1
 import { useMarket } from "../lib/market";
 export default function WhatIsPGI() {
   const { terms } = useMarket();
@@ -21,6 +22,7 @@ export default function WhatIsPGI() {
           PGI helps entrepreneurs access funding while reducing personal downside risk tied to growth
           borrowing.
         </p>
+        <PageNextSteps />
       </div>
     </main>
   );

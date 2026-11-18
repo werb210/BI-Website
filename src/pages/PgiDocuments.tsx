@@ -25,6 +25,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../lib/api";
+import { useMarket } from "../lib/market"; // BI_WEBSITE_US_READY_v1
 
 // Slots flagged `multi: true` accept >1 file via <input multiple>. The
 // state for those slots is a File[]; single-file slots remain a File.
@@ -120,6 +121,7 @@ export function summarize(docState: Record<string, DocState>): DocSummary {
 }
 
 export default function PgiDocuments() {
+  const { market } = useMarket(); // BI_WEBSITE_US_READY_v1
   const { publicId } = useParams<{ publicId: string }>();
   const nav = useNavigate();
   const [docState, setDocState] = useState<Record<string, DocState>>({});
@@ -229,7 +231,7 @@ export default function PgiDocuments() {
         <header className="mb-6">
           <div className="text-xs uppercase tracking-widest text-bf-textMuted">Page 2 of 3</div>
           <h1 className="mt-1 text-3xl font-bold">Required Documents</h1>
-          <p className="mt-2 text-bf-textMuted">Upload the documents the carrier needs to issue your quote.</p>
+          <p className="mt-2 text-bf-textMuted">{market === "US" ? "Upload the documents the insurer needs to underwrite your application. US quotes open January 1, 2027, so a complete file is ready to go on day one." : "Upload the documents the carrier needs to issue your quote."}</p>
         </header>
 
         {/* BI_WEBSITE_BLOCK_v178_FULL_WAVE_v1 — defer CTA moved ABOVE the upload list */}

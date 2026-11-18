@@ -1,4 +1,5 @@
 // BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — palette parity
+import PageNextSteps from "../components/PageNextSteps"; // BI_WEBSITE_US_READY_v1
 export default function WhyItMatters() {
   return (
     <main className="min-h-screen bg-bf-bg px-6 py-12 text-white">
@@ -13,6 +14,7 @@ export default function WhyItMatters() {
           growth capital.
         </p>
         <p className="text-bf-textMuted">For founders and directors, it is a practical risk-management layer during borrowing.</p>
+        <PageNextSteps />
       </div>
     </main>
   );
