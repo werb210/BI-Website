@@ -85,7 +85,7 @@ describe("[146] per-route meta", () => {
   });
 
   it("ignores query strings and trailing slashes", () => {
-    expect(metaForPath("/faq/?x=1").canonical).toBe(`${SITE_ORIGIN}/faq`);
+    expect(metaForPath("/contact/?x=1").canonical).toBe(`${SITE_ORIGIN}/contact`);
   });
 
   it("marks application and lender pages noindex", () => {
@@ -101,13 +101,13 @@ describe("[146] per-route meta", () => {
 
   it("rewrites the shell head for a route, replacing every default tag", () => {
     const shell = readFileSync("index.html", "utf8");
-    const html = applyMetaToHtml(shell, metaForPath("/faq"));
+    const html = applyMetaToHtml(shell, metaForPath("/contact"));
     expect(html.match(/<title>/g)).toHaveLength(1);
     expect(html.match(/<link rel="canonical"/g)).toHaveLength(1);
     expect(html.match(/<meta property="og:image"/g)).toHaveLength(1);
-    expect(html).toContain('<link rel="canonical" href="https://boreal.insure/faq" />');
+    expect(html).toContain('<link rel="canonical" href="https://boreal.insure/contact" />');
     expect(html).toContain(`<meta property="og:image" content="${OG_IMAGE}" />`);
-    expect(html).toContain("<title>Frequently Asked Questions | Boreal Risk Management</title>");
+    expect(html).toContain("<title>Contact Us | Boreal Risk Management</title>");
     expect(html.indexOf("og:url")).toBeLessThan(html.indexOf("</head>"));
   });
 
@@ -123,13 +123,13 @@ describe("[146] per-route meta", () => {
 
   it("applies the tags on navigation", () => {
     render(
-      <MemoryRouter initialEntries={["/faq"]}>
+      <MemoryRouter initialEntries={["/contact"]}>
         <RouteMeta />
         <Link to="/contact">go</Link>
       </MemoryRouter>,
     );
-    expect(document.title).toBe("Frequently Asked Questions | Boreal Risk Management");
-    expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute("href")).toBe("https://boreal.insure/faq");
+    expect(document.title).toBe("Contact Us | Boreal Risk Management");
+    expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute("href")).toBe("https://boreal.insure/contact");
     fireEvent.click(screen.getByText("go"));
     expect(document.title).toBe("Contact Us | Boreal Risk Management");
     expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute("href")).toBe("https://boreal.insure/contact");

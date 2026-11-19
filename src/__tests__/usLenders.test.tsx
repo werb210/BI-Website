@@ -27,16 +27,14 @@ describe("the United States lender and broker pages", () => {
     expect(OCC_LETTER_URL).toMatch(/^https:\/\/www\.occ\.gov\/.*int1194\.pdf$/);
   });
 
-  it("the lender page is about underwriting; the broker page is about winning and closing business", () => {
+  // BI_WEBSITE_PGI_COMPLIANCE_v1 - introduction only: lenders only make borrowers aware; brokers never sell.
+  it("the lender page asks lenders only to make borrowers aware; the broker page says brokers never sell", () => {
     lender();
-    expect(screen.getByRole("heading", { name: "How lenders use it in underwriting" })).toBeTruthy();
-    expect(screen.getByText("A stronger guarantor behind the loan")).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Lender portal" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "The lender's part" })).toBeTruthy();
+    expect(screen.getByText("Make borrowers aware it exists")).toBeTruthy();
     cleanup(); broker();
-    expect(screen.getByRole("heading", { name: "Close more of the loans you get approved." })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "How it helps your brokerage" })).toBeTruthy();
-    expect(screen.getByText("Fewer deals die at the guarantee")).toBeTruthy();
-    expect(screen.queryByRole("link", { name: "Lender portal" })).toBeNull();
+    expect(screen.getByRole("heading", { name: "Your part" })).toBeTruthy();
+    expect(screen.getByText("You never sell insurance")).toBeTruthy();
   });
 
   it("each page links to the other and keeps the rep's code", () => {
@@ -50,7 +48,8 @@ describe("the United States lender and broker pages", () => {
     const src = readFileSync("src/pages/USLenders.tsx", "utf8");
     expect(src).not.toMatch(/Markel/);
     expect(src).not.toMatch(/commission|% of premium|referral fee/i);
-    expect(src).toMatch(/not a licensed insurance broker, agent, or adviser/);
+    expect(src).toMatch(/PGI America Ltd\./);
+    expect(src).not.toMatch(/EBITDA|\$5,000,000|90%|deductible|revenue share|stronger guarant|additional insured|January 1, 2027/i);
     expect(JSON.stringify(US_COPY)).not.toMatch(/guarantee[sd]? approval|risk[- ]free/i);
   });
 

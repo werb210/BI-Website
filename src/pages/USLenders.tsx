@@ -28,72 +28,52 @@ type Copy = {
   path: string; other: { path: string; label: string }; eyebrow: string; h1: string; lead: string; placeholder: string; leadCompany: string;
   occNote: string; useTitle: string; uses: Array<[string, string]>; steps: Array<[string, string]>; links: Array<[string, string]>;
 };
+// BI_WEBSITE_PGI_COMPLIANCE_v1 (2026-11-19) - rewritten after PGI's written notice. In the United States the program
+// will be arranged by PGI America Ltd. under a separate agreement and is not live yet, so these pages publish no rates,
+// limits, shares, insurer, eligibility rules, loan types or dates. A lender is only asked to make borrowers
+// aware the option exists; the policy is never tied to the credit decision. No compensation talk.
 export const US_COPY: Record<Audience, Copy> = {
   lender: {
     path: "/us-lenders", other: { path: "/us-brokers", label: "I am a loan broker" },
     eyebrow: "For United States banks and lenders",
-    h1: "Insurance for the personal guarantee behind your loans.",
-    lead: "Personal Guarantee Insurance (PGI) covers the owner who signs the guarantee on a business loan. You introduce the borrower. Your bank takes on no insurance work.",
+    h1: "Personal Guarantee Insurance is coming to the United States.",
+    lead: "Personal Guarantee Insurance can cap a business owner's personal loss on a personal guarantee given to a recognised lender on a business loan. In the United States it will be arranged by PGI America Ltd. Leave your details and we will make sure you hear when it is available.",
     placeholder: "you@yourbank.com or (512) 555-0142", leadCompany: "US lender page (event)",
-    occNote: "The letter also notes that a guarantor's financial strength is part of loan underwriting, and that a risk mitigant such as PGI supports the payment a guarantor would otherwise owe.",
-    useTitle: "How lenders use it in underwriting",
+    occNote: "Any bank that wants to make customers aware of PGI still needs to complete its own due diligence.",
+    useTitle: "The lender's part",
     uses: [
-      ["A stronger guarantor behind the loan", "You already weigh the guarantor's financial strength. A guarantor with cover has a source of payment if the guarantee is ever called."],
-      ["Fewer approved loans lost at the guarantee", "The personal guarantee is where many approved loans stall. An insured guarantee is easier for an owner to sign."],
-      ["Your credit decision stays yours", "PGI is offered to the guarantor as a choice. It is never a condition of the loan and it does not replace your underwriting."],
-      ["Proof of cover for the file", "You see the status of every borrower you introduce, and the guarantor can share proof of cover with you."],
+      ["Make borrowers aware it exists", "A lender can let business owners know the option exists. That is all."],
+      ["Optional, and separate from credit", "It is the borrower's choice. It is never a condition of a loan and never part of the credit decision."],
+      ["Details come from PGI", "The offer, the program details and the conditions come from PGI America Ltd., the licensed broker."],
     ],
     steps: [
-      ["You introduce the borrower", "By link, in the lender portal, or through our API."],
-      ["The guarantor gets an indication", "A few questions, and an indicative premium in minutes."],
-      ["The insurer underwrites", "The guarantor applies and uploads documents. The insurer issues the policy."],
+      ["Leave your details", "We will tell you when the US program is available."],
+      ["PGI America Ltd. publishes the program", "Program details are set and published by PGI, not by us."],
+      ["Borrowers decide for themselves", "Interested owners go to PGI for the details."],
     ],
-    links: [["/lender/login", "Lender portal"], ["/sba", "PGI on an SBA loan"]],
+    links: [],
   },
   broker: {
     path: "/us-brokers", other: { path: "/us-lenders", label: "I work at a bank or lender" },
     eyebrow: "For United States commercial loan brokers",
-    h1: "Close more of the loans you get approved.",
-    lead: "Personal Guarantee Insurance (PGI) covers the owner who signs the guarantee on a business loan. You introduce your client. We take it from there and keep you informed.",
+    h1: "Personal Guarantee Insurance is coming to the United States.",
+    lead: "Personal Guarantee Insurance can cap a business owner's personal loss on a personal guarantee given to a recognised lender on a business loan. In the United States it will be arranged by PGI America Ltd. Leave your details and we will make sure you hear when it is available.",
     placeholder: "you@yourfirm.com or (512) 555-0142", leadCompany: "US broker page (event)",
-    occNote: "For a broker, it means the banks you place loans with have a federal regulator's written view on PGI to take to their own counsel.",
-    useTitle: "How it helps your brokerage",
+    occNote: "Banks you work with will make their own decisions and complete their own due diligence.",
+    useTitle: "Your part",
     uses: [
-      ["Fewer deals die at the guarantee", "Owners hesitate when their home and savings go on the line. With cover available, more of them sign and you close."],
-      ["Something most clients have never heard", "Most business owners do not know a personal guarantee can be insured. You are the one who tells them."],
-      ["No extra work for you", "Introduce the client by link. We handle the questions and the application, and you can see where each file stands."],
-      ["Fits the loans you already place", "Term loans, lines of credit, equipment and real estate loans, acquisitions, and SBA loans."],
+      ["Let clients know it exists", "Many business owners do not know a personal guarantee can be insured. You can tell them the option exists."],
+      ["You never sell insurance", "Do not quote, sell or negotiate insurance. The offer and the details come from PGI America Ltd., the licensed broker."],
+      ["Optional for the client", "It is the client's choice and is never a condition of a loan."],
     ],
     steps: [
-      ["You introduce your client", "Send your link, or tell us who to call."],
-      ["Your client gets an indication", "A few questions, and an indicative premium in minutes."],
-      ["The insurer underwrites", "Your client applies and uploads documents. The insurer issues the policy."],
+      ["Leave your details", "We will tell you when the US program is available."],
+      ["PGI America Ltd. publishes the program", "Program details are set and published by PGI, not by us."],
+      ["Clients decide for themselves", "Interested owners go to PGI for the details."],
     ],
-    links: [["/sba", "PGI on an SBA loan"]],
+    links: [],
   },
 };
-
-// BI_WEBSITE_US_FIRST_SITE_v1 - the United States terms, from PGicover's "US Lenders and Partners" one-pager (November 2026).
-export const US_KEY_TERMS: Array<[string, string]> = [
-  ["Up to $5,000,000", "personal guarantee cover for each guarantor"],
-  ["Up to 90%", "of the guarantee on secured loans, up to 70% on unsecured loans"],
-  ["From 10%", "deductible, shown in the policy schedule"],
-  ["A (Excellent)", "insurer rating from AM Best"],
-  ["SBA and conventional", "business loans are both eligible"],
-  ["Claims-made", "cover needs an active policy and timely reporting"],
-];
-export const US_LENDER_WHY: Array<[string, string]> = [
-  ["No insurance risk for the lender", "No captive, no capital and no new operations."],
-  ["You can be named on the policy", "The lender may be named as an additional insured and can open a claim through a demand notice."],
-  ["Optional for the borrower", "It is never a condition of the loan."],
-  ["Separate underwriting", "The insurer does its own underwriting, separate from your credit decision."],
-  ["A clear answer at signing", "Owners who hesitate at the guarantee have somewhere to go."],
-];
-export const US_TIMELINE: Array<[string, string]> = [
-  ["Today", "Live in Canada. US lenders and brokers can set up now."],
-  ["January 1, 2027", "US quotes open."],
-  ["March 1, 2027", "US policies can start."],
-];
 
 const H2 = "text-2xl font-bold text-[#0B1F3A]";
 const BODY = "mt-3 text-bf-body";
@@ -158,32 +138,13 @@ export function USAudiencePage({ audience }: { audience: Audience }) {
 
       <section className="mx-auto max-w-3xl px-5 py-10">
         <h2 className={H2}>What PGI is</h2>
-        <p className={BODY}>When a business borrows, the owners usually guarantee the loan personally. If the business cannot repay, their home and savings are on the line. PGI is a claims-made policy held by the owner who signs the guarantee. If the guarantee is called and a covered claim is made, it caps the owner's personal loss. It does not prevent default or business failure, and the owner still signs the guarantee.</p>
-        <div className="mt-6 grid gap-3 sm:grid-cols-3" data-testid="us-key-terms">
-          {US_KEY_TERMS.map(([a, b]) => (
-            <div key={a} className="rounded-2xl border border-bf-line bg-bf-mist p-4"><div className="text-xl font-bold">{a}</div><div className="mt-1 text-sm text-bf-body">{b}</div></div>
-          ))}
-        </div>
+        <p className={BODY}>When a business borrows, the owners are often asked to guarantee the loan personally. Personal Guarantee Insurance covers a personal guarantee given to a recognised lender on a business loan, and can cap the owner&apos;s personal loss from an insolvency event. It does not prevent default, insolvency or lender enforcement, and it does not protect all of the owner&apos;s assets. The policy terms and conditions come from PGI.</p>
       </section>
 
-      {audience === "lender" ? (
-        <section className="mx-auto max-w-3xl px-5 pb-10" data-testid="us-lender-why">
-          <h2 className={H2}>Why lenders partner on PGI</h2>
-          <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-            {US_LENDER_WHY.map(([t, d]) => (<li key={t} className="rounded-2xl border border-bf-line p-4"><div className="font-semibold">{t}</div><div className="mt-1 text-sm text-bf-body">{d}</div></li>))}
-          </ul>
-        </section>
-      ) : null}
 
       <section className="mx-auto max-w-3xl px-5 pb-10" data-testid="us-timeline">
         <h2 className={H2}>When it starts</h2>
-        <ol className="mt-5 grid gap-3 sm:grid-cols-3">
-          {US_TIMELINE.map(([t, d]) => (<li key={t} className="rounded-2xl border border-bf-line bg-bf-mist p-4"><div className="font-semibold">{t}</div><div className="mt-1 text-sm text-bf-body">{d}</div></li>))}
-        </ol>
-        <h2 className={`${H2} mt-10`}>Ways to work with us</h2>
-        <p className={BODY}>{audience === "lender"
-          ? "Referral partnerships, revenue share arrangements, technology integrations (our lender portal and API) and lender programs. Terms are agreed with each partner."
-          : "Referral partnerships and revenue share arrangements, with terms agreed with each partner. You introduce; you never sell, quote or negotiate insurance."}</p>
+        <p className={BODY}>The US program is not available yet. PGI America Ltd. will publish the program and its start date. Program details may change before launch, so we do not publish them.</p>
       </section>
 
       <section className="border-y border-bf-line bg-bf-mist">
@@ -209,7 +170,6 @@ export function USAudiencePage({ audience }: { audience: Audience }) {
           <ol className="mt-5 grid gap-3 sm:grid-cols-3">
             {copy.steps.map(([t, d], i) => (<li key={t} className="rounded-2xl border border-bf-line bg-white p-4"><div className="text-xl font-bold text-bf-ctaInk">{i + 1}</div><div className="mt-1 font-semibold">{t}</div><div className="mt-1 text-sm text-bf-body">{d}</div></li>))}
           </ol>
-          <p className="mt-5 text-sm text-bf-body">Who qualifies: businesses with at least $50,000 of EBITDA and 12 months of revenue history. Each guarantor is underwritten and insured separately.</p>
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">
             <a href={bookUrl} target="_blank" rel="noopener noreferrer" className="bf-btn bf-btn--primary">Book a call with us</a>
             {copy.links.map(([to, label]) => <Link key={to} to={to} className={OUTLINE}>{label}</Link>)}
@@ -218,7 +178,7 @@ export function USAudiencePage({ audience }: { audience: Audience }) {
       </section>
 
       <section className="mx-auto max-w-3xl px-5 py-8">
-        <p className="text-xs text-bf-body">Boreal Risk Management is a referral and risk advisory partner. We are not a licensed insurance broker, agent, or adviser. Insurance is arranged only through appropriately licensed insurance entities, and coverage is subject to underwriting, eligibility, policy terms, conditions and exclusions. Boreal Risk Management is not affiliated with the Office of the Comptroller of the Currency or the U.S. Small Business Administration.</p>
+        <p className="text-xs text-bf-body">Boreal Risk Management, a trade name of 2630108 Alberta Ltd., makes introductions only. We are not a licensed insurance producer, broker, agent or insurer, and we do not quote, sell, negotiate or bind insurance. In the United States, Personal Guarantee Insurance will be arranged by PGI America Ltd.; it is not yet available. Boreal Risk Management is not affiliated with the Office of the Comptroller of the Currency.</p>
       </section>
     </main>
   );

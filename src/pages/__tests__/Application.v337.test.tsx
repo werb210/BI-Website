@@ -73,7 +73,7 @@ describe("Application.tsx v337 — feature corrections", () => {
   });
 
   it("Country starts on the United States and is selectable", () => {
-    expect(src).toMatch(/country:\s*"US"/);
+    expect(src).toMatch(/country:\s*"CA"/); // BI_WEBSITE_PGI_COMPLIANCE_v1 - Canada only
     expect(src).toContain("toCountryCode(app.country)");
     expect(src).toContain("COUNTRY_OPTIONS");
   });

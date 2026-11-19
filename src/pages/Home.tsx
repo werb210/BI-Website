@@ -1,163 +1,84 @@
-// BI_WEBSITE_BLOCK_v125_LENDER_FIXES_AND_PUBLIC_POLISH_v1
-// BI_WEBSITE_BLOCK_v122_LENDER_LOGIN_HOTFIX_AND_HOME_CLEANUP_v1
-// BI_WEBSITE_BLOCK_v121_BRAND_RATE_AND_LEASE_v1
-// BI_WEBSITE_BLOCK_v101_HOME_MARKETING_v1
+// BI_WEBSITE_PGI_COMPLIANCE_v1 (2026-11-19) - rebuilt after PGI Canada Ltd.'s written notice of 2026-11-19.
+// Only statements PGI has authorized: a referral introduction to PGI Canada Ltd. (the licensed broker), the one
+// authorized rate line, what the policy is in PGI's terms, and links to PGI's own site and published material.
+// No eligibility rules, coverage shares, limits, insurer brand, claims process, lender benefits or US offer.
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
-import MarkelBadge from "../components/MarkelBadge";
-import USInterest from "../components/USInterest";
-import { limitWords, useMarket } from "../lib/market";
-// BI_WEBSITE_BLOCK_v105_MARKETING_TIER_2_v1 — inline SVG icon set (no extra deps).
-const ICN = {
-  bolt:"M13 2L3 14h7l-1 8 10-12h-7l1-8z",
-  doc:"M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M9 13l2 2 4-4",
-  shield:"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z",
-  bank:"M3 10h18 M3 14h18 M5 10V6h14v4 M3 22V10 M21 22V10 M9 22v-8 M15 22v-8",
-  cal:"M3 4h18v18H3z M16 2v4 M8 2v4 M3 10h18",
-  card:"M2 6h20v12H2z M2 10h20",
-  tool:"M14.7 6.3l3 3L7 20H4v-3L14.7 6.3z M13 6l5 5",
-  leaf:"M21 3c-9 0-18 9-18 18 0 0 9-1 12-4 4-4 6-9 6-14z",
-  eye:"M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z M12 9a3 3 0 100 6 3 3 0 000-6z",
-  warn:"M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z M12 9v4 M12 17h.01"
-};
-function Icon({ d, className = "h-6 w-6" }: { d: string; className?: string }) {
-  return (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}><path d={d} /></svg>);
-}
+import { PGI_APPLY_URL, PGI_BROKER, PGI_DOCS_URL, PGI_RATE_LINE } from "../lib/pgiPartner";
+
 type Row = { public_id: string };
-// v130 compliance: step 1 reframed from "quote" to indication; step 2 tightened to require complete submission.
-const STEPS = [{n:"1",i:ICN.bolt,t:"Preliminary indication in minutes",d:"Tell us about your loan and business. We show an indicative coverage range and premium before you submit a full application."},{n:"2",i:ICN.doc,t:"Underwriting decision",d:"Upload the term sheet, a 12-month P&L, a balance sheet and AR/AP aging. Most complete submissions are reviewed within 5 business days."},{n:"3",i:ICN.shield,t:"Coverage live at signature",d:"Sign the policy, pay the first premium. Your personal guarantee is insured up to your declared limit. Annual policy structure; renewal subject to policy terms."}];
-const COVERAGE = ["Covers the personal guarantee on your business loan — not the loan itself.","Pays the lender if your guarantee is called after the business is unable to repay."];
-const LOANS = [{i:ICN.bank,t:"Commercial lending",d:"Term loans, lines of credit, SBA and conventional loans, asset-based lending, mezzanine debt, factoring. Banks, credit unions, alternative lenders."},{i:ICN.shield,t:"Commercial real estate",d:"Purchase mortgages, refinances, construction loans, development financing, land acquisition, bridge loans. Owner-occupied and investment properties."},{i:ICN.tool,t:"Equipment & vehicles",d:"Equipment loans and leases, fleet financing, vehicle finance, aircraft and marine, specialty asset finance."},{i:ICN.doc,t:"Acquisitions & succession",d:"Business acquisitions, vendor-takeback notes, management buyouts, franchise purchases, partnership buyouts."}];
-// v117-coverage-categories
-// v111-deals-expanded
-// v130 compliance: WHY cards replaced with carrier-audit-approved three-card set.
-const WHY = [{i:ICN.bank,t:"Built for business financing",d:"For eligible commercial loans where a business owner is asked to personally guarantee the debt."},{i:ICN.shield,t:"Designed to cap personal downside",d:"Coverage may respond to a covered claim under the policy, subject to underwriting and policy terms."},{i:ICN.doc,t:"Simple intake, disciplined underwriting",d:"Start with a quick indication. Final terms depend on documentation, eligibility, and underwriting review."}];
 
 export default function Home() {
   const nav = useNavigate();
-  // BI_WEBSITE_US_FIRST_SITE_v1 - every figure and country name below comes from the visitor's market.
-  const { market, terms } = useMarket();
-  const us = market === "US";
-  const coverage = [...COVERAGE, `Available for ${us ? "United States" : "Canadian"} businesses with $50K+ EBITDA and 12+ months of revenue history.`];
-  const keyTerms: Array<[string, string]> = [
-    ["Limit", `personal guarantees up to ${limitWords(terms)}`],
-    ["Covered share", terms.shareText],
-    ...(terms.deductibleText ? [["Deductible", terms.deductibleText] as [string, string]] : []),
-    ["Indicative premium", `about ${+(terms.rate * 100).toFixed(1)}% of the insured amount a year; the insurer sets the final premium`],
-    ["Insurer", us ? "rated A (Excellent) by AM Best" : "Markel Canada Limited, A-rated by AM Best, S&P and Fitch"],
-    ["Loans", terms.loansText],
-  ];
   const [rows, setRows] = useState<Row[]>([]);
   useEffect(() => {
-    const ids: string[] = JSON.parse(localStorage.getItem("bi.my_apps") || "[]");
+    let ids: string[] = [];
+    try { ids = JSON.parse(localStorage.getItem("bi.my_apps") || "[]"); } catch { ids = []; }
     if (!ids.length) return;
     Promise.all(ids.map((id) => api.getApp(id).then((r: any) => r.application).catch(() => null))).then((a) => setRows(a.filter(Boolean) as Row[]));
   }, []);
   return (
-    <main className="min-h-screen bg-white text-[#0B1F3A]">
-      {/* BI_WEBSITE_LIGHT_v104 - white ground with navy and mist sections,
-        matching boreal.financial. Was dark on every section. */}
+    <main className="min-h-screen bg-white text-[#0B1F3A]" data-testid="home">
       <section className="bg-bf-bg">
-        <div className="mx-auto max-w-5xl px-5 py-16 text-center">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">Stop putting your house on the line for your business loan.</h1>
-        {/* v130 compliance: subtitle replaced with carrier-audit paragraph.
-            Secondary CTA "Learn how PGI works" added (item 16) → existing /how-it-works route. */}
-        <p className="mt-4 text-base sm:text-lg text-bf-textMuted">Cap personal downside when you sign a guarantee for business financing. Boreal helps eligible business owners start the Personal Guarantee Insurance application process. Coverage is subject to underwriting, policy terms, conditions, exclusions, and applicable regulatory requirements.</p>
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          {/* BI_WEBSITE_BLOCK_v346_MOBILE_FIRST_LAUNCH_v1 — renamed from "Start eligibility check" per Todd's iPhone-testing pass. */}
-          <Link to="/applications/new" className="bf-btn bf-btn--primary">Get Started</Link>
-          <Link to="/quote" className="bf-btn bf-btn--secondary">Get a Free Quote</Link>
-          <Link to="/how-it-works" className="bf-btn bf-btn--secondary">Learn how PGI works</Link>
-        </div>
-        <div className="mt-8 flex justify-center"><MarkelBadge /></div>
-        {terms.timeline ? <p className="mt-4 text-sm font-semibold text-white" data-testid="home-timeline">{terms.timeline.slice(1).join(" ")}</p> : null}
-        {us ? <USInterest className="mx-auto mt-5 max-w-xl" /> : null}
-        {/* v131 compliance: referral-source disclosure on hero. */}
-        <p className="mt-4 text-xs text-bf-textMuted max-w-2xl mx-auto">
-          Boreal Risk Management is a referral and risk advisory partner — not a licensed
-          insurance broker, agent, or adviser. We introduce eligible {us ? "United States" : "Canadian"} business
-          owners to licensed {us ? "insurance entities that" : "brokers who"} arrange Personal Guarantee Insurance.{us ? "" : " Not available to Quebec residents."}
-        </p>
+        <div className="mx-auto max-w-4xl px-5 py-16 text-center">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">Personal Guarantee Insurance, through {PGI_BROKER}</h1>
+          <p className="mt-4 text-base sm:text-lg text-bf-textMuted">
+            When a business owner gives a recognised lender a personal guarantee on a business loan, Personal Guarantee
+            Insurance can cap the owner&apos;s personal loss if the business becomes insolvent. Boreal Risk Management
+            introduces Canadian business owners to {PGI_BROKER}, the licensed insurance broker that arranges and
+            administers the program.
+          </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <a href={PGI_APPLY_URL} target="_blank" rel="noopener noreferrer" className="bf-btn bf-btn--primary" data-testid="home-apply">Learn more and apply with {PGI_BROKER}</a>
+            <a href={PGI_DOCS_URL} target="_blank" rel="noopener noreferrer" className="bf-btn bf-btn--secondary">Program and claims information</a>
+          </div>
+          <p className="mt-6 text-sm text-white" data-testid="home-rate">{PGI_RATE_LINE}</p>
         </div>
       </section>
-      <section className="border-y border-bf-line bg-bf-mist">
-        <div className="mx-auto max-w-5xl px-5 py-8">
-        <div className="grid grid-cols-2 gap-8 text-center md:grid-cols-4">
-          <div><div className="text-2xl font-bold text-[#0B1F3A]">{us ? "A (Excellent)" : "A-rated"}</div><div className="mt-1 text-sm text-bf-body">{us ? "Insurer rated by AM Best" : "Underwriter rated by AM Best, S&P, Fitch"}</div></div>
-          <div><div className="text-2xl font-bold text-[#0B1F3A]">Up to {limitWords(terms)}</div><div className="mt-1 text-sm text-bf-body">Personal guarantee cover for each guarantor</div></div>
-          <div><div className="text-2xl font-bold text-[#0B1F3A]">{terms.shareShort}</div><div className="mt-1 text-sm text-bf-body">{us ? "of the guarantee on secured loans, 70% on unsecured" : "of the enforceable guarantee"}</div></div>
-          <div><div className="text-2xl font-bold text-[#0B1F3A]">{terms.availabilityTitle}</div><div className="mt-1 text-sm text-bf-body">{terms.availability}</div></div>
-          {/* v111-trust-strip: Backed-by column removed */}
-        </div>
-        </div>
-      </section>
-      {/* v130 compliance: sub-hero block (audit item 13). */}
-      <section className="border-b border-bf-line bg-bf-mist">
-        <div className="mx-auto max-w-5xl px-5 py-10">
-        <p className="text-center text-base sm:text-lg text-bf-body max-w-3xl mx-auto">
-          Business loans often require a personal guarantee. PGI is designed to help qualifying guarantors insure a defined portion of their personal guarantee exposure, so growth capital does not have to mean unlimited personal risk.
-        </p>
-        </div>
-      </section>
+
       {rows.length > 0 && (
-        <section className="mx-auto max-w-3xl px-5 pb-8">
+        <section className="mx-auto max-w-3xl px-5 pt-8">
           <div className="rounded-2xl border border-bf-cta/40 bg-bf-cta/10 p-5 text-center">
-            <p className="text-sm text-bf-textMuted">Welcome back — your application is saved.</p>
+            <p className="text-sm text-bf-body">Welcome back. You have an application saved with us.</p>
             <button type="button" onClick={() => nav(`/applications/${rows[0].public_id}/form`)} className="mt-3 bf-btn bf-btn--primary">Continue your application</button>
           </div>
         </section>
       )}
-      <section id="how-it-works" className="mx-auto max-w-5xl px-5 py-16">
-        <h2 className="text-3xl font-bold text-[#0B1F3A] text-center">How it works</h2>
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {STEPS.map((s) => (<div key={s.n} className="rounded-2xl border border-bf-line bg-white p-6"><div className="flex items-start justify-between"><div className="text-bf-ctaInk text-2xl font-bold">{s.n}</div><div className="text-bf-cta opacity-80"><Icon d={s.i}/></div></div><h3 className="mt-2 text-lg font-semibold text-[#0B1F3A]">{s.t}</h3><p className="mt-2 text-sm text-bf-body">{s.d}</p></div>))}
+
+      <section className="mx-auto max-w-3xl px-5 py-14">
+        <h2 className="text-2xl font-bold text-[#0B1F3A]">What it is</h2>
+        <ul className="mt-5 space-y-3 text-bf-body">
+          <li>The policy covers a personal guarantee given to a recognised lender on a business loan.</li>
+          <li>It caps the personal loss from an insolvency event. It does not prevent default, insolvency or lender enforcement, and it does not protect all personal assets.</li>
+          <li>The insurer pays the named insured, after the insolvency has concluded, as set out in the policy wording.</li>
+          <li>It is optional, and it is not part of any lender&apos;s credit decision.</li>
+        </ul>
+        <p className="mt-6 text-bf-body">
+          The offer, the program details and the conditions come from {PGI_BROKER}. For how the program works and how
+          claims are handled, see{" "}
+          <a href={PGI_DOCS_URL} target="_blank" rel="noopener noreferrer" className="underline">{PGI_BROKER}&apos;s published material</a>.
+        </p>
+      </section>
+
+      <section className="border-t border-bf-line bg-bf-mist">
+        <div className="mx-auto max-w-3xl px-5 py-14">
+          <h2 className="text-2xl font-bold text-[#0B1F3A]">Our role</h2>
+          <p className="mt-4 text-bf-body">
+            Boreal Risk Management is a referral partner. We are not a licensed insurance broker, agent or insurer, and
+            we do not quote, underwrite, sell or bind insurance. We can tell you the program exists and introduce you to{" "}
+            {PGI_BROKER}; everything about the policy comes from them.
+          </p>
+          <p className="mt-4 text-bf-body">
+            Available in Canada, except to Quebec residents. In the United States the program will be arranged by PGI
+            America Ltd. and is not yet available;{" "}
+            <Link to="/us" className="underline">US lenders and brokers can leave their details</Link>.
+          </p>
+          <div className="mt-8">
+            <a href={PGI_APPLY_URL} target="_blank" rel="noopener noreferrer" className="bf-btn bf-btn--primary">Go to {PGI_BROKER}</a>
+          </div>
         </div>
       </section>
-      <section className="border-t border-bf-line bg-bf-mist" data-testid="home-key-terms">
-        <div className="mx-auto max-w-5xl px-5 py-16">
-          <h2 className="text-3xl font-bold text-[#0B1F3A] text-center">Key terms ({terms.countryName})</h2>
-          <dl className="mx-auto mt-8 grid max-w-3xl gap-3 sm:grid-cols-2">
-            {keyTerms.map(([k, v]) => (<div key={k} className="rounded-2xl border border-bf-line bg-white p-4"><dt className="text-sm font-semibold uppercase tracking-wide text-bf-ctaInk">{k}</dt><dd className="mt-1 text-bf-body">{v}</dd></div>))}
-          </dl>
-          <p className="mx-auto mt-4 max-w-3xl text-center text-xs text-bf-body">PGI is a claims-made policy held by the business owner who signs the guarantee. It does not prevent default or business failure, and the owner still signs the guarantee. Cover is subject to the policy wording and underwriting.</p>
-          {us ? (
-            <div className="mx-auto mt-8 flex max-w-3xl flex-col gap-3 sm:flex-row sm:justify-center">
-              <Link to="/us-lenders" className="bf-btn bf-btn--primary">For banks and lenders</Link>
-              <Link to="/us-brokers" className="bf-btn bf-btn--secondary !border-[#0B1F3A] !text-[#0B1F3A]">For loan brokers</Link>
-              <Link to="/sba" className="bf-btn bf-btn--secondary !border-[#0B1F3A] !text-[#0B1F3A]">PGI on an SBA loan</Link>
-            </div>
-          ) : null}
-        </div>
-      </section>
-      <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
-        <h2 className="text-3xl font-bold text-[#0B1F3A] text-center">What your policy covers</h2>
-        <ul className="mt-8 mx-auto max-w-2xl space-y-4">{coverage.map((c, i) => (<li key={i} className="flex gap-3"><span className="text-bf-ctaInk">●</span><span className="text-bf-body">{c}</span></li>))}</ul>
-      </section>
-      <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
-        {/* BI_WEBSITE_BLOCK_v129_MOBILE_DIAGRAM_AND_AFFORDANCES_v1 — desktop image, mobile stacked cards */}<img src={us ? "/pgi-diagram-us.svg" : "/pgi-diagram.svg"} alt={`How PGI protects you: sign loan and PGI, default happens, ${terms.payer} pays the bank, you stay safe`} className="hidden md:block w-full h-auto" /><div className="md:hidden pgi-steps-mobile grid grid-cols-1 gap-3 mt-4">{[{n:"1",t:"Sign loan + PGI",d:"Bank requires a personal guarantee. You insure it.",c:"#60a5fa"},{n:"2",t:"Default happens",d:"Bank moves to call your personal guarantee.",c:"#f59e0b"},{n:"3",t:`${terms.payer} pays the bank`,d:"PGI policy pays the lender directly, up to your limit.",c:"#10b981"},{n:"4",t:"You stay safe",d:"House, retirement, savings \u2014 protected.",c:"#10b981"}].map((step) => (<div key={step.n} className="rounded-2xl border bg-bf-surface p-4" style={{ borderColor: step.c + "40" }}><div className="flex items-baseline gap-3 mb-1"><span className="text-xs font-semibold uppercase tracking-wide" style={{ color: step.c }}>Step {step.n}</span></div><h4 className="text-base font-semibold text-white">{step.t}</h4><p className="mt-1 text-sm text-bf-textMuted">{step.d}</p></div>))}</div>
-      </section>
-      <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
-        <h2 className="text-3xl font-bold text-[#0B1F3A] text-center">Deals that can be insured</h2>
-        <p className="mt-3 text-center text-sm text-bf-body">Bank loans are just the start. Lenders, suppliers, and counterparties demand personal guarantees across the entire commercial economy.</p>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{LOANS.map((l) => (<div key={l.t} className="rounded-2xl border border-card bg-bf-surface p-5"><div className="text-bf-cta mb-3"><Icon d={l.i}/></div><h3 className="text-base font-semibold text-white">{l.t}</h3><p className="mt-2 text-sm text-bf-textMuted">{l.d}</p></div>))}</div>
-      </section>
-      <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
-        <h2 className="text-3xl font-bold text-[#0B1F3A] text-center">Why we partner with PGI</h2>
-        <p className="mt-3 text-center text-sm text-bf-body">Most guarantors don’t realize there’s a third option.</p>
-        <div className="mt-10 overflow-x-auto rounded-2xl border border-card bg-bf-surface"><table className="w-full text-sm min-w-[560px]"><thead><tr><th className="text-left py-4 px-4 font-medium text-bf-textMuted w-[26%]"></th><th className="py-4 px-3 font-medium text-white text-center">Doing nothing</th><th className="py-4 px-3 font-medium text-white text-center">Credit insurance</th><th className="py-4 px-3 font-medium text-bf-cta text-center">PGI</th></tr></thead><tbody><tr className="border-t border-card"><td className="py-4 px-4 text-white font-medium">Who’s protected</td><td className="py-4 px-3 text-bf-textMuted text-center">Nobody</td><td className="py-4 px-3 text-bf-textMuted text-center">The lender</td><td className="py-4 px-3 text-white text-center font-medium">You &amp; your family</td></tr><tr className="border-t border-card"><td className="py-4 px-4 text-white font-medium">Who pays the lender if you default</td><td className="py-4 px-3 text-bf-textMuted text-center">You — from personal assets</td><td className="py-4 px-3 text-bf-textMuted text-center">Insurer pays lender</td><td className="py-4 px-3 text-white text-center font-medium">Insurer pays lender</td></tr><tr className="border-t border-card"><td className="py-4 px-4 text-white font-medium">Your house, retirement, savings</td><td className="py-4 px-3 text-bf-textMuted text-center">At risk</td><td className="py-4 px-3 text-bf-textMuted text-center">At risk</td><td className="py-4 px-3 text-white text-center font-medium">Covered share protected, after the deductible</td></tr><tr className="border-t border-card"><td className="py-4 px-4 text-white font-medium">Annual cost</td><td className="py-4 px-3 text-bf-textMuted text-center">$0</td><td className="py-4 px-3 text-bf-textMuted text-center">1.5–3.0% of loan</td><td className="py-4 px-3 text-white text-center font-medium">About {Math.round(terms.rate * 1000) / 10}% of the insured amount</td></tr></tbody></table></div>
-      </section>
-      <section className="mx-auto max-w-5xl px-5 py-16 border-t border-subtle">
-        <h2 className="text-3xl font-bold text-[#0B1F3A] text-center">Why Boreal Risk Management</h2>
-        <div className="mt-10 grid gap-6 md:grid-cols-3">{WHY.map((w) => (<div key={w.t}><div className="text-bf-cta mb-2"><Icon d={w.i}/></div><h3 className="text-lg font-semibold text-[#0B1F3A]">{w.t}</h3><p className="mt-2 text-sm text-bf-body">{w.d}</p></div>))}</div>
-      </section>
-      {/* v130 compliance: final CTA rewritten per audit item 15. */}
-      <section className="mx-auto max-w-3xl px-5 py-16 text-center">
-        <h2 className="text-3xl font-bold text-[#0B1F3A]">Ready to review your guarantee exposure?</h2>
-        <p className="mt-3 text-bf-body">Start with a quick eligibility check. A full application and underwriting review will be required before coverage can be offered. Most complete submissions are reviewed within 5 business days.</p>
-        <Link to="/applications/new" className="mt-6 bf-btn bf-btn--primary">Get Started</Link>
-      </section>
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-50 p-3 border-t border-card bg-bf-bg/95 backdrop-blur"><Link to="/applications/new" className="w-full bf-btn bf-btn--primary">Get Started</Link></div>
     </main>
   );
 }

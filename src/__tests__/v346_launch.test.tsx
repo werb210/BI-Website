@@ -31,8 +31,8 @@ describe("v346 — 'Get Started' rename (c)", () => {
       expect(src).not.toMatch(/>\s*Start eligibility check\s*</);
     });
   }
-  it("Home has Get Started in at least 2 places", () => {
-    const matches = home.match(/>Get Started</g) ?? [];
-    expect(matches.length).toBeGreaterThanOrEqual(2);
+  // BI_WEBSITE_PGI_COMPLIANCE_v1 - Home now sends visitors to PGI Canada Ltd. instead of its own application.
+  it("Home sends visitors to PGI Canada Ltd.", () => {
+    expect(home).toMatch(/PGI_APPLY_URL/);
   });
 });

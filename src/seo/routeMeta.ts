@@ -18,32 +18,34 @@ export type RouteEntry = {
   noindex?: boolean;
 };
 
+// BI_WEBSITE_PGI_COMPLIANCE_v1 - no program details: Boreal is a referral partner of PGI Canada Ltd.
 const DEFAULT_DESCRIPTION =
-  "Personal Guarantee Insurance for United States business owners: guarantees up to $5 million, up to 90% covered on secured loans. Protect your personal assets when securing business financing.";
+  "Boreal Risk Management introduces Canadian business owners to PGI Canada Ltd., the licensed broker for Personal Guarantee Insurance.";
+const WITHDRAWN = "This page has moved. Personal Guarantee Insurance details come from PGI Canada Ltd.";
 
 // Every App.tsx route without a URL parameter. src/__tests__/seo.v789.test.ts
 // fails if App.tsx gains a route this list does not cover.
 export const ROUTES: RouteEntry[] = [
-  { path: "/", title: `${SITE_NAME} - Personal Guarantee Insurance for Business Owners`, description: DEFAULT_DESCRIPTION, sitemap: true },
-  { path: "/quote", title: `Get a PGI Quote | ${SITE_NAME}`, description: "Estimate the monthly premium for Personal Guarantee Insurance on your business loan in under a minute.", sitemap: true },
-  { path: "/what-is-pgi", title: `What is Personal Guarantee Insurance? | ${SITE_NAME}`, description: "How Personal Guarantee Insurance protects your home and savings when you personally guarantee a business loan.", sitemap: true },
-  { path: "/how-it-works", title: `How PGI Works | ${SITE_NAME}`, description: "From quote to policy: how Personal Guarantee Insurance is arranged and how a claim is paid.", sitemap: true },
-  { path: "/coverage", title: `Coverage | ${SITE_NAME}`, description: "What Personal Guarantee Insurance covers, coverage limits and the loans it can protect.", sitemap: true },
-  { path: "/why-it-matters", title: `Why PGI Matters | ${SITE_NAME}`, description: "Why business owners insure their personal guarantee before signing for business financing.", sitemap: true },
-  { path: "/us-lenders", title: `Personal Guarantee Insurance for US Banks and Lenders | ${SITE_NAME}`, description: "For United States banks and lenders: what Personal Guarantee Insurance is, what the OCC has said about it, and how lenders use it in underwriting.", sitemap: false, noindex: true },
-  { path: "/ca", title: `${SITE_NAME} - Personal Guarantee Insurance for Canadian Business Owners`, description: "Personal Guarantee Insurance for Canadian business owners: cover up to $1,000,000 and 80% of the guarantee. Not available in Quebec.", sitemap: true },
-  { path: "/usa", title: `${SITE_NAME} - Personal Guarantee Insurance for United States Business Owners`, description: "Personal Guarantee Insurance for United States business owners: guarantees up to $5 million, up to 90% covered on secured loans.", sitemap: false },
-  { path: "/us", title: `Personal Guarantee Insurance for US Lenders and Brokers | ${SITE_NAME}`, description: "Personal Guarantee Insurance for United States banks, lenders and commercial loan brokers.", sitemap: false, noindex: true },
-  { path: "/us-brokers", title: `Personal Guarantee Insurance for US Commercial Loan Brokers | ${SITE_NAME}`, description: "For United States commercial loan brokers: what Personal Guarantee Insurance is, what the OCC has said about it, and how it helps you close more loans.", sitemap: false, noindex: true },
-  { path: "/sba", title: `The Personal Guarantee on an SBA Loan | ${SITE_NAME}`, description: "SBA 7(a) and 504 loans require a personal guarantee from owners of 20% or more. How that guarantee works and how Personal Guarantee Insurance can cover part of it.", sitemap: true },
-  { path: "/csbfp", title: `The Personal Guarantee on a CSBFP Loan | ${SITE_NAME}`, description: "How the personal guarantee on a Canada Small Business Financing Program loan works and how to insure it.", sitemap: true },
-  { path: "/resources", title: `Knowledge Center | ${SITE_NAME}`, description: "Guides and answers about personal guarantees, business loans and Personal Guarantee Insurance.", sitemap: true },
-  { path: "/faq", title: `Frequently Asked Questions | ${SITE_NAME}`, description: "Answers to common questions about Personal Guarantee Insurance, eligibility, pricing and claims.", sitemap: true },
+  { path: "/", title: `${SITE_NAME} - A referral partner of PGI Canada Ltd.`, description: DEFAULT_DESCRIPTION, sitemap: true },
+  { path: "/quote", title: `Get a PGI Quote | ${SITE_NAME}`, description: WITHDRAWN, sitemap: false, noindex: true },
+  { path: "/what-is-pgi", title: `What is Personal Guarantee Insurance? | ${SITE_NAME}`, description: WITHDRAWN, sitemap: false, noindex: true },
+  { path: "/how-it-works", title: `How PGI Works | ${SITE_NAME}`, description: WITHDRAWN, sitemap: false, noindex: true },
+  { path: "/coverage", title: `Coverage | ${SITE_NAME}`, description: WITHDRAWN, sitemap: false, noindex: true },
+  { path: "/why-it-matters", title: `Why PGI Matters | ${SITE_NAME}`, description: WITHDRAWN, sitemap: false, noindex: true },
+  { path: "/us-lenders", title: `Personal Guarantee Insurance for US Banks and Lenders | ${SITE_NAME}`, description: "For United States banks and lenders: Personal Guarantee Insurance will be arranged by PGI America Ltd. and is not yet available.", sitemap: false, noindex: true },
+  { path: "/ca", title: `${SITE_NAME} - Personal Guarantee Insurance for Canadian Business Owners`, description: WITHDRAWN, sitemap: false, noindex: true },
+  { path: "/usa", title: `${SITE_NAME} - Personal Guarantee Insurance for United States Business Owners`, description: WITHDRAWN, sitemap: false, noindex: true },
+  { path: "/us", title: `Personal Guarantee Insurance for US Lenders and Brokers | ${SITE_NAME}`, description: "Personal Guarantee Insurance in the United States will be arranged by PGI America Ltd. and is not yet available.", sitemap: false, noindex: true },
+  { path: "/us-brokers", title: `Personal Guarantee Insurance for US Commercial Loan Brokers | ${SITE_NAME}`, description: "For United States commercial loan brokers: Personal Guarantee Insurance will be arranged by PGI America Ltd. and is not yet available.", sitemap: false, noindex: true },
+  { path: "/sba", title: `The Personal Guarantee on an SBA Loan | ${SITE_NAME}`, description: WITHDRAWN, sitemap: false, noindex: true },
+  { path: "/csbfp", title: `The Personal Guarantee on a CSBFP Loan | ${SITE_NAME}`, description: WITHDRAWN, sitemap: false, noindex: true },
+  { path: "/resources", title: `Knowledge Center | ${SITE_NAME}`, description: WITHDRAWN, sitemap: false, noindex: true },
+  { path: "/faq", title: `Frequently Asked Questions | ${SITE_NAME}`, description: WITHDRAWN, sitemap: false, noindex: true },
   { path: "/contact", title: `Contact Us | ${SITE_NAME}`, description: "Talk to Boreal Risk Management about Personal Guarantee Insurance. Call (844) 797-6700 or send us a message.", sitemap: true },
   { path: "/privacy", title: `Privacy Policy | ${SITE_NAME}`, description: "How 2630108 Alberta Ltd. (Boreal Risk Management) collects, uses and protects personal information, including cookies.", sitemap: true },
   { path: "/terms", title: `Terms of Service | ${SITE_NAME}`, description: "The terms that govern your use of boreal.insure.", sitemap: true },
   { path: "/delete-account", title: `Delete Your Account | ${SITE_NAME}`, description: "How to delete your Boreal Risk account and the personal information attached to it.", sitemap: true },
-  { path: "/intro", title: `Protect Your Personal Assets | ${SITE_NAME}`, description: DEFAULT_DESCRIPTION, sitemap: false, noindex: true },
+  { path: "/intro", title: `Protect Your Personal Assets | ${SITE_NAME}`, description: WITHDRAWN, sitemap: false, noindex: true },
   { path: "/applications/new", title: `Get Started | ${SITE_NAME}`, description: "Start your Personal Guarantee Insurance application.", sitemap: false, noindex: true },
   { path: "/applications/new/country", title: `Get Started | ${SITE_NAME}`, description: "Start your Personal Guarantee Insurance application.", sitemap: false, noindex: true },
   { path: "/applications/new/score", title: `Your Application | ${SITE_NAME}`, description: "Start your Personal Guarantee Insurance application.", sitemap: false, noindex: true },

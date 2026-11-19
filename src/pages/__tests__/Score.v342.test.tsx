@@ -16,8 +16,9 @@ describe("v342 — Stage 1 inline guardrails on Score.tsx", () => {
     expect(src).toMatch(/pgiMaxAllowed\s*=\s*Math\.min\(lim\.limit,\s*Math\.floor\(loanForCap\s*\*\s*lim\.share\)\)/);
   });
 
-  it("renders inline error 'below the $50,000 minimum' below the loan amount input", () => {
-    expect(src).toMatch(/below the \$50,000 minimum/);
+  // BI_WEBSITE_PGI_COMPLIANCE_v1 - no minimum loan or EBITDA: not PGI's underwriting rules.
+  it("has no made-up minimums", () => {
+    expect(src).not.toMatch(/below the \$50,000 minimum|Minimum EBITDA/);
   });
 
   it("renders inline error 'cannot exceed $1,000,000' below the loan amount input", () => {
