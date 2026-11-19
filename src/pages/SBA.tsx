@@ -28,7 +28,7 @@ export default function SBA() {
           </div>
         </div>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Link to="/applications/new" className="bf-btn bf-btn--primary">Start Your Application</Link>
+          <Link to="/applications/new" className="bf-btn bf-btn--primary">Start your application</Link>
           <Link to="/quote" className="bf-btn bf-btn--secondary">Get a Quote</Link>
         </div>
         <MarkelBadge className="mt-8" />
