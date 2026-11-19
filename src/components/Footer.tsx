@@ -44,7 +44,6 @@ export default function Footer() {
             <div className="font-semibold text-white mb-3">Sign In</div>
             <ul className="list-none p-0 m-0 text-sm leading-loose">
               <li><Link to="/lender/login" className="text-white/75 no-underline">Lender Login</Link></li>
-              <li><a href="https://staff.boreal.financial/referrer" target="_blank" rel="noopener noreferrer" className="text-white/75 no-underline">Referral Login</a></li>
             </ul>
           </div>
           <div>
