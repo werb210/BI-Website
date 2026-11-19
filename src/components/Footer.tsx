@@ -13,7 +13,7 @@ import logoUrl from "../assets/logo-boreal-mountains-white.svg";
 import { OPERATOR_NAME, OPERATOR_PHONE_DISPLAY, OPERATOR_PHONE_HREF } from "../lib/operator";
 
 const SUPPORT_EMAIL = "info@boreal.financial";
-// BI_WEBSITE_MAIN_LINE_866_v1 - Boreal Insurance has its own toll-free line.
+// BI_WEBSITE_MAIN_LINE_866_v1 - Boreal Risk Management has its own toll-free line.
 // BI_WEBSITE_BLOCK_v789_AUDIT_ROUND2 [141] - shown as (844) 797-6700, from src/lib/operator.ts.
 const PHONE_DISPLAY = OPERATOR_PHONE_DISPLAY;
 const PHONE_HREF = OPERATOR_PHONE_HREF;
