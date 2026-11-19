@@ -9,9 +9,9 @@ import Privacy from "../pages/Privacy";
 import Terms from "../pages/Terms";
 import { FALLBACK_BI_SERVER_URL } from "../config";
 
-const ENTITY = "2630108 Alberta Ltd. (Boreal Insurance)";
+const ENTITY = "2630108 Alberta Ltd. (Boreal Risk Management)";
 const ADDRESS = "450 Sparling Crt SW, Edmonton, Alberta T6X 1G9";
-const CASL = "I agree to receive calls, texts and emails from Boreal Insurance about my inquiry. I can unsubscribe at any time.";
+const CASL = "I agree to receive calls, texts and emails from Boreal Risk Management about my inquiry. I can unsubscribe at any time.";
 
 const inRouter = (ui: React.ReactElement) => render(<MemoryRouter>{ui}</MemoryRouter>);
 
