@@ -20,12 +20,13 @@ describe("bi-website referral unified into BF", () => {
     expect(app).not.toContain("./pages/ReferrerPortal");
   });
 
-  it("Header and Footer point referrer login at the BF staff portal", () => {
+  // BI_WEBSITE_NO_REFERRER_LOGIN_v1 (Todd, 2026-11-19) - the referrer login is on boreal.financial only.
+  it("Header and Footer have no referrer login", () => {
     const header = r("components/Header.tsx");
     const footer = r("components/Footer.tsx");
-    expect(header).toContain("https://staff.boreal.financial/referrer");
+    expect(header).not.toContain("https://staff.boreal.financial/referrer");
     expect(header).not.toContain('to="/referrer/login"');
-    expect(footer).toContain("https://staff.boreal.financial/referrer");
+    expect(footer).not.toContain("https://staff.boreal.financial/referrer");
     expect(footer).not.toContain('to="/referrer/login"');
   });
 });

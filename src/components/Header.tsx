@@ -44,14 +44,7 @@ export default function Header() {
               {item.label}
             </Link>
           ))}
-          <a
-            href="https://staff.boreal.financial/referrer"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-white/80 no-underline hover:text-white"
-          >
-            Referrer Login
-          </a>
+          {/* BI_WEBSITE_NO_REFERRER_LOGIN_v1 (Todd, 2026-11-19) - referrer login lives on boreal.financial only. */}
           <a
             href="https://www.boreal.financial"
             target="_blank"
@@ -88,15 +81,6 @@ export default function Header() {
               {item.label}
             </Link>
           ))}
-          <a
-            href="https://staff.boreal.financial/referrer"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="py-1.5 text-base text-white/90 no-underline"
-            onClick={() => setOpen(false)}
-          >
-            Referrer Login
-          </a>
           <a
             href="https://www.boreal.financial"
             target="_blank"
