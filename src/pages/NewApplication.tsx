@@ -135,9 +135,9 @@ export default function NewApplication() {
   }
 
   return (
-    <div className="bi-card" style={{ maxWidth: 480, margin: "0 auto" }}>
+    <div className="bi-card" style={{ maxWidth: 480, margin: "32px auto 0" }}>
       {/* BI_WEBSITE_BLOCK_v171_OTP_CONSISTENCY_v1 — chrome above the card */}
-      <h1 style={{ textAlign: "center", marginBottom: 8 }}>Start Your Application</h1>
+      <h1 style={{ textAlign: "center", marginBottom: 8 }}>Start your application</h1>
       <p style={{ textAlign: "center", opacity: 0.85, marginTop: 0, marginBottom: 20 }}>
         Verify your phone to begin. We{"'"}ll send a one-time code by SMS.
       </p>
@@ -187,11 +187,11 @@ export default function NewApplication() {
               onClick={() => void startOtp(phone)}
               style={{
                 width: "100%", padding: "14px 20px", fontSize: 17, fontWeight: 700,
-                background: "#f59e0b", color: "#0B1F3A", border: 0, borderRadius: 8,
+                background: "#BF9B49", color: "#0B1F3A", border: 0, borderRadius: 8,
                 cursor: busy ? "wait" : "pointer", opacity: busy || !phone.trim() ? 0.8 : 1,
               }}
             >
-              {busy ? "Sending…" : "Start Your Application →"}
+              {busy ? "Sending…" : "Start your application →"}
             </button>
             <p style={{ fontSize: 12, color: "#64748b", marginTop: 10, marginBottom: 0, textAlign: "center" }}>
               We{"'"}ll text you a one-time code to verify.

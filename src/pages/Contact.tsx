@@ -73,10 +73,10 @@ export default function Contact() {
 
   return (
     <section className="mx-auto max-w-xl px-5 py-12 md:px-8 md:py-16">
-      <h1 className="mb-2 text-3xl font-bold text-white sm:text-4xl">Contact Us</h1>
+      <h1 className="mb-2 text-3xl font-bold text-white sm:text-4xl">Contact us</h1>
       <p className="mb-8 text-slate-300">
         Send us your details and we will get back to you, or call{" "}
-        <a href={OPERATOR_PHONE_HREF} className="text-white underline">{OPERATOR_PHONE_DISPLAY}</a>.
+        <a href={OPERATOR_PHONE_HREF} className="whitespace-nowrap text-white underline">{OPERATOR_PHONE_DISPLAY}</a>.
       </p>
 
       <form onSubmit={handleSubmit} noValidate className="space-y-5">

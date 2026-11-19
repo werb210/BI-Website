@@ -68,7 +68,7 @@ export default function Quote() {
     <main className="min-h-screen bg-bf-bg text-slate-200">
       <section className="mx-auto w-full max-w-2xl px-5 py-12 md:px-8 md:py-16">
         <header className="mb-10 text-center">
-          <h1 className="text-3xl font-bold text-white md:text-4xl">Get Your PGI Quote</h1>
+          <h1 className="text-3xl font-bold text-white md:text-4xl">Get your PGI quote</h1>
           <p className="mt-3 text-base text-slate-400 md:text-lg">
             Two quick questions. Estimated monthly cost in seconds.
           </p>

@@ -20,7 +20,10 @@ const PHONE_HREF = OPERATOR_PHONE_HREF;
 
 export default function Footer() {
   const { market, terms } = useMarket(); // BI_WEBSITE_US_FIRST_SITE_v1
-  const us = market === "US";
+  // BI_WEBSITE_FOOTER_MARKET_BY_PAGE_v1 - the Canadian pages (/ca, /csbfp) say Canada even when the visitor's saved
+  // market is the US.
+  const canadianPage = typeof window !== "undefined" && /^\/(ca|csbfp)(\/|$)/i.test(window.location.pathname);
+  const us = market === "US" && !canadianPage;
   return (
     <footer className="bg-[#0a1120] border-t border-[#1c2538] text-white/80 px-6 py-8">
       <div className="max-w-[1200px] mx-auto">
@@ -40,7 +43,7 @@ export default function Footer() {
               <li><Link to="/quote" className="text-white/75 no-underline">Get a Quote</Link></li>
               <li><Link to="/applications/new" className="text-white/75 no-underline">Get Started</Link></li>
               <li><Link to="/faq" className="text-white/75 no-underline">FAQ</Link></li>
-              <li><Link to="/contact" className="text-white/75 no-underline">Contact Us</Link></li>
+              <li><Link to="/contact" className="text-white/75 no-underline">Contact us</Link></li>
               <li><a href="https://www.boreal.financial" target="_blank" rel="noopener noreferrer" className="text-white/75 no-underline">Visit Boreal Financial</a></li>
             </ul>
           </div>

@@ -63,7 +63,7 @@ export const MARKETS: Record<Market, MarketTerms> = {
     rate: 0.027,
     insurerText: "Markel Canada Limited (A-rated by AM Best, S&P, and Fitch)", payer: "Markel",
     loansText: "bank, credit union and alternative-lender business loans, including CSBFP loans",
-    availability: "9 Canadian provinces and 3 territories (not available in Quebec)",
+    availability: "Every province and territory except Quebec",
     availabilityTitle: "Canada",
     timeline: null,
     loanMax: 1_000_000, quoteDefaultLoan: 500_000,
