@@ -204,9 +204,7 @@ export default function LenderApiDocs() {
       <div className="mb-6 p-4 rounded border border-amber-300/40 bg-amber-500/10">
         <div className="text-xs uppercase tracking-wider text-amber-100/80 mb-2">Eligibility rules (carrier-enforced)</div>
         <ul className="text-sm text-amber-50 space-y-1 list-disc pl-5">
-          {/* BI_WEBSITE_US_READY_v1 - United States first; figures match the server's market limits. */}
-          <li><strong>United States:</strong> <code>business.country</code> = <code>"US"</code> and <code>business.province</code> = the two-letter state. PGI limit up to <code>$5,000,000</code> per guarantor, at most 90% of <code>loan.amount</code> on a secured loan and 70% on an unsecured loan, in USD. Quotes open January 1, 2027; policies start from March 1, 2027.</li>
-          <li><strong>Loan type (US):</strong> <code>loan.q_ca_loan_type</code> ∈ {`{`}<code>"Commercial Mortgage"</code>, <code>"Other Secured Loan"</code>, <code>"Unsecured Loan"</code>{`}`}.</li>
+          {/* BI_WEBSITE_PGI_COMPLIANCE_v1 - Canada only: there is no US program or agreement yet. */}
           <li><strong>Canada:</strong> <code>business.country</code> = <code>"CA"</code> (the default when left out); not Quebec. Loan from <code>$50,000</code> to <code>$1,000,000</code> CAD, PGI limit at most 80% of the loan; secured loans only (<code>"Commercial Mortgage"</code> or <code>"Other Secured Loan"</code>).</li>
           <li><strong>Government ID:</strong> <code>guarantor.q_ca_id_type</code> ∈ {`{`}<code>"Passport"</code>, <code>"National ID"</code>, <code>"Driving Licence"</code>, <code>"Other"</code>{`}`}.</li>
         </ul>

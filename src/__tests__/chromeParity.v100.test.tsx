@@ -35,12 +35,13 @@ describe("footer geometry matches BF-Website", () => {
 });
 
 describe("compliance copy is preserved verbatim", () => {
+  // BI_WEBSITE_PGI_COMPLIANCE_v1 (2026-11-19) - the disclosures PGI Canada Ltd.'s notice requires.
   for (const phrase of [
-    "We are not a licensed insurance broker",
-    "Markel Canada Limited (A-rated by AM Best", // v_us_first: named for Canada only; the US site names no underwriter
-    "Not available to Quebec residents",
-    "no cost to the policyholder",
-    "may receive referral compensation",
+    "is not a licensed insurance broker, agent or insurer",
+    "is a referral partner of {PGI_BROKER}",
+    "arranged and administered by {PGI_BROKER}, a licensed",
+    "except Quebec residents",
+    "will be arranged by PGI America Ltd.",
     "does not prevent business failure",
     "Questions about this referral service",
   ]) {
@@ -48,4 +49,10 @@ describe("compliance copy is preserved verbatim", () => {
       expect(FOOTER).toContain(phrase);
     });
   }
+});
+
+describe("nothing PGI has not authorized (BI_WEBSITE_PGI_COMPLIANCE_v1)", () => {
+  it("names no insurer brand, rate estimate or referral compensation", () => {
+    expect(FOOTER).not.toMatch(/Markel|referral compensation|Premium estimates|AM Best/);
+  });
 });

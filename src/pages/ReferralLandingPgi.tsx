@@ -32,12 +32,12 @@ export default function ReferralLandingPgi() {
         You have been referred to Boreal Risk Management
       </p>
       <h1 className="mt-3 text-3xl font-bold text-white sm:text-4xl">
-        Protect the personal guarantee behind your financing
+        Personal Guarantee Insurance, through PGI Canada Ltd.
       </h1>
       <p className="mt-4 text-white/70">
-        Personal Guarantee coverage helps business owners in the United States and Canada respond to a
-        covered claim on the personal guarantees behind their business
-        financing - so a business setback does not have to become a personal one.
+        Personal Guarantee Insurance can cap a Canadian business owner&apos;s personal loss on a personal guarantee
+        given to a recognised lender on a business loan. It is arranged and administered by PGI Canada Ltd., a
+        licensed insurance broker. Boreal Risk Management is a referral partner and does not sell insurance.
       </p>
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         <a

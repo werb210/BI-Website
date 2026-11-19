@@ -322,7 +322,7 @@ export default function Application() {
     declarations: {},
     consents: {},
     co_guarantors: [] as CoGuarantor[],
-    country: "US" as CountryCode, // BI_WEBSITE_US_FIRST_v1 - starts on the United States; the Score step's choice carries over.
+    country: "CA" as CountryCode, // BI_WEBSITE_PGI_COMPLIANCE_v1 - Canada only; the Score step's choice carries over.
     q_ca_id_type: "",
     q_ca_id_number: "",
   });

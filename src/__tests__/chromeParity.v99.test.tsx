@@ -47,7 +47,7 @@ describe("header geometry matches BF-Website", () => {
 describe("BI keeps its own brand", () => {
   it("wordmark and links are BI's", () => {
     expect(HEADER).toContain("Boreal Risk Management");
-    expect(HEADER).toContain("/applications/new");
+    expect(HEADER).toContain("https://pgicover.com/boreal"); // BI_WEBSITE_PGI_COMPLIANCE_v1
     expect(HEADER).toContain("/lender/login");
   });
 

@@ -12,9 +12,8 @@ describe("LenderApiDocs v340 — v2 carrier-aligned content", () => {
 
   it("includes Eligibility rules call-out at the top", () => {
     expect(src).toMatch(/Eligibility rules \(carrier-enforced\)/);
-    expect(src).toMatch(/United States:/); // BI_WEBSITE_US_READY_v1 - US first
-    expect(src).toMatch(/\$5,000,000/);
-    expect(src).toMatch(/Unsecured Loan/);
+    expect(src).toMatch(/Canada:/); // BI_WEBSITE_PGI_COMPLIANCE_v1 - Canada only
+    expect(src).toMatch(/\$1,000,000/); // BI_WEBSITE_PGI_COMPLIANCE_v1 - Canada only
     expect(src).toMatch(/not Quebec/);
     expect(src).toMatch(/80% of/);
     expect(src).toMatch(/\$50,000/);

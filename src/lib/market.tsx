@@ -60,8 +60,8 @@ export const MARKETS: Record<Market, MarketTerms> = {
     limit: 1_000_000, share: 0.8,
     shareText: "up to 80%", shareShort: "Up to 80%",
     deductibleText: null,
-    rate: 0.027,
-    insurerText: "Markel Canada Limited (A-rated by AM Best, S&P, and Fitch)", payer: "Markel",
+    rate: 0.018, // BI_WEBSITE_PGI_COMPLIANCE_v1 - "Rates start as low as 1.8% of the limit of insurance" is the only authorized rate
+    insurerText: "the insurer named in the policy", payer: "The insurer",
     loansText: "bank, credit union and alternative-lender business loans, including CSBFP loans",
     availability: "Every province and territory except Quebec",
     availabilityTitle: "Canada",
@@ -93,55 +93,33 @@ export function looksCanadian(timeZone: string | undefined, languages: readonly 
 }
 const read = (k: string): string => { try { return localStorage.getItem(k) ?? ""; } catch { return ""; } };
 const write = (k: string, v: string): void => { try { localStorage.setItem(k, v); } catch { /* private window */ } };
-export const storedMarket = (): Market => (read(KEY) === "CA" ? "CA" : "US");
+// BI_WEBSITE_PGI_COMPLIANCE_v1 - PGI Canada Ltd.'s agreement covers Canada only; there is no US program yet, so the
+// site is Canada only. (US terms stay in MARKETS for the US application screens' types, but nothing selects them.)
+export const storedMarket = (): Market => { void read(KEY); return "CA"; };
 
 type Ctx = { market: Market; terms: MarketTerms; setMarket: (m: Market) => void; askCanada: boolean; answerCanada: (go: boolean) => void };
-const MarketContext = createContext<Ctx>({ market: "US", terms: MARKETS.US, setMarket: () => undefined, askCanada: false, answerCanada: () => undefined });
+const MarketContext = createContext<Ctx>({ market: "CA", terms: MARKETS.CA, setMarket: () => undefined, askCanada: false, answerCanada: () => undefined });
 
 export function MarketProvider({ children, initial }: { children: ReactNode; initial?: Market }) {
-  const [market, setM] = useState<Market>(() => initial ?? storedMarket());
+  const [market, setM] = useState<Market>(() => (initial === "US" ? "CA" : initial) ?? storedMarket());
   const [askCanada, setAsk] = useState(false);
   useEffect(() => {
     if (initial || read(KEY) || read(ASKED)) return;
     let zone: string | undefined;
     try { zone = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch { zone = undefined; }
-    if (looksCanadian(zone, typeof navigator !== "undefined" ? navigator.languages : undefined)) setAsk(true);
+    void looksCanadian(zone, typeof navigator !== "undefined" ? navigator.languages : undefined); // Canada only: nothing to ask
   }, [initial]);
-  const setMarket = useCallback((m: Market) => { write(KEY, m); write(ASKED, "1"); setM(m); setAsk(false); }, []);
+  const setMarket = useCallback((m: Market) => { void m; write(KEY, "CA"); write(ASKED, "1"); setM("CA"); setAsk(false); }, []);
   const answerCanada = useCallback((go: boolean) => { setMarket(go ? "CA" : "US"); }, [setMarket]);
   const value = useMemo(() => ({ market, terms: MARKETS[market], setMarket, askCanada, answerCanada }), [market, setMarket, askCanada, answerCanada]);
   return <MarketContext.Provider value={value}>{children}</MarketContext.Provider>;
 }
 export const useMarket = (): Ctx => useContext(MarketContext);
 
-/** "It looks like you're in Canada" - asked once, at the top of every page, until answered. */
-export function MarketPrompt() {
-  const { askCanada, answerCanada } = useMarket();
-  if (!askCanada) return null;
-  return (
-    <div role="region" aria-label="Choose your country" data-testid="market-prompt" className="border-b border-white/10 bg-[#13284d] px-4 py-3 text-white">
-      <div className="mx-auto flex max-w-[1120px] flex-col items-center gap-3 text-center sm:flex-row sm:justify-between sm:text-left">
-        <p className="text-sm">It looks like you&apos;re in Canada. Would you like to visit the Canadian site?</p>
-        <div className="flex gap-2">
-          <button type="button" className="bf-btn bf-btn--primary !py-2" onClick={() => answerCanada(true)}>Visit the Canadian site</button>
-          <button type="button" className="bf-btn bf-btn--secondary !py-2" onClick={() => answerCanada(false)}>Stay on the US site</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** Footer line: which site this is, and the way to the other one. */
-export function MarketSwitch() {
-  const { market, setMarket } = useMarket();
-  const other: Market = market === "US" ? "CA" : "US";
-  return (
-    <p className="text-xs text-white/75" data-testid="market-switch">
-      You are on the {MARKETS[market].countryName} site.{" "}
-      <button type="button" className="underline" onClick={() => { setMarket(other); window.scrollTo(0, 0); }}>Switch to the {MARKETS[other].countryName} site</button>
-    </p>
-  );
-}
+/** BI_WEBSITE_PGI_COMPLIANCE_v1 - the site is Canada only, so there is no country question and no switch. Kept as
+ *  components so older imports still compile. */
+export function MarketPrompt() { return null; }
+export function MarketSwitch() { return null; }
 
 /** /ca and /usa: open that country's site, then show the home page. */
 export function MarketEntry({ to, children }: { to: Market; children: ReactNode }) {

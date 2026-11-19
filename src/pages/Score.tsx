@@ -12,7 +12,7 @@ function fmtCurrency(raw: string): string {
 }
 function unfmtCurrency(s: string): string { return s.replace(/[^0-9]/g, ""); }
 
-const EBITDA_MIN = 50_000;
+
 const LOAN_MAX = 1_000_000;
 // BI_WEBSITE_BLOCK_v342_SCORE_INLINE_GUARDRAILS_v1
 const LOAN_AMOUNT_MAX_V342 = 1_000_000;
@@ -44,7 +44,7 @@ export default function Score() {
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   // BI_WEBSITE_BLOCK_v97_OTP_GATE_AND_FLOW_v1 — country state replaces the prior URL search param.
-  const [country, setCountry] = useState<"CA" | "US">(() => storedMarket()); // BI_WEBSITE_US_FIRST_v1 - the United States is the larger market, so it is the starting choice
+  const [country, setCountry] = useState<"CA" | "US">(() => storedMarket()); // BI_WEBSITE_PGI_COMPLIANCE_v1 - Canada only
   // BI_WEBSITE_BLOCK_v107_SCORE_PGI_EBITDA_AUTOSAVE_v1
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [ebitdaCalcOpen, setEbitdaCalcOpen] = useState(false);
@@ -116,7 +116,7 @@ export default function Score() {
     setErr(null);
     // BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — T&C is mandatory
     if (!terms) { setErr("Please accept the Terms & Conditions to continue."); return; }
-    if (Number(v.ebitda) < EBITDA_MIN) { setErr(`Minimum EBITDA is $${EBITDA_MIN.toLocaleString()}`); return; }
+    // BI_WEBSITE_PGI_COMPLIANCE_v1 - no EBITDA or revenue minimum: those are not PGI's underwriting rules.
     // BI_WEBSITE_US_FIRST_SITE_v1 - Canada: $1,000,000 and 80%. United States: guarantees up to $5,000,000 and 90%.
     void LOAN_AMOUNT_MAX_V342; void PGI_COVERAGE_RATIO_V342;
     if (Number(v.loan_amount) > lim.loanMax) { setErr(`Loan amount cannot exceed ${marketMoney(lim, lim.loanMax)}`); return; }
@@ -158,7 +158,6 @@ export default function Score() {
         <label className="bi-field">
           <span className="bi-field-label">Country of business</span>
           <select value={country} onChange={(e) => setCountry(e.target.value as "CA" | "US")}>
-            <option value="US">🇺🇸 United States</option>
             <option value="CA">🇨🇦 Canada</option>
           </select>
           {/* BI_WEBSITE_v792_US_APPLICATIONS - PGI writes US business; BI-Server accepts CA and US. */}
@@ -220,15 +219,10 @@ export default function Score() {
           placeholder="$0"
           aria-invalid={
             v.loan_amount !== "" && v.loan_amount !== null && v.loan_amount !== undefined
-              ? (Number(v.loan_amount) < 50_000 || Number(v.loan_amount) > lim.loanMax)
+              ? Number(v.loan_amount) > lim.loanMax
               : false
           }
         />
-        {v.loan_amount !== "" && v.loan_amount !== null && v.loan_amount !== undefined && Number(v.loan_amount) > 0 && Number(v.loan_amount) < 50_000 && (
-          <span className="bi-field-error" style={{ color: "#fca5a5", fontSize: "0.75rem", marginTop: "0.25rem", display: "block" }}>
-            Loan amount is below the $50,000 minimum.
-          </span>
-        )}
         {v.loan_amount !== "" && v.loan_amount !== null && v.loan_amount !== undefined && Number(v.loan_amount) > lim.loanMax && (
           <span className="bi-field-error" style={{ color: "#fca5a5", fontSize: "0.75rem", marginTop: "0.25rem", display: "block" }}>
             Loan amount cannot exceed {marketMoney(lim, lim.loanMax)}.
@@ -248,9 +242,6 @@ export default function Score() {
 
       <Field label="What was the business EBITDA last year?">
         <input type="text" inputMode="decimal" value={fmtCurrency(v.ebitda)} onChange={(e) => set("ebitda", unfmtCurrency(e.target.value))} placeholder="$0" />
-        {Number(v.ebitda) > 0 && Number(v.ebitda) < EBITDA_MIN && (
-          <div className="field-error">Minimum is ${EBITDA_MIN.toLocaleString()}</div>
-        )}
         <button type="button" onClick={() => setEbitdaCalcOpen(!ebitdaCalcOpen)} style={{ marginTop: 6, background: "none", border: "none", color: "#60a5fa", fontSize: "0.85rem", cursor: "pointer", padding: 0, textAlign: "left" }}>
           {ebitdaCalcOpen ? "Hide calculator ▲" : "Help me calculate ▼"}
         </button>

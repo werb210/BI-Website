@@ -6,9 +6,8 @@
 // The compliance paragraphs below are regulatory text. Do not reword them to
 // fit a layout. If BF-Website's footer geometry changes, change it here too -
 // the two are compared by src/__tests__/chromeParity.v100.test.tsx.
-import { MarketSwitch, useMarket } from "../lib/market";
 import { Link } from "react-router-dom";
-import markelUrl from "../assets/logo-markel.svg";
+import { PGI_APPLY_URL, PGI_BROKER, PGI_DOCS_URL } from "../lib/pgiPartner";
 import logoUrl from "../assets/logo-boreal-mountains-white.svg";
 import { OPERATOR_NAME, OPERATOR_PHONE_DISPLAY, OPERATOR_PHONE_HREF } from "../lib/operator";
 
@@ -19,11 +18,6 @@ const PHONE_DISPLAY = OPERATOR_PHONE_DISPLAY;
 const PHONE_HREF = OPERATOR_PHONE_HREF;
 
 export default function Footer() {
-  const { market, terms } = useMarket(); // BI_WEBSITE_US_FIRST_SITE_v1
-  // BI_WEBSITE_FOOTER_MARKET_BY_PAGE_v1 - the Canadian pages (/ca, /csbfp) say Canada even when the visitor's saved
-  // market is the US.
-  const canadianPage = typeof window !== "undefined" && /^\/(ca|csbfp)(\/|$)/i.test(window.location.pathname);
-  const us = market === "US" && !canadianPage;
   return (
     <footer className="bg-[#0a1120] border-t border-[#1c2538] text-white/80 px-6 py-8">
       <div className="max-w-[1200px] mx-auto">
@@ -34,15 +28,14 @@ export default function Footer() {
               <span className="font-semibold text-white">Boreal Risk Management</span>
             </div>
             <p className="text-sm leading-relaxed text-white/75">
-              Personal Guarantee Insurance for {us ? "United States" : "Canadian"} Business Owners.
+              A referral partner of {PGI_BROKER}, the licensed broker for Personal Guarantee Insurance in Canada.
             </p>
           </div>
           <div>
             <div className="font-semibold text-white mb-3">Explore</div>
             <ul className="list-none p-0 m-0 text-sm leading-loose">
-              <li><Link to="/quote" className="text-white/75 no-underline">Get a Quote</Link></li>
-              <li><Link to="/applications/new" className="text-white/75 no-underline">Get Started</Link></li>
-              <li><Link to="/faq" className="text-white/75 no-underline">FAQ</Link></li>
+              <li><a href={PGI_APPLY_URL} target="_blank" rel="noopener noreferrer" className="text-white/75 no-underline">Apply with {PGI_BROKER}</a></li>
+              <li><a href={PGI_DOCS_URL} target="_blank" rel="noopener noreferrer" className="text-white/75 no-underline">Program and claims information</a></li>
               <li><Link to="/contact" className="text-white/75 no-underline">Contact us</Link></li>
               <li><a href="https://www.boreal.financial" target="_blank" rel="noopener noreferrer" className="text-white/75 no-underline">Visit Boreal Financial</a></li>
             </ul>
@@ -65,53 +58,31 @@ export default function Footer() {
             <div className="mt-1 text-sm text-white/75">
               Mon-Fri 10am-8pm ET (8am-6pm MT)
             </div>
-            {us ? (
-              <div className="mt-4 text-[11px] tracking-[1px] text-white/75">INSURER RATED A (EXCELLENT) BY AM BEST</div>
-            ) : (
-            <div className="mt-4">
-              <div className="text-[11px] text-white/75 mb-1.5 tracking-[1px]">UNDERWRITTEN BY</div>
-              <img src={markelUrl} alt="Markel" className="h-7 w-auto brightness-0 invert opacity-90" />
-            </div>
-            )}
           </div>
         </div>
 
-        {/* v130 compliance: tightened partner-role disclaimer (audit item 10) and added scope-of-PGI line (audit item 11). */}
+        {/* BI_WEBSITE_PGI_COMPLIANCE_v1 (2026-11-19) - disclosures rewritten after PGI Canada Ltd.'s written notice: name the
+            licensed broker, no insurer brand, no rates or estimates, no US offer, Canada only. Regulatory text; do not
+            reword to fit a layout. */}
         <p className="text-xs leading-relaxed text-white/75 mt-6 mb-2">
-          Boreal Risk Management is a referral and risk advisory partner. Insurance is arranged only
-          through appropriately licensed insurance entities. We are not a licensed insurance broker,
-          agent, or adviser. We introduce {us ? "United States" : "Canadian"} business owners to licensed {us ? "insurance entities" : "brokers"}
-          {us ? " that arrange" : " who arrange"}{" "}
-          Personal Guarantee Insurance underwritten by {us ? "an insurer rated A (Excellent) by AM Best" : "Markel Canada Limited (A-rated by AM Best, S&P, and Fitch)"}. Coverage is subject to underwriting, eligibility, policy terms,
-          conditions, exclusions, and applicable insurance regulation. Premium estimates
-          shown here are illustrative and non-binding; final terms are set when a licensed broker
-          binds a policy. Questions about this referral service: {SUPPORT_EMAIL}.
-        </p>
-        <p className="text-xs leading-relaxed text-white/75 mb-4">
-          Personal Guarantee Insurance does not prevent business failure, default, insolvency,
-          bankruptcy, or lender enforcement. It is designed to respond only to covered claims under
-          the policy.
-        </p>
-        {/* v131 compliance: Quebec exclusion, compensation disclosure, no-cost disclosure, complaints routing. */}
-        <p className="text-xs leading-relaxed text-white/75 mb-2">
-          <strong className="text-white/70">Geographic availability:</strong> This{" "}
-          {us ? "service is for businesses in the United States. " + (terms.timeline ?? []).slice(1).join(" ") : "referral service is available in 9 Canadian provinces and 3 territories."}{" "}
-          {us ? null : <strong>Not available to Quebec residents.</strong>}
+          Boreal Risk Management, a trade name of 2630108 Alberta Ltd., is a referral partner of {PGI_BROKER}. Boreal
+          Risk Management is not a licensed insurance broker, agent or insurer and does not quote, underwrite, sell or
+          bind insurance. Personal Guarantee Insurance is arranged and administered by {PGI_BROKER}, a licensed
+          insurance broker. The offer, program details, conditions and claims information come from {PGI_BROKER};
+          see <a href={PGI_DOCS_URL} target="_blank" rel="noopener noreferrer" className="text-white/75 underline">docs.pgicover.com</a>.
         </p>
         <p className="text-xs leading-relaxed text-white/75 mb-2">
-          <strong className="text-white/70">Cost and compensation:</strong> There
-          is no cost to the policyholder to use Boreal Risk Management's referral services.
-          Boreal Risk Management may receive referral compensation from the licensed broker or
-          carrier upon successful policy placement.
+          Personal Guarantee Insurance does not prevent business failure, default, insolvency or lender enforcement.
+          Coverage is subject to underwriting and the policy wording.
+        </p>
+        <p className="text-xs leading-relaxed text-white/75 mb-2">
+          <strong className="text-white/70">Where available:</strong> Canada, except Quebec residents. In the United
+          States, Personal Guarantee Insurance will be arranged by PGI America Ltd. and is not yet available.
         </p>
         <p className="text-xs leading-relaxed text-white/75 mb-4">
-          <strong className="text-white/70">Policy questions:</strong> Questions
-          about an existing policy, coverage, or a claim should be directed to the licensed broker
-          named on your policy documents{us ? " or to the insurer named there" : " or to Markel Canada Limited"}. Questions about this referral
-          service: <a href={`mailto:${SUPPORT_EMAIL}`} className="text-white/75">{SUPPORT_EMAIL}</a>.
+          <strong className="text-white/70">Policy questions:</strong> questions about a policy, coverage or a claim go
+          to {PGI_BROKER}. Questions about this referral service: <a href={`mailto:${SUPPORT_EMAIL}`} className="text-white/75">{SUPPORT_EMAIL}</a>.
         </p>
-
-        <div className="mb-4"><MarketSwitch /></div>
         <div className="border-t border-[#1c2538] pt-4 flex justify-between text-xs text-white/75">
           <div className="flex gap-4">
             <Link to="/privacy" className="text-inherit no-underline">Privacy Policy</Link>

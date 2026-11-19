@@ -8,13 +8,11 @@ import RouteMeta from "./seo/RouteMeta"; // BI_WEBSITE_BLOCK_v789_AUDIT_ROUND2 [
 import NotFound from "./pages/NotFound"; // BI_WEBSITE_BLOCK_v789_AUDIT_ROUND2 [152]
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import QuoteModal from "./components/QuoteModal";
 // BI_WEBSITE_BLOCK_v346_MOBILE_FIRST_LAUNCH_v1
 import ScrollToTop from "./components/ScrollToTop";
 import LegacyReferrerRedirect from "./components/LegacyReferrerRedirect"; // BI_WEBSITE_BLOCK_v784_OCT11_AUDIT_v1
 import RouteTracker from "./components/RouteTracker";
 import ConsentBanner from "./components/ConsentBanner";
-import FaqModal, { FaqPage } from "./components/Faq";
 import Home from "./pages/Home";
 // BI_WEBSITE_BLOCK_v90_LENDER_API_DOCS_v1
 // BI_WEBSITE_BLOCK_v94_LAUNCH_HARDENING_v1
@@ -27,19 +25,10 @@ import LenderSandbox from "./pages/LenderSandbox"; // BI_WEBSITE_BLOCK_v131_LEND
 import PgiDocuments from "./pages/PgiDocuments";
 // BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — mount marketing pages
 import Contact from "./pages/Contact";
-import WhatIsPGI from "./pages/WhatIsPGI";
-import HowItWorks from "./pages/HowItWorks";
-import Coverage from "./pages/Coverage";
-import WhyItMatters from "./pages/WhyItMatters";
 // BI_WEBSITE_BLOCK_v99_MARKETING_HOME_v1
-import CSBFP from "./pages/CSBFP";
-import SBA from "./pages/SBA";
-import USLenders, { USBrokers, USChooser } from "./pages/USLenders";
-import RepPage from "./pages/RepPage"; // BI_WEBSITE_FIELD_REPS_v1
-import Resources from "./pages/Resources";
-import Intro from "./pages/Intro";
 import NewApplication from "./pages/NewApplication";
-import { MarketEntry, MarketPrompt, MarketProvider } from "./lib/market";
+import { MarketProvider } from "./lib/market";
+import USLenders, { USBrokers, USChooser } from "./pages/USLenders";
 import Country from "./pages/Country";
 import Score from "./pages/Score";
 import ScoreResult from "./pages/ScoreResult";
@@ -47,7 +36,6 @@ import Application from "./pages/Application";
 import Thanks from "./pages/Thanks";
 import Status from "./pages/Status"; // BI_WEBSITE_BLOCK_v134_APPLICANT_STATUS_PAGE_v1
 import Saved from "./pages/Saved"; // BI_WEBSITE_BLOCK_v130_DEFER_DOCS_FLOW_v1
-import Quote from "./pages/Quote";
 import LenderPortal from "./pages/LenderPortal";
 import LenderApplicationDemo from "./pages/LenderApplicationDemo"; // BI_WEBSITE_BLOCK_v125_LENDER_FIXES_AND_PUBLIC_POLISH_v1
 import ReferralLandingPgi from "./pages/ReferralLandingPgi"; // BI_WEBSITE_REFERRAL_LANDING_v1
@@ -98,19 +86,16 @@ export default function App() {
       <div className="bi-app-shell">
       <div className="flex min-h-screen flex-col">
         <SiteFrame part="header" />
-        <MarketPrompt />
         <RouteTracker />
         <SiteFrame part="consent" />
-        <QuoteModal />
-        <FaqModal />
         <main className="bi-main flex-1">
           <Routes>
             <Route path="/" element={<Home />} />
             {/* BI_WEBSITE_US_FIRST_SITE_v1 - the root is the United States site; /ca opens the Canadian one. */}
-            <Route path="/ca" element={<MarketEntry to="CA"><Home /></MarketEntry>} />
-            <Route path="/usa" element={<MarketEntry to="US"><Home /></MarketEntry>} />
-            <Route path="/faq" element={<FaqPage />} />
-            <Route path="/quote" element={<Quote />} />
+            <Route path="/ca" element={<Navigate to="/" replace />} />{/* BI_WEBSITE_PGI_COMPLIANCE_v1 - withdrawn after PGI Canada Ltd.'s notice */}
+            <Route path="/usa" element={<Navigate to="/" replace />} />{/* BI_WEBSITE_PGI_COMPLIANCE_v1 - withdrawn after PGI Canada Ltd.'s notice */}
+            <Route path="/faq" element={<Navigate to="/" replace />} />{/* BI_WEBSITE_PGI_COMPLIANCE_v1 - withdrawn after PGI Canada Ltd.'s notice */}
+            <Route path="/quote" element={<Navigate to="/" replace />} />{/* BI_WEBSITE_PGI_COMPLIANCE_v1 - withdrawn after PGI Canada Ltd.'s notice */}
             <Route path="/applications/new" element={<NewApplication />} />
             {/* BI_WEBSITE_BLOCK_v97_OTP_GATE_AND_FLOW_v1 — country picker moved into the score form */}
             <Route path="/applications/new/country" element={<Navigate to="/applications/new" replace />} />
@@ -133,19 +118,19 @@ export default function App() {
             <Route path="/referral" element={<Navigate to="/" replace />} />
             {/* BI_WEBSITE_BLOCK_v84_ROUTES_RESKIN_AND_SCORE_TC_v1 — mount marketing pages */}
             <Route path="/contact" element={<Contact />} />
-            <Route path="/intro" element={<Intro />} />
-            <Route path="/what-is-pgi" element={<WhatIsPGI />} />
-            <Route path="/how-it-works" element={<HowItWorks />} />
-            <Route path="/coverage" element={<Coverage />} />
-            <Route path="/why-it-matters" element={<WhyItMatters />} />
+            <Route path="/intro" element={<Navigate to="/" replace />} />{/* BI_WEBSITE_PGI_COMPLIANCE_v1 - withdrawn after PGI Canada Ltd.'s notice */}
+            <Route path="/what-is-pgi" element={<Navigate to="/" replace />} />{/* BI_WEBSITE_PGI_COMPLIANCE_v1 - withdrawn after PGI Canada Ltd.'s notice */}
+            <Route path="/how-it-works" element={<Navigate to="/" replace />} />{/* BI_WEBSITE_PGI_COMPLIANCE_v1 - withdrawn after PGI Canada Ltd.'s notice */}
+            <Route path="/coverage" element={<Navigate to="/" replace />} />{/* BI_WEBSITE_PGI_COMPLIANCE_v1 - withdrawn after PGI Canada Ltd.'s notice */}
+            <Route path="/why-it-matters" element={<Navigate to="/" replace />} />{/* BI_WEBSITE_PGI_COMPLIANCE_v1 - withdrawn after PGI Canada Ltd.'s notice */}
             {/* BI_WEBSITE_BLOCK_v99_MARKETING_HOME_v1 */}
-            <Route path="/sba" element={<SBA />} />
-            <Route path="/us-lenders" element={<USLenders />} />
-            <Route path="/us" element={<USChooser />} /> {/* BI_WEBSITE_REP_PAGE_BARE - the rep's QR code lands here: the visitor says lender or broker */}
-            <Route path="/us-brokers" element={<USBrokers />} /> {/* BI_WEBSITE_US_AUDIENCE_v2 */}
-            <Route path="/rep/:code" element={<RepPage />} /> {/* BI_WEBSITE_FIELD_REPS_v1 - an outside rep's contact page (PIN) */}
-            <Route path="/csbfp" element={<CSBFP />} />
-            <Route path="/resources" element={<Resources />} />
+            <Route path="/sba" element={<Navigate to="/us-lenders" replace />} />{/* BI_WEBSITE_PGI_COMPLIANCE_v1 - withdrawn after PGI Canada Ltd.'s notice */}
+            <Route path="/us-lenders" element={<USLenders />} />{/* BI_WEBSITE_PGI_COMPLIANCE_v1 - rewritten: introduction only, no US program details */}
+            <Route path="/us" element={<USChooser />} />{/* BI_WEBSITE_PGI_COMPLIANCE_v1 - rewritten: introduction only, no US program details */}
+            <Route path="/us-brokers" element={<USBrokers />} />{/* BI_WEBSITE_PGI_COMPLIANCE_v1 - rewritten: introduction only, no US program details */}
+            <Route path="/rep/:code" element={<Navigate to="/us" replace />} />{/* BI_WEBSITE_PGI_COMPLIANCE_v1 - rep pages withdrawn: they promised reps a share of commission (PGI notice point 7) */}
+            <Route path="/csbfp" element={<Navigate to="/" replace />} />{/* BI_WEBSITE_PGI_COMPLIANCE_v1 - withdrawn after PGI Canada Ltd.'s notice */}
+            <Route path="/resources" element={<Navigate to="/" replace />} />{/* BI_WEBSITE_PGI_COMPLIANCE_v1 - withdrawn after PGI Canada Ltd.'s notice */}
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/delete-account" element={<DeleteAccount />} />
             <Route path="/terms" element={<Terms />} />

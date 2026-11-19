@@ -9,10 +9,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import logoUrl from "../assets/logo-boreal-mountains-white.svg";
 
+// BI_WEBSITE_PGI_COMPLIANCE_v1 - no quote page; "Get Started" sends visitors to PGI Canada Ltd.'s site.
 const navItems = [
-  { to: "/quote", label: "Quote" },
   { to: "/lender/login", label: "Lender Login" },
 ];
+const PGI_APPLY_URL = "https://pgicover.com/boreal";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -59,12 +60,14 @@ export default function Header() {
           >
             Visit Boreal Financial
           </a>
-          <Link
-            to="/applications/new"
+          <a
+            href={PGI_APPLY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="rounded-full bg-blue-600 px-5 py-2 font-medium text-white no-underline hover:bg-blue-700"
           >
             Get Started
-          </Link>
+          </a>
         </nav>
 
         <button
@@ -103,13 +106,15 @@ export default function Header() {
           >
             Visit Boreal Financial
           </a>
-          <Link
-            to="/applications/new"
+          <a
+            href={PGI_APPLY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="rounded-full bg-blue-600 px-5 py-2 text-center font-medium text-white no-underline hover:bg-blue-700"
             onClick={() => setOpen(false)}
           >
             Get Started
-          </Link>
+          </a>
         </div>
       ) : null}
     </header>

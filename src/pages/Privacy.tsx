@@ -75,8 +75,8 @@ export default function Privacy() {
             <h2 className="mb-3 text-xl font-semibold text-white">How We Use Information</h2>
             <p className="text-slate-300">
               We use your information to: (a) provide the requested service - generating
-              indicative quotes, processing applications, and arranging carrier submission
-              with our licensed underwriting partner Markel Canada Limited; (b) verify
+              processing applications and passing them to PGI Canada Ltd., the licensed
+              insurance broker that arranges the policy; (b) verify
               identity via SMS one-time passcodes through Twilio; (c) comply with legal,
               regulatory, anti-money-laundering, and audit obligations; (d) communicate
               with you about your application, your policy if bound, and material service
@@ -90,8 +90,8 @@ export default function Privacy() {
             <h2 className="mb-3 text-xl font-semibold text-white">Information Sharing</h2>
             <p className="text-slate-300">
               We share information only as needed to deliver the service or as required by
-              law. Recipients include: the carrier (Markel Canada Limited and its program
-              manager PGI) for underwriting and policy administration; service providers
+              law. Recipients include: PGI Canada Ltd. (the licensed broker) and the insurer it
+              places the policy with, for underwriting and policy administration; service providers
               under written agreements (cloud hosting on Microsoft Azure, SMS delivery via
               Twilio, document storage, and analytics) bound to use the data only for
               service purposes; Google, for the analytics and advertising cookies
@@ -132,7 +132,7 @@ export default function Privacy() {
           <section>
             <h2 className="mb-3 text-xl font-semibold text-white">Children</h2>
             <p className="text-slate-300">
-              The service is for adult business owners and guarantors in the United States and Canada. We do not
+              The service is for adult business owners and guarantors in Canada. We do not
               knowingly collect personal information from anyone under the age of majority.
             </p>
           </section>
