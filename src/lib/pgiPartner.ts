@@ -4,9 +4,9 @@
 // what PGI has authorized may be added. Do not add rates, eligibility rules, coverage shares, limits, insurer names,
 // claims handling or US availability without PGI's written approval.
 export const PGI_BROKER = "PGI Canada Ltd.";
-/** Boreal's referral link: anyone who applies and binds through it is credited to Boreal. */
-export const PGI_APPLY_URL = "https://pgicover.com/boreal";
-/** PGI's published program and claims material - the only claims information Boreal may point to. */
-export const PGI_DOCS_URL = "https://docs.pgicover.com";
+// BI_WEBSITE_OWN_APPLICATION_v1 (2026-11-20) - Todd: applicants use our own application form, not PGI's site, and the
+// site does not send visitors to the carrier for program or claims information.
+/** Our own application form. */
+export const APPLY_PATH = "/applications/new";
 /** The only rate statement authorized for Canada. */
 export const PGI_RATE_LINE = "Rates start as low as 1.8% of the limit of insurance.";

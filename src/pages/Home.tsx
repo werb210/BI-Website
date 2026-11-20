@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
-import { PGI_APPLY_URL, PGI_BROKER, PGI_DOCS_URL, PGI_RATE_LINE } from "../lib/pgiPartner";
+import { APPLY_PATH, PGI_BROKER, PGI_RATE_LINE } from "../lib/pgiPartner";
 
 type Row = { public_id: string };
 
@@ -30,8 +30,7 @@ export default function Home() {
             administers the program.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <a href={PGI_APPLY_URL} target="_blank" rel="noopener noreferrer" className="bf-btn bf-btn--primary" data-testid="home-apply">Learn more and apply with {PGI_BROKER}</a>
-            <a href={PGI_DOCS_URL} target="_blank" rel="noopener noreferrer" className="bf-btn bf-btn--secondary">Program and claims information</a>
+            <Link to={APPLY_PATH} className="bf-btn bf-btn--primary" data-testid="home-apply">Apply now</Link>
           </div>
           <p className="mt-6 text-sm text-white" data-testid="home-rate">{PGI_RATE_LINE}</p>
         </div>
@@ -55,9 +54,7 @@ export default function Home() {
           <li>It is optional, and it is not part of any lender&apos;s credit decision.</li>
         </ul>
         <p className="mt-6 text-bf-body">
-          The offer, the program details and the conditions come from {PGI_BROKER}. For how the program works and how
-          claims are handled, see{" "}
-          <a href={PGI_DOCS_URL} target="_blank" rel="noopener noreferrer" className="underline">{PGI_BROKER}&apos;s published material</a>.
+          The offer, the program details and the conditions come from {PGI_BROKER}.
         </p>
       </section>
 
@@ -75,7 +72,7 @@ export default function Home() {
             <Link to="/us" className="underline">US lenders and brokers can leave their details</Link>.
           </p>
           <div className="mt-8">
-            <a href={PGI_APPLY_URL} target="_blank" rel="noopener noreferrer" className="bf-btn bf-btn--primary">Go to {PGI_BROKER}</a>
+            <Link to={APPLY_PATH} className="bf-btn bf-btn--primary">Start your application</Link>
           </div>
         </div>
       </section>
