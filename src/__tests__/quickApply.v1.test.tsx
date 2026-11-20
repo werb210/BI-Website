@@ -55,6 +55,9 @@ describe("QuickApply", () => {
     fireEvent.change(c[0]!, { target: { value: "Jane Doe" } });
     fireEvent.change(c[1]!, { target: { value: "jane@example.com" } });
     fireEvent.change(c[2]!, { target: { value: "(403) 555-0101" } });
+    expect(screen.getByTestId("qa-send-code")).toBeDisabled();
+    fireEvent.click(screen.getByTestId("qa-fee-ack"));
+    fireEvent.click(screen.getByTestId("qa-consent"));
     fireEvent.click(screen.getByTestId("qa-send-code"));
     await waitFor(() => expect(apiMock.applicantOtpStart).toHaveBeenCalledWith("+14035550101"));
     fireEvent.change(await screen.findByTestId("qa-code"), { target: { value: "123456" } });
@@ -64,6 +67,7 @@ describe("QuickApply", () => {
     expect(apiMock.quickApply).toHaveBeenCalledWith(expect.objectContaining({
       loan_type: "secured", country: "CA", naics_code: "236115", revenue_start: "2018-06", pg_signed: false,
       other_guarantors: false, rate_type: "fixed", guarantor_email: "jane@example.com",
+      fee_disclosure_ack: true, consent_share_pgi: true, consent_version: "2026-11-20",
     }));
   });
 

@@ -12,6 +12,11 @@ export const LOAN_MIN = 50_000;
 export const LOAN_MAX = 5_000_000;
 export const GUARANTEE_MAX = 1_000_000;
 export const COVER_SHARE = 0.8;
+// BI_WEBSITE_QUICK_APPLY_CONSENT_v1 - Referral Partner Agreement s.9 (tell the client how Boreal is paid, before the
+// referral) and s.10 (express written consent before sharing with PGI). The exact wording is sent with the application.
+export const CONSENT_VERSION = "2026-11-20";
+export const FEE_DISCLOSURE = "Boreal Risk Management may receive a fee from PGI Canada Ltd. if you buy coverage. We are not an insurance broker, agent, underwriter or representative of PGI. PGI Canada Ltd. alone decides underwriting, pricing, eligibility and policy terms. You do not have to buy coverage to use our services.";
+export const CONSENT_TEXT = "I consent to Boreal Risk Management sharing the information in this application, and the documents I upload, with PGI Canada Ltd. for intake, eligibility review, underwriting, quote preparation, policy administration, compliance review and related communications.";
 export const PURPOSES = ["Working Capital", "Acquisition", "Expansion", "Equipment Purchase", "Real Estate", "Refinance", "Other"];
 
 type Draft = {
@@ -20,11 +25,13 @@ type Draft = {
   naics_code: string; naics_label: string; revenue_start: string; lender_name: string; loan_purpose: string;
   pg_signed: boolean | null; other_guarantors: boolean | null; rate_type: "" | "fixed" | "variable";
   guarantor_name: string; guarantor_email: string; phone: string;
+  fee_disclosure_ack: boolean; consent_share_pgi: boolean;
 };
 const EMPTY: Draft = {
   loan_amount: 500_000, guarantee_amount: 400_000, loan_type: "", country: "", company_name: "", business_address: "",
   business_number: "", naics_code: "", naics_label: "", revenue_start: "", lender_name: "", loan_purpose: "",
   pg_signed: null, other_guarantors: null, rate_type: "", guarantor_name: "", guarantor_email: "", phone: "",
+  fee_disclosure_ack: false, consent_share_pgi: false,
 };
 
 const money = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
@@ -120,7 +127,7 @@ export default function QuickApply() {
   }, [naicsQuery]);
   const missing2 = step2Missing(d);
   const phoneE164 = toE164(d.phone);
-  const step3Ready = !!d.guarantor_name.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.guarantor_email.trim()) && !!phoneE164;
+  const step3Ready = !!d.guarantor_name.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.guarantor_email.trim()) && !!phoneE164 && d.fee_disclosure_ack && d.consent_share_pgi;
 
   async function sendCode() {
     if (!phoneE164) return;
@@ -144,6 +151,8 @@ export default function QuickApply() {
         naics_code: d.naics_code, naics_label: d.naics_label, revenue_start: d.revenue_start, lender_name: d.lender_name,
         loan_purpose: d.loan_purpose, pg_signed: d.pg_signed, other_guarantors: d.other_guarantors, rate_type: d.rate_type,
         guarantor_name: d.guarantor_name, guarantor_email: d.guarantor_email, code_channel: "sms", ref_code,
+        fee_disclosure_ack: d.fee_disclosure_ack, consent_share_pgi: d.consent_share_pgi,
+        fee_disclosure_text: FEE_DISCLOSURE, consent_text: CONSENT_TEXT, consent_version: CONSENT_VERSION,
       });
       try { localStorage.removeItem(DRAFT_KEY); } catch { /* noop */ }
       nav(`/applications/${r.public_id}/documents`);
@@ -263,6 +272,17 @@ export default function QuickApply() {
           <Q label="What is your phone number?">
             <input type="tel" style={input} value={d.phone} onChange={(e) => { set("phone", e.target.value); setCodeSentTo(null); }} autoComplete="tel" placeholder="(555) 000-0000" />
           </Q>
+
+          <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, padding: 14, marginBottom: 14 }} data-testid="qa-consents">
+            <label style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 14, color: "#0f172a", marginBottom: 12, cursor: "pointer" }}>
+              <input type="checkbox" checked={d.fee_disclosure_ack} onChange={(e) => set("fee_disclosure_ack", e.target.checked)} style={{ marginTop: 3, width: 18, height: 18, flex: "0 0 18px", accentColor: "#0B1F3A", appearance: "auto" }} data-testid="qa-fee-ack" />
+              <span><strong>How we are paid.</strong> {FEE_DISCLOSURE} I have read this.</span>
+            </label>
+            <label style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 14, color: "#0f172a", cursor: "pointer" }}>
+              <input type="checkbox" checked={d.consent_share_pgi} onChange={(e) => set("consent_share_pgi", e.target.checked)} style={{ marginTop: 3, width: 18, height: 18, flex: "0 0 18px", accentColor: "#0B1F3A", appearance: "auto" }} data-testid="qa-consent" />
+              <span>{CONSENT_TEXT}</span>
+            </label>
+          </div>
 
           {!codeSentTo ? (
             <>
