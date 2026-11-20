@@ -51,7 +51,7 @@ describe("Application.tsx v337 — feature corrections", () => {
   });
 
   it("Read-only summary at top shows CORE Score fields", () => {
-    expect(src).toMatch(/From your CORE Score/);
+    expect(src).toMatch(/From your Pre-Approval Score/);
   });
 
   it("80% PGI cap enforced", () => {

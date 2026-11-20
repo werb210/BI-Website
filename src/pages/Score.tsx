@@ -284,7 +284,7 @@ export default function Score() {
       <div className="bi-actions">
         <button type="button" className="ghost" onClick={() => nav("/applications/new")}>Cancel</button>
         <button className="primary big" disabled={busy || filled < 11} onClick={submit}>
-          {busy ? "Calculating CORE Score…" : "Get my CORE Score"}
+          {busy ? "Calculating Pre-Approval Score…" : "Get my Pre-Approval Score"}
         </button>
       </div>
     </div>
