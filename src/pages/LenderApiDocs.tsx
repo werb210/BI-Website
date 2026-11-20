@@ -212,7 +212,7 @@ export default function LenderApiDocs() {
 
       <div className="mb-6 p-3 rounded border border-sky-300/30 bg-sky-500/5">
         <p className="text-sm">
-          JSON over HTTPS. Bearer-key auth. CORE Score returned synchronously on submit. v1 (flat) payloads
+          JSON over HTTPS. Bearer-key auth. Pre-Approval Score returned synchronously on submit. v1 (flat) payloads
           remain accepted with a <code>Deprecation: true</code> header — migrate to the v2 nested shape below
           before 2026-12-31.
         </p>
@@ -303,7 +303,7 @@ export default function LenderApiDocs() {
         <li>Group business fields under <code>business</code> (add <code>address</code>, <code>province</code>).</li>
         <li>Group loan fields under <code>loan</code> (add <code>q_ca_loan_type</code>).</li>
         <li>Replace the 3 boolean risk fields with the full 11-key <code>declarations</code> object.</li>
-        <li>Financials are now optional under <code>financials</code> — include them to speed up our CORE Score.</li>
+        <li>Financials are now optional under <code>financials</code> — include them to speed up our Pre-Approval Score.</li>
         <li>The v1 endpoint still works until <strong>2026-12-31</strong>; the response sets <code>Deprecation: true</code> when it does.</li>
       </ul>
     </div>

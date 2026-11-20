@@ -489,7 +489,7 @@ export default function Application() {
 
       {/* Read-only CORE Score summary — fields not re-asked in Step 2 (v337). */}
       <div className="mb-6 p-3 rounded border border-white/12 bg-white/[0.04]">
-        <div className="text-xs uppercase tracking-wider text-white/75 mb-2">From your CORE Score</div>
+        <div className="text-xs uppercase tracking-wider text-white/75 mb-2">From your Pre-Approval Score</div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
           <div><div className="text-white/75 text-xs">Loan</div><div>${loanNum.toLocaleString()}</div></div>
           <div><div className="text-white/75 text-xs">PGI limit</div><div>${pgiNum.toLocaleString()} <span className="text-white/75 text-xs">(max ${maxAllowedPgi.toLocaleString()} at {Math.round(lim.share * 100)}%)</span></div></div>
