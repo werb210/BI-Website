@@ -76,7 +76,7 @@ export default function NewApplication() {
       } catch {
         // Non-fatal — fall through to the normal new-score path.
       }
-      nav("/applications/new/score");
+      nav("/applications/new"); // BI_WEBSITE_QUICK_APPLY_v1
     } catch (e: any) {
       verifiedRef.current = false;
       setCode("");

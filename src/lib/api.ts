@@ -36,6 +36,15 @@ export const api = {
       headers: tok ? { Authorization: `Bearer ${tok}` } : {},
     });
   },
+  // BI_WEBSITE_QUICK_APPLY_v1 - one call creates the application once the phone code is confirmed.
+  quickApply: (body: any) => {
+    const tok = getApplicantToken();
+    return jsonFetch("/applications/quick-apply", {
+      method: "POST",
+      body: JSON.stringify(body),
+      headers: tok ? { Authorization: `Bearer ${tok}` } : {},
+    });
+  },
   applicantOtpStart: (phone: string) =>
     jsonFetch("/applicants/otp/start", { method: "POST", body: JSON.stringify({ phone }) }),
   applicantOtpVerify: (phone: string, code: string) =>
