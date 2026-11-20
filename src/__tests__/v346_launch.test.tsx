@@ -31,8 +31,8 @@ describe("v346 — 'Get Started' rename (c)", () => {
       expect(src).not.toMatch(/>\s*Start eligibility check\s*</);
     });
   }
-  // BI_WEBSITE_PGI_COMPLIANCE_v1 - Home now sends visitors to PGI Canada Ltd. instead of its own application.
-  it("Home sends visitors to PGI Canada Ltd.", () => {
-    expect(home).toMatch(/PGI_APPLY_URL/);
+  // BI_WEBSITE_OWN_APPLICATION_v1 - Home sends visitors to our own application form.
+  it("Home sends visitors to our application form", () => {
+    expect(home).toMatch(/to=\{APPLY_PATH\}/);
   });
 });

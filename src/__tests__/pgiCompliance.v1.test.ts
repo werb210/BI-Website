@@ -35,3 +35,13 @@ describe("visitor pages carry only what PGI authorized", () => {
     }
   });
 });
+
+// BI_WEBSITE_OWN_APPLICATION_v1 (2026-11-20) - visitors apply on our own form; nothing sends them to the carrier's site.
+describe("applications stay on our site", () => {
+  it("no visitor page links to pgicover.com", () => {
+    for (const f of ["pages/Home.tsx", "components/Footer.tsx", "components/Header.tsx", "lib/pgiPartner.ts"]) {
+      expect(read(f), f).not.toMatch(/pgicover\.com/);
+    }
+    expect(read("lib/pgiPartner.ts")).toContain('APPLY_PATH = "/applications/new"');
+  });
+});

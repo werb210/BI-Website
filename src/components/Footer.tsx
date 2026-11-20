@@ -7,7 +7,7 @@
 // fit a layout. If BF-Website's footer geometry changes, change it here too -
 // the two are compared by src/__tests__/chromeParity.v100.test.tsx.
 import { Link } from "react-router-dom";
-import { PGI_APPLY_URL, PGI_BROKER, PGI_DOCS_URL } from "../lib/pgiPartner";
+import { APPLY_PATH, PGI_BROKER } from "../lib/pgiPartner";
 import logoUrl from "../assets/logo-boreal-mountains-white.svg";
 import { OPERATOR_NAME, OPERATOR_PHONE_DISPLAY, OPERATOR_PHONE_HREF } from "../lib/operator";
 
@@ -34,8 +34,7 @@ export default function Footer() {
           <div>
             <div className="font-semibold text-white mb-3">Explore</div>
             <ul className="list-none p-0 m-0 text-sm leading-loose">
-              <li><a href={PGI_APPLY_URL} target="_blank" rel="noopener noreferrer" className="text-white/75 no-underline">Apply with {PGI_BROKER}</a></li>
-              <li><a href={PGI_DOCS_URL} target="_blank" rel="noopener noreferrer" className="text-white/75 no-underline">Program and claims information</a></li>
+              <li><Link to={APPLY_PATH} className="text-white/75 no-underline">Apply now</Link></li>
               <li><Link to="/contact" className="text-white/75 no-underline">Contact us</Link></li>
               <li><a href="https://www.boreal.financial" target="_blank" rel="noopener noreferrer" className="text-white/75 no-underline">Visit Boreal Financial</a></li>
             </ul>
@@ -67,8 +66,7 @@ export default function Footer() {
           Boreal Risk Management, a trade name of 2630108 Alberta Ltd., is a referral partner of {PGI_BROKER}. Boreal
           Risk Management is not a licensed insurance broker, agent or insurer and does not quote, underwrite, sell or
           bind insurance. Personal Guarantee Insurance is arranged and administered by {PGI_BROKER}, a licensed
-          insurance broker. The offer, program details, conditions and claims information come from {PGI_BROKER};
-          see <a href={PGI_DOCS_URL} target="_blank" rel="noopener noreferrer" className="text-white/75 underline">docs.pgicover.com</a>.
+          insurance broker. The offer, program details, conditions and claims information come from {PGI_BROKER}.
         </p>
         <p className="text-xs leading-relaxed text-white/75 mb-2">
           Personal Guarantee Insurance does not prevent business failure, default, insolvency or lender enforcement.
