@@ -8,6 +8,7 @@ import {
   docSlotsFor,
   getLenderToken,
   LenderFormState,
+  GuarantorConsentNote,
 } from "../components/lenderFormShared";
 import { enterDemoSession, exitDemoSession, isInDemoSession } from "../lib/demoSession";
 
@@ -134,6 +135,7 @@ export default function LenderApplicationDemo() {
 
       {error && <div className="text-rose-300 mb-2 mt-2">{error}</div>}
 
+      <GuarantorConsentNote />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
         <div className="flex gap-3">
           <button type="button" onClick={cancel} disabled={cancelling} className="px-4 py-2 border border-sky-300/50 rounded text-sky-100 hover:bg-sky-500/20 disabled:opacity-80">{cancelling ? "Exiting…" : "Cancel"}</button>

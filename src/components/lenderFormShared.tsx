@@ -369,3 +369,13 @@ export function YesNoSelect({ value, onChange }: { value: YN; onChange: (v: YN) 
 export const SECTION: React.CSSProperties = { border: "1px solid #2c3a52", borderRadius: 10, padding: 14, marginBottom: 14, background: "#0b1424" };
 export const SECTION_TITLE: React.CSSProperties = { margin: "0 0 10px", fontSize: 16, color: "#dbeafe" };
 
+// BI_WEBSITE_PGI_CONSENT_v1 - files a lender submits wait for the guarantor's own consent (referral agreement s.9, s.10).
+export const GUARANTOR_CONSENT_NOTE = "After you submit, we email the guarantor to read how Boreal Risk Management is paid and to confirm they agree to their information being shared with PGI. Nothing is sent to PGI until they confirm. Personal Guarantee Insurance is the borrower's choice and is never a condition of the loan.";
+export function GuarantorConsentNote() {
+  return (
+    <div className="bg-sky-900/40 border border-sky-300/40 text-sky-100 p-3 rounded mt-4 text-sm" data-testid="guarantor-consent-note">
+      {GUARANTOR_CONSENT_NOTE}
+    </div>
+  );
+}
+

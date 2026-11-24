@@ -62,7 +62,7 @@ export const ROUTES: RouteEntry[] = [
 
 // URL prefixes whose routes carry parameters or are splats in App.tsx. They are
 // real pages (served index.html) but never indexed.
-export const DYNAMIC_PREFIXES = ["/applications/", "/lender/", "/r/", "/rep/", "/referrer/"];
+export const DYNAMIC_PREFIXES = ["/applications/", "/lender/", "/r/", "/rep/", "/referrer/", "/consent/"];
 
 export type ResolvedMeta = {
   title: string;

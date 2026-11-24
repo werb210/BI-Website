@@ -257,6 +257,13 @@
       }
     },
     {
+      "route": "/consent/*",
+      "rewrite": "/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
       "route": "/rep/*",
       "rewrite": "/index.html",
       "headers": {
