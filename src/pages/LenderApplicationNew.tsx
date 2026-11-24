@@ -25,6 +25,7 @@ import {
   PARTNER_MAX_BYTES,
   PGI_LIMIT_MAX,
   REQUIRED_KEYS,
+  GuarantorConsentNote,
 } from "../components/lenderFormShared";
 
 export default function LenderApplicationNew() {
@@ -161,6 +162,7 @@ export default function LenderApplicationNew() {
       {/* BI_WEBSITE_BLOCK_v338 — Buttons sit under the LEFT column (under Country)
           on desktop. Use a 3-column grid that matches the rest of the form so
           the buttons land in the first column. */}
+      <GuarantorConsentNote />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
         <div className="flex gap-3 items-center">
           <button type="button" onClick={() => nav("/lender/applications")} className="px-4 py-2 border border-sky-300/50 rounded text-sky-100 hover:bg-sky-500/20">Cancel</button>

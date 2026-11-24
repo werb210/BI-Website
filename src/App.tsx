@@ -28,6 +28,7 @@ import Contact from "./pages/Contact";
 // BI_WEBSITE_BLOCK_v99_MARKETING_HOME_v1
 import NewApplication from "./pages/NewApplication";
 import QuickApply from "./pages/QuickApply"; // BI_WEBSITE_QUICK_APPLY_v1
+import PgiConsent from "./pages/PgiConsent"; // BI_WEBSITE_PGI_CONSENT_v1
 import { MarketProvider } from "./lib/market";
 import USLenders, { USBrokers, USChooser } from "./pages/USLenders";
 import Country from "./pages/Country";
@@ -97,6 +98,7 @@ export default function App() {
             <Route path="/usa" element={<Navigate to="/" replace />} />{/* BI_WEBSITE_PGI_COMPLIANCE_v1 - withdrawn after PGI Canada Ltd.'s notice */}
             <Route path="/faq" element={<Navigate to="/" replace />} />{/* BI_WEBSITE_PGI_COMPLIANCE_v1 - withdrawn after PGI Canada Ltd.'s notice */}
             <Route path="/quote" element={<Navigate to="/" replace />} />{/* BI_WEBSITE_PGI_COMPLIANCE_v1 - withdrawn after PGI Canada Ltd.'s notice */}
+            <Route path="/consent/:token" element={<PgiConsent />} />{/* BI_WEBSITE_PGI_CONSENT_v1 */}
             <Route path="/applications/new" element={<QuickApply />} />{/* BI_WEBSITE_QUICK_APPLY_v1 - PGI's new short form */}
             {/* BI_WEBSITE_BLOCK_v97_OTP_GATE_AND_FLOW_v1 — country picker moved into the score form */}
             <Route path="/applications/new/country" element={<Navigate to="/applications/new" replace />} />
